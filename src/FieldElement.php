@@ -15,8 +15,26 @@ final readonly class FieldElement
             throw new \InvalidArgumentException(sprintf('Number %s not in field range 0 to %s', $number, gmp_sub($order, 1)));
         }
 
-        $this->num = gmp_init($number);
-        $this->order = gmp_init($order);
+        $this->num = $number instanceof \GMP ? $number : gmp_init($number);
+        $this->order = $order instanceof \GMP ? $order : gmp_init($order);
+    }
+
+    public function add(self $other): self
+    {
+        if ($this->order != $other->order) {
+            throw new \InvalidArgumentException('Cannot add two numbers in different fields');
+        }
+
+        return new self(gmp_mod(gmp_add($this->num, $other->num), $this->order), $this->order);
+    }
+
+    public function sub(self $other): self
+    {
+        if ($this->order != $other->order) {
+            throw new \InvalidArgumentException('Cannot add two numbers in different fields');
+        }
+
+        return new self(gmp_mod(gmp_sub($this->num, $other->num), $this->order), $this->order);
     }
 
     public function __toString(): string
