@@ -2,43 +2,73 @@
 
 declare(strict_types=1);
 
+use Bitcoin\FieldElement;
 use Bitcoin\Point;
 use PHPUnit\Framework\TestCase;
 
 final class PointTest extends TestCase
 {
-    public function testInstantiation(): void
+    private const ORDER = 223;
+
+    /**
+     * @dataProvider validPointDataProvider
+     */
+    public function testInstantiation(?FieldElement $x, ?FieldElement $y): void
     {
-        self::assertSame('P(-1,-1)_5_7', (string) new Point(-1, -1, 5, 7));
-        self::assertSame('P(18,77)_5_7', (string) new Point(18, 77, 5, 7));
-
-        self::assertObjectEquals(new Point(-1, -1, 5, 7), new Point(-1, -1, 5, 7));
-        self::assertObjectEquals(new Point(null, null, 5, 7), Point::infinity(5, 7));
-
-        $this->expectException(InvalidArgumentException::class);
-        new Point(5, 7, 5, 7);
+        self::assertInstanceOf(Point::class, new Point($x, $y, new FieldElement(0, self::ORDER), new FieldElement(7, self::ORDER)));
     }
 
-    public function testInvalidInstantiation(): void
+    public static function validPointDataProvider(): array
     {
-        $this->expectException(InvalidArgumentException::class);
-        new Point(null, 7, 5, 7);
+        return [
+            [new FieldElement(192, self::ORDER), new FieldElement(105, self::ORDER)],
+            [new FieldElement(17, self::ORDER), new FieldElement(56, self::ORDER)],
+            [new FieldElement(1, self::ORDER), new FieldElement(193, self::ORDER)],
+            [null, null],
+        ];
     }
 
-    public function testPointAddition(): void
+    /**
+     * @dataProvider invalidPointDataProvider
+     */
+    public function testInvalidPoints(?FieldElement $x, ?FieldElement $y): void
     {
-        $p1 = new Point(-1, -1, 5, 7);
-        $p2 = new Point(-1, 1, 5, 7);
-        $inf = Point::infinity(5, 7);
+        $this->expectException(InvalidArgumentException::class);
 
-        self::assertSame('P(-1,-1)_5_7', (string) $p1->add($inf));
-        self::assertSame('P(-1,1)_5_7', (string) $inf->add($p2));
+        new Point($x, $y, new FieldElement(0, self::ORDER), new FieldElement(7, self::ORDER));
+    }
 
-        $p1 = new Point(2, 5, 5, 7);
-        $p2 = new Point(-1, -1, 5, 7);
+    public static function invalidPointDataProvider(): array
+    {
+        return [
+            [new FieldElement(200, self::ORDER), new FieldElement(119, self::ORDER)],
+            [new FieldElement(42, self::ORDER), new FieldElement(99, self::ORDER)],
+            [new FieldElement(42, self::ORDER), new FieldElement(99, 101)],
+            [new FieldElement(42, self::ORDER), null],
+        ];
+    }
 
-        self::assertSame('P(3,-7)_5_7', (string) $p1->add($p2));
+    /**
+     * @dataProvider pointAdditionDataProvider
+     */
+    public function testPointAddition(string $expectedResult, FieldElement $x1, FieldElement $y1, FieldElement $x2, FieldElement $y2): void
+    {
+        $a = new FieldElement(0, self::ORDER);
+        $b = new FieldElement(7, self::ORDER);
 
-        self::assertSame('P(18,77)_5_7', (string) $p2->add($p2));
+        $p1 = new Point($x1, $y1, $a, $b);
+        $p2 = new Point($x2, $y2, $a, $b);
+
+        self::assertSame($expectedResult, (string) $p1->add($p2));
+    }
+
+    public static function pointAdditionDataProvider(): array
+    {
+        return [
+            ['P(170,142)_0_7_FE(223)', new FieldElement(192, self::ORDER), new FieldElement(105, self::ORDER), new FieldElement(17, self::ORDER), new FieldElement(56, self::ORDER)],
+            ['P(220,181)_0_7_FE(223)', new FieldElement(170, self::ORDER), new FieldElement(142, self::ORDER), new FieldElement(60, self::ORDER), new FieldElement(139, self::ORDER)],
+            ['P(215,68)_0_7_FE(223)', new FieldElement(47, self::ORDER), new FieldElement(71, self::ORDER), new FieldElement(17, self::ORDER), new FieldElement(56, self::ORDER)],
+            ['P(47,71)_0_7_FE(223)', new FieldElement(143, self::ORDER), new FieldElement(98, self::ORDER), new FieldElement(76, self::ORDER), new FieldElement(66, self::ORDER)],
+        ];
     }
 }
