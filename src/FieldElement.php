@@ -12,7 +12,7 @@ final readonly class FieldElement
     public function __construct(\GMP|int $number, \GMP|int $order)
     {
         if (gmp_cmp($number, $order) >= 0 || gmp_cmp($number, 0) < 0) {
-            throw new \InvalidArgumentException(sprintf('Number %s not in field range 0 to %s', $number, gmp_sub($order, 1)));
+            throw new \InvalidArgumentException("$number not in field range [0, $order)");
         }
 
         if (0 === gmp_prob_prime($order)) {
@@ -25,20 +25,35 @@ final readonly class FieldElement
 
     public function add(self $other): self
     {
-        if ($this->order != $other->order) {
-            throw new \InvalidArgumentException('Cannot add two numbers in different fields');
-        }
+        self::assertSameOrder($this, $other);
 
-        return new self(gmp_mod(gmp_add($this->num, $other->num), $this->order), $this->order);
+        return new self(($this->num + $other->num) % $this->order, $this->order);
     }
 
     public function sub(self $other): self
     {
-        if ($this->order != $other->order) {
-            throw new \InvalidArgumentException('Cannot add two numbers in different fields');
-        }
+        self::assertSameOrder($this, $other);
 
-        return new self(gmp_mod(gmp_sub($this->num, $other->num), $this->order), $this->order);
+        return new self(($this->num - $other->num) % $this->order, $this->order);
+    }
+
+    public function mul(self $other): self
+    {
+        self::assertSameOrder($this, $other);
+
+        return new self(($this->num * $other->num) % $this->order, $this->order);
+    }
+
+    public function div(self $divisor): self
+    {
+        self::assertSameOrder($this, $divisor);
+
+        return new self(($this->num * gmp_powm($divisor->num, $this->order - 2, $this->order)) % $this->order, $this->order);
+    }
+
+    public function exp(\GMP|int $exponent): self
+    {
+        return new self(gmp_powm($this->num, $exponent % ($this->order - 1), $this->order), $this->order);
     }
 
     public function equals(self $other): bool
@@ -48,6 +63,13 @@ final readonly class FieldElement
 
     public function __toString(): string
     {
-        return sprintf('FE_%s(%s)', $this->order, $this->num);
+        return "FE_{$this->order}({$this->num})";
+    }
+
+    private static function assertSameOrder(self $left, self $right): void
+    {
+        if ($left->order != $right->order) {
+            throw new \InvalidArgumentException('Cannot operate on two numbers in different fields');
+        }
     }
 }
