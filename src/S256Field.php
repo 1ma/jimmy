@@ -13,4 +13,9 @@ final class S256Field extends FieldElement
     {
         parent::__construct($number, gmp_init(self::SECP256K1_P));
     }
+
+    public function __toString(): string
+    {
+        return str_pad(gmp_strval($this->num, 16), 64, '0', \STR_PAD_LEFT);
+    }
 }

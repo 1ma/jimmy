@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 use Bitcoin\FieldElement;
 use Bitcoin\Point;
+use Bitcoin\S256Field;
+use Bitcoin\S256Point;
 use PHPUnit\Framework\TestCase;
 
 final class PointTest extends TestCase
@@ -113,5 +115,20 @@ final class PointTest extends TestCase
             [21, new Point(new FieldElement(47, self::ORDER), new FieldElement(71, self::ORDER), new FieldElement(0, self::ORDER), new FieldElement(7, self::ORDER))],
             [7, new Point(new FieldElement(15, self::ORDER), new FieldElement(86, self::ORDER), new FieldElement(0, self::ORDER), new FieldElement(7, self::ORDER))],
         ];
+    }
+
+    public function testSecp256k1FundamentalProperties(): void
+    {
+        // Check that G is a point on the secp256k1 curve
+        $Gx = gmp_init(S256Point::SECP256K1_GX);
+        $Gy = gmp_init(S256Point::SECP256K1_GY);
+        $p = gmp_init(S256Field::SECP256K1_P);
+
+        self::assertEquals(($Gy ** 2) % $p, ($Gx ** 3 + 7) % $p);
+
+        // Check that G has the order n (i.e. n*G is the infinity point on secp256k1)
+        $n = gmp_init(S256Point::SECP256K1_N);
+        $G = new S256Point(new S256Field($Gx), new S256Field($Gy));
+        self::assertSame('P(,)_0_7_FE(115792089237316195423570985008687907853269984665640564039457584007908834671663)', @(string) $G->scalarMul($n));
     }
 }
