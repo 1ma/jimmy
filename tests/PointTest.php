@@ -184,4 +184,42 @@ final class PointTest extends TestCase
 
         self::assertTrue($r == $G->scalarMul($u)->add($point->scalarMul($v))->x->num);
     }
+
+    public function testRawSignatureCreation(): void
+    {
+        $k = 1234567890;
+        $e = gmp_import(hash('sha256', hash('sha256', 'my secret', true), true));
+        $z = gmp_import(hash('sha256', hash('sha256', 'my message', true), true));
+
+        $G = S256Point::G();
+        $r = $G->scalarMul($k)->x->num;
+        $N = gmp_init(S256Params::N->value);
+        $kInv = gmp_powm($k, $N - 2, $N);
+        $s = (($z + $r * $e) * $kInv) % $N;
+        $point = $G->scalarMul($e);
+
+        self::assertSame('S256Point(028d003eab2e428d11983f3e97c3fa0addf3b42740df0d211795ffb3be2f6c52,0ae987b9ec6ea159c78cb2a937ed89096fb218d9e7594f02b547526d8cd309e2)', (string) $point);
+        self::assertSame('231c6f3d980a6b0fb7152f85cee7eb52bf92433d9919b9c5218cb08e79cce78', gmp_strval($z, 16));
+        self::assertSame('2b698a0f0a4041b77e63488ad48c23e8e8838dd1fb7520408b121697b782ef22', gmp_strval($r, 16));
+        self::assertSame('bb14e602ef9e3f872e25fad328466b34e6734b7a0fcd58b1eb635447ffae8cb9', gmp_strval($s, 16));
+    }
+
+    public function testCreateSignatureExercise7Chapter3(): void
+    {
+        $k = 1234567890;
+        $e = 12345;
+        $z = gmp_import(hash('sha256', hash('sha256', 'Programming Bitcoin!', true), true));
+
+        $G = S256Point::G();
+        $r = $G->scalarMul($k)->x->num;
+        $N = gmp_init(S256Params::N->value);
+        $kInv = gmp_powm($k, $N - 2, $N);
+        $s = (($z + $r * $e) * $kInv) % $N;
+        $point = $G->scalarMul($e);
+
+        self::assertSame('S256Point(f01d6b9018ab421dd410404cb869072065522bf85734008f105cf385a023a80f,0eba29d0f0c5408ed681984dc525982abefccd9f7ff01dd26da4999cf3f6a295)', (string) $point);
+        self::assertSame('969f6056aa26f7d2795fd013fe88868d09c9f6aed96965016e1936ae47060d48', gmp_strval($z, 16));
+        self::assertSame('2b698a0f0a4041b77e63488ad48c23e8e8838dd1fb7520408b121697b782ef22', gmp_strval($r, 16));
+        self::assertSame('1dbc63bfef4416705e602a7b564161167076d8b20990a0f26f316cff2cb0bc1a', gmp_strval($s, 16));
+    }
 }
