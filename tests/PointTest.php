@@ -5,6 +5,7 @@ declare(strict_types=1);
 use Bitcoin\FieldElement;
 use Bitcoin\Point;
 use Bitcoin\S256Field;
+use Bitcoin\S256Params;
 use Bitcoin\S256Point;
 use PHPUnit\Framework\TestCase;
 
@@ -98,7 +99,7 @@ final class PointTest extends TestCase
         self::assertSame('P(15,86)_0_7_FE(223)', (string) $p->scalarMul(18));
         self::assertSame('P(36,112)_0_7_FE(223)', (string) $p->scalarMul(19));
         self::assertSame('P(47,152)_0_7_FE(223)', (string) $p->scalarMul(20));
-        self::assertSame('P(,)_0_7_FE(223)', @(string) $p->scalarMul(21));
+        self::assertSame('P(,)_0_7_FE(223)', (string) $p->scalarMul(21));
     }
 
     /**
@@ -120,22 +121,22 @@ final class PointTest extends TestCase
     public function testSecp256k1FundamentalProperties(): void
     {
         // Check that G is a point on the secp256k1 curve
-        $Gx = gmp_init(S256Point::SECP256K1_GX);
-        $Gy = gmp_init(S256Point::SECP256K1_GY);
-        $p = gmp_init(S256Field::SECP256K1_P);
+        $Gx = gmp_init(S256Params::Gx->value);
+        $Gy = gmp_init(S256Params::Gy->value);
+        $p = gmp_init(S256Params::P->value);
 
         self::assertEquals(($Gy ** 2) % $p, ($Gx ** 3 + 7) % $p);
 
         // Check that G has the order n (i.e. n*G is the infinity point on secp256k1)
-        $n = gmp_init(S256Point::SECP256K1_N);
+        $n = gmp_init(S256Params::N->value);
         $G = new S256Point(new S256Field($Gx), new S256Field($Gy));
-        self::assertSame('P(,)_0_7_FE(115792089237316195423570985008687907853269984665640564039457584007908834671663)', @(string) $G->scalarMul($n));
+        self::assertSame('S256Point(,)', (string) $G->scalarMul($n));
     }
 
     public function testRawSignatureVerification(): void
     {
         $G = S256Point::G();
-        $N = gmp_init(S256Point::SECP256K1_N);
+        $N = gmp_init(S256Params::N->value);
         $z = gmp_init('0xbc62d4b80d9e36da29c16c5d4d9f11731f36052c72401a76c23c0fb5a9b74423');
         $r = gmp_init('0x37206a0610995c58074999cb9767b87af4c4978db68c06e8e6e81d282047a7c6');
         $s = gmp_init('0x8ca63759c1157ebeaec0d03cecca119fc9a75bf8e6d0fa65c841c8e2738cdaec');
@@ -155,7 +156,7 @@ final class PointTest extends TestCase
     public function testVerifySignaturesExercise6Chapter3(): void
     {
         $G = S256Point::G();
-        $N = gmp_init(S256Point::SECP256K1_N);
+        $N = gmp_init(S256Params::N->value);
         $point = new S256Point(
             new S256Field('0x887387e452b8eacc4acfde10d9aaf7f6d9a0f975aabb10d006e4da568744d06c'),
             new S256Field('0x61de6d95231cd89026e286df3b6ae4a894a3378e393e93a0f45b666329a0ae34')

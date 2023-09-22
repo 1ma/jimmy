@@ -115,6 +115,10 @@ class Point
 
     public function __toString(): string
     {
+        if (null === $this->x) {
+            return "P(,)_{$this->a->num}_{$this->b->num}_FE({$this->a->order})";
+        }
+
         return "P({$this->x->num},{$this->y->num})_{$this->a->num}_{$this->b->num}_FE({$this->a->order})";
     }
 

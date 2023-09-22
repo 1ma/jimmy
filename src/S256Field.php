@@ -9,18 +9,13 @@ namespace Bitcoin;
  */
 final class S256Field extends FieldElement
 {
-    /**
-     * P = 2**256 - 2**32 - 977.
-     */
-    public const SECP256K1_P = '0xfffffffffffffffffffffffffffffffffffffffffffffffffffffffefffffc2f';
-
     public function __construct(\GMP|int|string $number)
     {
         if (\is_string($number)) {
             $number = gmp_init($number);
         }
 
-        parent::__construct($number, gmp_init(self::SECP256K1_P));
+        parent::__construct($number, gmp_init(S256Params::P->value));
     }
 
     public function __toString(): string
