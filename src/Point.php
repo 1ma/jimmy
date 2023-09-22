@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace Bitcoin;
 
-final readonly class Point
+class Point
 {
-    public ?FieldElement $x;
-    public ?FieldElement $y;
-    public FieldElement $a;
-    public FieldElement $b;
+    public readonly ?FieldElement $x;
+    public readonly ?FieldElement $y;
+    public readonly FieldElement $a;
+    public readonly FieldElement $b;
 
     public function __construct(?FieldElement $x, ?FieldElement $y, FieldElement $a, FieldElement $b)
     {

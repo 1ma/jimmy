@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace Bitcoin;
 
-final readonly class FieldElement
+class FieldElement
 {
-    public \GMP $num;
-    public \GMP $order;
+    public readonly \GMP $num;
+    public readonly \GMP $order;
 
     public function __construct(\GMP|int $number, \GMP|int $order)
     {
