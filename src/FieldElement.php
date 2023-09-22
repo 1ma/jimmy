@@ -27,33 +27,33 @@ class FieldElement
     {
         self::assertSameOrder($this, $other);
 
-        return new self(($this->num + $other->num) % $this->order, $this->order);
+        return new static(($this->num + $other->num) % $this->order, $this->order);
     }
 
     public function sub(self $other): self
     {
         self::assertSameOrder($this, $other);
 
-        return new self(($this->num - $other->num) % $this->order, $this->order);
+        return new static(($this->num - $other->num) % $this->order, $this->order);
     }
 
     public function mul(self $other): self
     {
         self::assertSameOrder($this, $other);
 
-        return new self(($this->num * $other->num) % $this->order, $this->order);
+        return new static(($this->num * $other->num) % $this->order, $this->order);
     }
 
     public function div(self $divisor): self
     {
         self::assertSameOrder($this, $divisor);
 
-        return new self(($this->num * gmp_powm($divisor->num, $this->order - 2, $this->order)) % $this->order, $this->order);
+        return new static(($this->num * gmp_powm($divisor->num, $this->order - 2, $this->order)) % $this->order, $this->order);
     }
 
     public function exp(\GMP|int $exponent): self
     {
-        return new self(gmp_powm($this->num, $exponent % ($this->order - 1), $this->order), $this->order);
+        return new static(gmp_powm($this->num, $exponent % ($this->order - 1), $this->order), $this->order);
     }
 
     public function equals(self $other): bool

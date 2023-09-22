@@ -33,7 +33,7 @@ class Point
 
     public static function infinity(FieldElement $a, FieldElement $b): self
     {
-        return new self(null, null, $a, $b);
+        return new static(null, null, $a, $b);
     }
 
     public function add(self $other): self
@@ -61,14 +61,14 @@ class Point
             $x = $s->exp(2)->sub($this->x->mul(new FieldElement(2, $this->x->order)));
             $y = $s->mul($this->x->sub($x))->sub($other->y);
 
-            return new self($x, $y, $this->a, $this->b);
+            return new static($x, $y, $this->a, $this->b);
         }
 
         $s = $other->y->sub($this->y)->div($other->x->sub($this->x));
         $x = $s->exp(2)->sub($this->x)->sub($other->x);
         $y = $s->mul($this->x->sub($x))->sub($this->y);
 
-        return new self($x, $y, $this->a, $this->b);
+        return new static($x, $y, $this->a, $this->b);
     }
 
     public function scalarMul(\GMP|int $coefficient): self

@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace Bitcoin;
 
+/**
+ * Represents a Point on the secp256k1 elliptic curve.
+ */
 final class S256Point extends Point
 {
     public const SECP256K1_A = 0;
@@ -17,6 +20,9 @@ final class S256Point extends Point
         parent::__construct($x, $y, new S256Field(self::SECP256K1_A), new S256Field(self::SECP256K1_B));
     }
 
+    /**
+     * Return a copy of secp256k1's generator point G.
+     */
     public static function G(): self
     {
         return new self(new S256Field(gmp_init(self::SECP256K1_GX)), new S256Field(gmp_init(self::SECP256K1_GY)));
@@ -24,6 +30,7 @@ final class S256Point extends Point
 
     public function scalarMul(\GMP|int $coefficient): Point
     {
+        // Optimization: reduce the coefficient before computing the multiplication
         return parent::scalarMul($coefficient % gmp_init(self::SECP256K1_N));
     }
 }
