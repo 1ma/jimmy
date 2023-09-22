@@ -19,7 +19,7 @@ final class S256Point extends Point
     /**
      * Return a copy of secp256k1's generator point G.
      */
-    public static function G(): self
+    public static function G(): static
     {
         return new self(new S256Field(S256Params::Gx->value), new S256Field(S256Params::Gy->value));
     }
@@ -37,7 +37,7 @@ final class S256Point extends Point
         return $R->x->num == $sig->r;
     }
 
-    public function scalarMul(\GMP|int $coefficient): Point
+    public function scalarMul(\GMP|int $coefficient): static
     {
         // Optimization: reduce the coefficient before computing the multiplication
         return parent::scalarMul($coefficient % gmp_init(S256Params::N->value));

@@ -23,35 +23,35 @@ class FieldElement
         $this->order = $order instanceof \GMP ? $order : gmp_init($order);
     }
 
-    public function add(self $other): self
+    public function add(self $other): static
     {
         self::assertSameOrder($this, $other);
 
         return new static(($this->num + $other->num) % $this->order, $this->order);
     }
 
-    public function sub(self $other): self
+    public function sub(self $other): static
     {
         self::assertSameOrder($this, $other);
 
         return new static(($this->num - $other->num) % $this->order, $this->order);
     }
 
-    public function mul(self $other): self
+    public function mul(self $other): static
     {
         self::assertSameOrder($this, $other);
 
         return new static(($this->num * $other->num) % $this->order, $this->order);
     }
 
-    public function div(self $divisor): self
+    public function div(self $divisor): static
     {
         self::assertSameOrder($this, $divisor);
 
         return new static(($this->num * gmp_powm($divisor->num, $this->order - 2, $this->order)) % $this->order, $this->order);
     }
 
-    public function exp(\GMP|int $exponent): self
+    public function exp(\GMP|int $exponent): static
     {
         return new static(gmp_powm($this->num, $exponent % ($this->order - 1), $this->order), $this->order);
     }

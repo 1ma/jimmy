@@ -31,12 +31,12 @@ class Point
         $this->b = $b;
     }
 
-    public static function infinity(FieldElement $a, FieldElement $b): self
+    public static function infinity(FieldElement $a, FieldElement $b): static
     {
         return new static(null, null, $a, $b);
     }
 
-    public function add(self $other): self
+    public function add(self $other): static
     {
         self::assertSameCurveAndOrder($this, $other);
 
@@ -71,7 +71,7 @@ class Point
         return new static($x, $y, $this->a, $this->b);
     }
 
-    public function scalarMul(\GMP|int $coefficient): self
+    public function scalarMul(\GMP|int $coefficient): static
     {
         $c = $coefficient instanceof \GMP ? $coefficient : gmp_init($coefficient);
         $current = clone $this;
