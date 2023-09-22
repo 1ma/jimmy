@@ -33,4 +33,13 @@ final class S256Point extends Point
         // Optimization: reduce the coefficient before computing the multiplication
         return parent::scalarMul($coefficient % gmp_init(self::SECP256K1_N));
     }
+
+    public function __toString(): string
+    {
+        return sprintf(
+            'S256Point(%s,%s)',
+            str_pad(gmp_strval($this->x->num, 16), 64, '0', \STR_PAD_LEFT),
+            str_pad(gmp_strval($this->y->num, 16), 64, '0', \STR_PAD_LEFT)
+        );
+    }
 }
