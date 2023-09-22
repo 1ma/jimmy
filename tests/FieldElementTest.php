@@ -15,19 +15,25 @@ final class FieldElementTest extends TestCase
         new FieldElement(-1, 1);
     }
 
+    public function testNonPrimeOrder(): void
+    {
+        $this->expectException(InvalidArgumentException::class);
+        new FieldElement(2, 4);
+    }
+
     public function testAddition(): void
     {
-        self::assertEquals(new FieldElement(6, 13), (new FieldElement(7, 13))->add(new FieldElement(12, 13)));
+        self::assertObjectEquals(new FieldElement(6, 13), (new FieldElement(7, 13))->add(new FieldElement(12, 13)));
 
         $this->expectException(InvalidArgumentException::class);
-        (new FieldElement(6, 13))->add(new FieldElement(6, 12));
+        (new FieldElement(6, 13))->add(new FieldElement(6, 17));
     }
 
     public function testSubtraction(): void
     {
-        self::assertEquals(new FieldElement(57, 60), (new FieldElement(2, 60))->sub(new FieldElement(5, 60)));
+        self::assertObjectEquals(new FieldElement(58, 61), (new FieldElement(2, 61))->sub(new FieldElement(5, 61)));
 
         $this->expectException(InvalidArgumentException::class);
-        (new FieldElement(6, 13))->sub(new FieldElement(6, 12));
+        (new FieldElement(6, 13))->sub(new FieldElement(6, 17));
     }
 }

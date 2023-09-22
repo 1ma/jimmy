@@ -15,6 +15,10 @@ final readonly class FieldElement
             throw new \InvalidArgumentException(sprintf('Number %s not in field range 0 to %s', $number, gmp_sub($order, 1)));
         }
 
+        if (0 === gmp_prob_prime($order)) {
+            throw new \InvalidArgumentException('Order must be a prime number');
+        }
+
         $this->num = $number instanceof \GMP ? $number : gmp_init($number);
         $this->order = $order instanceof \GMP ? $order : gmp_init($order);
     }
@@ -35,6 +39,11 @@ final readonly class FieldElement
         }
 
         return new self(gmp_mod(gmp_sub($this->num, $other->num), $this->order), $this->order);
+    }
+
+    public function equals(self $other): bool
+    {
+        return $this->order == $other->order && $this->num == $other->num;
     }
 
     public function __toString(): string
