@@ -71,16 +71,22 @@ final readonly class Point
         return new self($x, $y, $this->a, $this->b);
     }
 
-    public function scalarMul(\GMP|int $t): self
+    public function scalarMul(\GMP|int $coefficient): self
     {
-        $m = clone $this;
+        $c = $coefficient instanceof \GMP ? $coefficient : gmp_init($coefficient);
+        $current = clone $this;
+        $result = self::infinity($this->a, $this->b);
 
-        while ($t > 1) {
-            $m = $m->add($this);
-            --$t;
+        while ($c > 0) {
+            if (gmp_testbit($c, 0)) {
+                $result = $result->add($current);
+            }
+
+            $c >>= 1;
+            $current = $current->add($current);
         }
 
-        return $m;
+        return $result;
     }
 
     /**
