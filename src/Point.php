@@ -71,6 +71,34 @@ final readonly class Point
         return new self($x, $y, $this->a, $this->b);
     }
 
+    public function scalarMul(\GMP|int $t): self
+    {
+        $m = clone $this;
+
+        while ($t > 1) {
+            $m = $m->add($this);
+            --$t;
+        }
+
+        return $m;
+    }
+
+    /**
+     * Finds the scalar that produces the point at infinity.
+     */
+    public function groupOrder(): \GMP
+    {
+        $order = gmp_init(1);
+        $m = clone $this;
+
+        while (null !== $m->x) {
+            $m = $m->add($this);
+            ++$order;
+        }
+
+        return $order;
+    }
+
     public function equals(self $other): bool
     {
         return $this->x->equals($other->x)

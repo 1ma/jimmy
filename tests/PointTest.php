@@ -71,4 +71,47 @@ final class PointTest extends TestCase
             ['P(47,71)_0_7_FE(223)', new FieldElement(143, self::ORDER), new FieldElement(98, self::ORDER), new FieldElement(76, self::ORDER), new FieldElement(66, self::ORDER)],
         ];
     }
+
+    public function testScalarMultiplication(): void
+    {
+        $p = new Point(new FieldElement(47, self::ORDER), new FieldElement(71, self::ORDER), new FieldElement(0, self::ORDER), new FieldElement(7, self::ORDER));
+
+        self::assertSame('P(47,71)_0_7_FE(223)', (string) $p->scalarMul(1));
+        self::assertSame('P(36,111)_0_7_FE(223)', (string) $p->scalarMul(2));
+        self::assertSame('P(15,137)_0_7_FE(223)', (string) $p->scalarMul(3));
+        self::assertSame('P(194,51)_0_7_FE(223)', (string) $p->scalarMul(4));
+        self::assertSame('P(126,96)_0_7_FE(223)', (string) $p->scalarMul(5));
+        self::assertSame('P(139,137)_0_7_FE(223)', (string) $p->scalarMul(6));
+        self::assertSame('P(92,47)_0_7_FE(223)', (string) $p->scalarMul(7));
+        self::assertSame('P(116,55)_0_7_FE(223)', (string) $p->scalarMul(8));
+        self::assertSame('P(69,86)_0_7_FE(223)', (string) $p->scalarMul(9));
+        self::assertSame('P(154,150)_0_7_FE(223)', (string) $p->scalarMul(10));
+        self::assertSame('P(154,73)_0_7_FE(223)', (string) $p->scalarMul(11));
+        self::assertSame('P(69,137)_0_7_FE(223)', (string) $p->scalarMul(12));
+        self::assertSame('P(116,168)_0_7_FE(223)', (string) $p->scalarMul(13));
+        self::assertSame('P(92,176)_0_7_FE(223)', (string) $p->scalarMul(14));
+        self::assertSame('P(139,86)_0_7_FE(223)', (string) $p->scalarMul(15));
+        self::assertSame('P(126,127)_0_7_FE(223)', (string) $p->scalarMul(16));
+        self::assertSame('P(194,172)_0_7_FE(223)', (string) $p->scalarMul(17));
+        self::assertSame('P(15,86)_0_7_FE(223)', (string) $p->scalarMul(18));
+        self::assertSame('P(36,112)_0_7_FE(223)', (string) $p->scalarMul(19));
+        self::assertSame('P(47,152)_0_7_FE(223)', (string) $p->scalarMul(20));
+        self::assertSame('P(,)_0_7_FE(223)', (string) $p->scalarMul(21));
+    }
+
+    /**
+     * @dataProvider groupOrderDataProvider
+     */
+    public function testGroupOrder(int $expectedResult, Point $p): void
+    {
+        self::assertEquals(gmp_init($expectedResult), $p->groupOrder());
+    }
+
+    public static function groupOrderDataProvider(): array
+    {
+        return [
+            [21, new Point(new FieldElement(47, self::ORDER), new FieldElement(71, self::ORDER), new FieldElement(0, self::ORDER), new FieldElement(7, self::ORDER))],
+            [7, new Point(new FieldElement(15, self::ORDER), new FieldElement(86, self::ORDER), new FieldElement(0, self::ORDER), new FieldElement(7, self::ORDER))],
+        ];
+    }
 }
