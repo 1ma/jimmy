@@ -130,4 +130,15 @@ final class S256PointTest extends TestCase
         self::assertTrue($p3->x->num == $s3->pubKey->x->num);
         self::assertTrue($p3->y->num == $s3->pubKey->y->num);
     }
+
+    public function testAddressDerivations(): void
+    {
+        $s1 = new PrivateKey(gmp_init(5002));
+        $s2 = new PrivateKey(gmp_init(2020 ** 5));
+        $s3 = new PrivateKey(gmp_init(0x12345DEADBEEF));
+
+        self::assertSame('mmTPbXQFxboEtNRkwfh6K51jvdtHLxGeMA', $s1->pubKey->address(false, true));
+        self::assertSame('mopVkxp8UhXqRYbCYJsbeE1h1fiF64jcoH', $s2->pubKey->address(true, true));
+        self::assertSame('1F1Pn2y6pDb68E5nYJJeba4TLg2U7B6KF1', $s3->pubKey->address());
+    }
 }

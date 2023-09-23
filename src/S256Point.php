@@ -48,6 +48,13 @@ final class S256Point extends Point
             new self($x, (0 == $beta->num % 2) ? new S256Field(S256Field::P() - $beta->num) : $beta);
     }
 
+    public function address(bool $compressed = true, bool $testnet = false): string
+    {
+        $address = ($testnet ? "\x6f" : "\x00").Hashing::hash160($this->sec($compressed));
+
+        return Base58::encode($address.substr(Hashing::hash256($address), 0, 4));
+    }
+
     public function sec(bool $compressed = true): string
     {
         if ($compressed) {
