@@ -26,6 +26,11 @@ final class Base58
         return str_repeat('1', $whitespace).$result;
     }
 
+    public static function encodeWithChecksum(string $data): string
+    {
+        return self::encode($data.substr(Hashing::hash256($data), 0, 4));
+    }
+
     public static function decode(string $data): string
     {
         // TODO

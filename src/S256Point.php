@@ -50,9 +50,9 @@ final class S256Point extends Point
 
     public function address(bool $compressed = true, bool $testnet = false): string
     {
-        $address = ($testnet ? "\x6f" : "\x00").Hashing::hash160($this->sec($compressed));
-
-        return Base58::encode($address.substr(Hashing::hash256($address), 0, 4));
+        return Base58::encodeWithChecksum(
+            ($testnet ? "\x6f" : "\x00").Hashing::hash160($this->sec($compressed))
+        );
     }
 
     public function sec(bool $compressed = true): string
