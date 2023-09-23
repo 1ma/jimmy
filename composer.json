@@ -10,7 +10,7 @@
     },
     "autoload-dev": {
         "psr-4": {
-            "Bitcoin\\Tests\\": "tests"
+            "Bitcoin\\Tests\\": "tests/"
         }
     },
     "require": {
