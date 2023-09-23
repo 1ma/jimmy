@@ -8,6 +8,11 @@
             "Bitcoin\\": "src/"
         }
     },
+    "autoload-dev": {
+        "psr-4": {
+            "Bitcoin\\Tests\\": "tests"
+        }
+    },
     "require": {
         "php": "^8.2.0",
         "ext-gmp": "*"

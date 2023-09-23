@@ -2,6 +2,8 @@
 
 declare(strict_types=1);
 
+namespace Bitcoin\Tests;
+
 use Bitcoin\FieldElement;
 use Bitcoin\Hashing;
 use Bitcoin\Point;
@@ -36,7 +38,7 @@ final class PointTest extends TestCase
      */
     public function testInvalidPoints(?FieldElement $x, ?FieldElement $y): void
     {
-        $this->expectException(InvalidArgumentException::class);
+        $this->expectException(\InvalidArgumentException::class);
 
         new Point($x, $y, new FieldElement(0, self::ORDER), new FieldElement(7, self::ORDER));
     }

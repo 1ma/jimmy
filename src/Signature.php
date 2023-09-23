@@ -15,6 +15,27 @@ final readonly class Signature
         $this->s = $s;
     }
 
+    public function der(): string
+    {
+        $rBytes = gmp_export($this->r);
+        if (unpack('C', $rBytes[0])[1] & 0x80) {
+            $rBytes = "\x00".$rBytes;
+        }
+
+        $rLen = \strlen($rBytes);
+        $rBytes = "\x02".pack('C', $rLen).$rBytes;
+
+        $sBytes = gmp_export($this->s);
+        if (unpack('C', $sBytes[0])[1] & 0x80) {
+            $sBytes = "\x00".$sBytes;
+        }
+
+        $sLen = \strlen($sBytes);
+        $sBytes = "\x02".pack('C', $sLen).$sBytes;
+
+        return "\x30".pack('C', 2 + $rLen + 2 + $sLen).$rBytes.$sBytes;
+    }
+
     public function __toString(): string
     {
         return sprintf('S256Point(%s,%s)', gmp_strval($this->r, 16), gmp_strval($this->s, 16));

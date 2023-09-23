@@ -2,6 +2,8 @@
 
 declare(strict_types=1);
 
+namespace Bitcoin\Tests;
+
 use Bitcoin\S256Field;
 use Bitcoin\S256Params;
 use PHPUnit\Framework\TestCase;

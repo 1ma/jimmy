@@ -2,6 +2,8 @@
 
 declare(strict_types=1);
 
+namespace Bitcoin\Tests;
+
 use Bitcoin\Hashing;
 use Bitcoin\PrivateKey;
 use Bitcoin\S256Field;
@@ -48,7 +50,7 @@ final class S256PointTest extends TestCase
 
     public function testInvalidSecData(): void
     {
-        $this->expectException(InvalidArgumentException::class);
+        $this->expectException(\InvalidArgumentException::class);
 
         S256Point::parse("\x00\x01\x02\x03");
     }
