@@ -5,7 +5,6 @@ declare(strict_types=1);
 use Bitcoin\FieldElement;
 use Bitcoin\Point;
 use Bitcoin\S256Field;
-use Bitcoin\S256Params;
 use Bitcoin\S256Point;
 use PHPUnit\Framework\TestCase;
 
@@ -121,22 +120,17 @@ final class PointTest extends TestCase
     public function testSecp256k1FundamentalProperties(): void
     {
         // Check that G is a point on the secp256k1 curve
-        $Gx = gmp_init(S256Params::Gx->value);
-        $Gy = gmp_init(S256Params::Gy->value);
-        $p = gmp_init(S256Params::P->value);
-
-        self::assertEquals(($Gy ** 2) % $p, ($Gx ** 3 + 7) % $p);
+        $G = S256Point::G();
+        self::assertEquals(($G->y->num ** 2) % S256Field::P(), ($G->x->num ** 3 + 7) % S256Field::P());
 
         // Check that G has the order n (i.e. n*G is the infinity point on secp256k1)
-        $n = gmp_init(S256Params::N->value);
-        $G = new S256Point(new S256Field($Gx), new S256Field($Gy));
+        $n = S256Field::N();
         self::assertSame('S256Point(,)', (string) $G->scalarMul($n));
     }
 
     public function testRawSignatureVerification(): void
     {
-        $G = S256Point::G();
-        $N = gmp_init(S256Params::N->value);
+        $N = S256Field::N();
         $z = gmp_init('0xbc62d4b80d9e36da29c16c5d4d9f11731f36052c72401a76c23c0fb5a9b74423');
         $r = gmp_init('0x37206a0610995c58074999cb9767b87af4c4978db68c06e8e6e81d282047a7c6');
         $s = gmp_init('0x8ca63759c1157ebeaec0d03cecca119fc9a75bf8e6d0fa65c841c8e2738cdaec');
@@ -150,13 +144,12 @@ final class PointTest extends TestCase
         $u = ($z * $sInv) % $N;
         $v = ($r * $sInv) % $N;
 
-        self::assertTrue($r == $G->scalarMul($u)->add($point->scalarMul($v))->x->num);
+        self::assertTrue($r == S256Point::G()->scalarMul($u)->add($point->scalarMul($v))->x->num);
     }
 
     public function testVerifySignaturesExercise6Chapter3(): void
     {
-        $G = S256Point::G();
-        $N = gmp_init(S256Params::N->value);
+        $N = S256Field::N();
         $point = new S256Point(
             new S256Field('0x887387e452b8eacc4acfde10d9aaf7f6d9a0f975aabb10d006e4da568744d06c'),
             new S256Field('0x61de6d95231cd89026e286df3b6ae4a894a3378e393e93a0f45b666329a0ae34')
@@ -171,7 +164,7 @@ final class PointTest extends TestCase
         $u = ($z * $sInv) % $N;
         $v = ($r * $sInv) % $N;
 
-        self::assertTrue($r == $G->scalarMul($u)->add($point->scalarMul($v))->x->num);
+        self::assertTrue($r == S256Point::G()->scalarMul($u)->add($point->scalarMul($v))->x->num);
 
         // signature #2
         $z = gmp_init('0x7c076ff316692a3d7eb3c3bb0f8b1488cf72e1afcd929e29307032997a838a3d');
@@ -182,7 +175,7 @@ final class PointTest extends TestCase
         $u = ($z * $sInv) % $N;
         $v = ($r * $sInv) % $N;
 
-        self::assertTrue($r == $G->scalarMul($u)->add($point->scalarMul($v))->x->num);
+        self::assertTrue($r == S256Point::G()->scalarMul($u)->add($point->scalarMul($v))->x->num);
     }
 
     public function testRawSignatureCreation(): void
@@ -191,12 +184,11 @@ final class PointTest extends TestCase
         $e = gmp_import(hash('sha256', hash('sha256', 'my secret', true), true));
         $z = gmp_import(hash('sha256', hash('sha256', 'my message', true), true));
 
-        $G = S256Point::G();
-        $r = $G->scalarMul($k)->x->num;
-        $N = gmp_init(S256Params::N->value);
+        $r = S256Point::G()->scalarMul($k)->x->num;
+        $N = S256Field::N();
         $kInv = gmp_powm($k, $N - 2, $N);
         $s = (($z + $r * $e) * $kInv) % $N;
-        $point = $G->scalarMul($e);
+        $point = S256Point::G()->scalarMul($e);
 
         self::assertSame('S256Point(028d003eab2e428d11983f3e97c3fa0addf3b42740df0d211795ffb3be2f6c52,0ae987b9ec6ea159c78cb2a937ed89096fb218d9e7594f02b547526d8cd309e2)', (string) $point);
         self::assertSame('231c6f3d980a6b0fb7152f85cee7eb52bf92433d9919b9c5218cb08e79cce78', gmp_strval($z, 16));
@@ -210,12 +202,11 @@ final class PointTest extends TestCase
         $e = 12345;
         $z = gmp_import(hash('sha256', hash('sha256', 'Programming Bitcoin!', true), true));
 
-        $G = S256Point::G();
-        $r = $G->scalarMul($k)->x->num;
-        $N = gmp_init(S256Params::N->value);
+        $r = S256Point::G()->scalarMul($k)->x->num;
+        $N = S256Field::N();
         $kInv = gmp_powm($k, $N - 2, $N);
         $s = (($z + $r * $e) * $kInv) % $N;
-        $point = $G->scalarMul($e);
+        $point = S256Point::G()->scalarMul($e);
 
         self::assertSame('S256Point(f01d6b9018ab421dd410404cb869072065522bf85734008f105cf385a023a80f,0eba29d0f0c5408ed681984dc525982abefccd9f7ff01dd26da4999cf3f6a295)', (string) $point);
         self::assertSame('969f6056aa26f7d2795fd013fe88868d09c9f6aed96965016e1936ae47060d48', gmp_strval($z, 16));

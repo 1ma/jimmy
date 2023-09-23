@@ -9,13 +9,34 @@ namespace Bitcoin;
  */
 final class S256Field extends FieldElement
 {
+    private static \GMP $N;
+    private static \GMP $P;
+
     public function __construct(\GMP|int|string $number)
     {
         if (\is_string($number)) {
             $number = gmp_init($number);
         }
 
-        parent::__construct($number, gmp_init(S256Params::P->value));
+        parent::__construct($number, self::P());
+    }
+
+    public static function N(): \GMP
+    {
+        if (!isset(self::$N)) {
+            self::$N = gmp_init(S256Params::N->value);
+        }
+
+        return self::$N;
+    }
+
+    public static function P(): \GMP
+    {
+        if (!isset(self::$P)) {
+            self::$P = gmp_init(S256Params::P->value);
+        }
+
+        return self::$P;
     }
 
     public function __toString(): string

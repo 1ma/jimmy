@@ -17,12 +17,11 @@ final readonly class PrivateKey
 
     public function sign(\GMP $z): Signature
     {
-        $k = $this->computeRFC6979KParam($z);
+        $N = S256Field::N();
+        $k = $this->computeRFC6979KParam($z, $N);
 
-        $G = S256Point::G();
-        $r = $G->scalarMul($k)->x->num;
-        $N = gmp_init(S256Params::N->value);
-        $kInv = gmp_powm($k, $N - 2, $N);
+        $r = S256Point::G()->scalarMul($k)->x->num;
+        $kInv = gmp_powm($k, S256Field::N() - 2, $N);
         $s = (($z + $r * $this->secret) * $kInv) % $N;
 
         if ($s > $N / 2) {
@@ -38,9 +37,8 @@ final readonly class PrivateKey
      *
      * @see https://datatracker.ietf.org/doc/html/rfc6979
      */
-    private function computeRFC6979KParam(\GMP $z): \GMP
+    private function computeRFC6979KParam(\GMP $z, \GMP $N): \GMP
     {
-        $N = gmp_init(S256Params::N->value);
         if ($z > $N) {
             $z -= $N;
         }

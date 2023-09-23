@@ -12,14 +12,14 @@ enum S256Params: string
     /**
      * The order of the finite field. It is a prime number.
      *
-     * P = 2^256 - 2^32 - 977
-     *
      * In this context "order" means the size of the finite field.
+     *
+     * P = 2^256 - 2^32 - 977
      */
     case P = '0xfffffffffffffffffffffffffffffffffffffffffffffffffffffffefffffc2f';
 
     /**
-     * Coefficients of the elliptic curve over the finite field F(P).
+     * Coefficients of the secp256k1 elliptic curve.
      *
      * y^2 = x^3 + 0x + 7
      */

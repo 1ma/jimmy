@@ -11,9 +11,18 @@ namespace Bitcoin;
  */
 final class S256Point extends Point
 {
+    private static S256Field $A;
+    private static S256Field $B;
+    private static S256Point $G;
+
     public function __construct(?FieldElement $x, ?FieldElement $y)
     {
-        parent::__construct($x, $y, new S256Field(S256Params::A->value), new S256Field(S256Params::B->value));
+        if (!isset(self::$A)) {
+            self::$A = new S256Field(S256Params::A->value);
+            self::$B = new S256Field(S256Params::B->value);
+        }
+
+        parent::__construct($x, $y, self::$A, self::$B);
     }
 
     /**
@@ -21,12 +30,16 @@ final class S256Point extends Point
      */
     public static function G(): static
     {
-        return new self(new S256Field(S256Params::Gx->value), new S256Field(S256Params::Gy->value));
+        if (!isset(self::$G)) {
+            self::$G = new self(new S256Field(S256Params::Gx->value), new S256Field(S256Params::Gy->value));
+        }
+
+        return self::$G;
     }
 
     public function verify(\GMP $z, Signature $sig): bool
     {
-        $N = gmp_init(S256Params::N->value);
+        $N = S256Field::N();
         $sInv = gmp_powm($sig->s, $N - 2, $N);
 
         $u = ($z * $sInv) % $N;
@@ -40,7 +53,7 @@ final class S256Point extends Point
     public function scalarMul(\GMP|int $coefficient): static
     {
         // Optimization: reduce the coefficient before computing the multiplication
-        return parent::scalarMul($coefficient % gmp_init(S256Params::N->value));
+        return parent::scalarMul($coefficient % S256Field::N());
     }
 
     public function __toString(): string
