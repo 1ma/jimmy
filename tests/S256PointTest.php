@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use Bitcoin\Hashing;
 use Bitcoin\PrivateKey;
 use Bitcoin\S256Field;
 use Bitcoin\S256Point;
@@ -33,7 +34,7 @@ final class S256PointTest extends TestCase
     {
         // Test case partially based on exercise 7 from chapter 3 (k is not 1234567890)
 
-        $z = gmp_import(hash('sha256', hash('sha256', 'Programming Bitcoin!', true), true));
+        $z = gmp_import(Hashing::hash256('Programming Bitcoin!'));
         $pvtKey = new PrivateKey(gmp_init(12345));
         $sig = $pvtKey->sign($z);
 

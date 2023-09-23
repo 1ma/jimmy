@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use Bitcoin\FieldElement;
+use Bitcoin\Hashing;
 use Bitcoin\Point;
 use Bitcoin\S256Field;
 use Bitcoin\S256Point;
@@ -181,8 +182,8 @@ final class PointTest extends TestCase
     public function testRawSignatureCreation(): void
     {
         $k = 1234567890;
-        $e = gmp_import(hash('sha256', hash('sha256', 'my secret', true), true));
-        $z = gmp_import(hash('sha256', hash('sha256', 'my message', true), true));
+        $e = gmp_import(Hashing::hash256('my secret'));
+        $z = gmp_import(Hashing::hash256('my message'));
 
         $r = S256Point::G()->scalarMul($k)->x->num;
         $N = S256Field::N();
@@ -200,7 +201,7 @@ final class PointTest extends TestCase
     {
         $k = 1234567890;
         $e = 12345;
-        $z = gmp_import(hash('sha256', hash('sha256', 'Programming Bitcoin!', true), true));
+        $z = gmp_import(Hashing::hash256('Programming Bitcoin!'));
 
         $r = S256Point::G()->scalarMul($k)->x->num;
         $N = S256Field::N();
