@@ -17,7 +17,6 @@ final readonly class PrivateKey
 
     public function sign(\GMP $z): Signature
     {
-        // This method of k generation will be changed later on
         $k = $this->computeRFC6979KParam($z);
 
         $G = S256Point::G();
@@ -42,14 +41,31 @@ final readonly class PrivateKey
     private function computeRFC6979KParam(\GMP $z): \GMP
     {
         $N = gmp_init(S256Params::N->value);
-        $k = gmp_init('0x0000000000000000000000000000000000000000000000000000000000000000');
-        $v = gmp_init('0x0000000000000000000000000000000000000000000000000000000000000000');
-
         if ($z > $N) {
             $z -= $N;
         }
 
-        // TODO
-        return gmp_random_range(0, S256Params::N->value);
+        $zBytes = str_pad(gmp_export($z), 32, "\x00", \STR_PAD_LEFT);
+        $eBytes = str_pad(gmp_export($this->secret), 32, "\x00", \STR_PAD_LEFT);
+
+        $k = str_repeat("\x00", 32);
+        $v = str_repeat("\x01", 32);
+
+        $k = hash_hmac('sha256', $v."\x00".$eBytes.$zBytes, $k, true);
+        $v = hash_hmac('sha256', $v, $k, true);
+
+        $k = hash_hmac('sha256', $v."\x01".$eBytes.$zBytes, $k, true);
+        $v = hash_hmac('sha256', $v, $k, true);
+
+        while (true) {
+            $v = hash_hmac('sha256', $v, $k, true);
+            $candidate = gmp_import($v);
+            if ($candidate >= 1 && $candidate < $N) {
+                return $candidate;
+            }
+
+            $k = hash_hmac('sha256', $v."\x00", $k, true);
+            $v = hash_hmac('sha256', $v, $k, true);
+        }
     }
 }
