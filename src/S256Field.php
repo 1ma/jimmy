@@ -39,6 +39,11 @@ final class S256Field extends FieldElement
         return self::$P;
     }
 
+    public function sqrt(): static
+    {
+        return $this->exp(gmp_div_q(self::P() + 1, 4));
+    }
+
     public function __toString(): string
     {
         return sprintf(

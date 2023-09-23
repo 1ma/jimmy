@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Bitcoin;
 
+use http\Exception\InvalidArgumentException;
+
 /**
  * Represents a Point on the secp256k1 elliptic curve.
  *
@@ -23,6 +25,37 @@ final class S256Point extends Point
         }
 
         parent::__construct($x, $y, self::$A, self::$B);
+    }
+
+    public static function parse(string $sec): static
+    {
+        if (33 !== \strlen($sec) && 65 !== \strlen($sec)) {
+            throw new InvalidArgumentException('Invalid SEC data format');
+        }
+
+        if ("\x04" === $sec[0]) {
+            return new self(
+                new S256Field(gmp_import(substr($sec, 1, 32))),
+                new S256Field(gmp_import(substr($sec, 33, 32)))
+            );
+        }
+
+        $x = new S256Field(gmp_import(substr($sec, 1, 32)));
+
+        $alpha = $x->exp(3)->add(new S256Field(S256Params::B->value));
+        $beta = $alpha->sqrt();
+
+        if (0 == $beta->num % 2) {
+            $evenBeta = $beta;
+            $oddBeta = new S256Field(S256Field::P() - $beta->num);
+        } else {
+            $evenBeta = new S256Field(S256Field::P() - $beta->num);
+            $oddBeta = $beta;
+        }
+
+        return "\x02" === $sec[0] ?
+            new self($x, $evenBeta) :
+            new self($x, $oddBeta);
     }
 
     public function sec(bool $compressed = true): string
