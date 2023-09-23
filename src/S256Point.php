@@ -25,16 +25,9 @@ final class S256Point extends Point
         parent::__construct($x, $y, self::$A, self::$B);
     }
 
-    /**
-     * Return a copy of secp256k1's generator point G.
-     */
-    public static function G(): static
+    public function sec(): string
     {
-        if (!isset(self::$G)) {
-            self::$G = new self(new S256Field(S256Params::Gx->value), new S256Field(S256Params::Gy->value));
-        }
-
-        return self::$G;
+        return "\x04".str_pad(gmp_export($this->x->num), 32, "\x00", \STR_PAD_LEFT).str_pad(gmp_export($this->y->num), 32, "\x00", \STR_PAD_LEFT);
     }
 
     public function verify(\GMP $z, Signature $sig): bool
@@ -54,6 +47,18 @@ final class S256Point extends Point
     {
         // Optimization: reduce the coefficient before computing the multiplication
         return parent::scalarMul($coefficient % S256Field::N());
+    }
+
+    /**
+     * Return a copy of secp256k1's generator point G.
+     */
+    public static function G(): static
+    {
+        if (!isset(self::$G)) {
+            self::$G = new self(new S256Field(S256Params::Gx->value), new S256Field(S256Params::Gy->value));
+        }
+
+        return self::$G;
     }
 
     public function __toString(): string

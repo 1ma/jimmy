@@ -7,12 +7,12 @@ namespace Bitcoin;
 final readonly class PrivateKey
 {
     public \GMP $secret;
-    public S256Point $point;
+    public S256Point $pubKey;
 
     public function __construct(\GMP $secret)
     {
         $this->secret = $secret;
-        $this->point = S256Point::G()->scalarMul($this->secret);
+        $this->pubKey = S256Point::G()->scalarMul($this->secret);
     }
 
     public function sign(\GMP $z): Signature
