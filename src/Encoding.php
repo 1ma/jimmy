@@ -4,11 +4,21 @@ declare(strict_types=1);
 
 namespace Bitcoin;
 
-final class Base58
+final class Encoding
 {
     private const BASE58_ALPHABET = '123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz';
 
-    public static function encode(string $data): string
+    public static function fromLE(string $payload): \GMP
+    {
+        return gmp_import($payload, 1, \GMP_LSW_FIRST | \GMP_LITTLE_ENDIAN);
+    }
+
+    public static function toLE(\GMP $number): string
+    {
+        return gmp_export($number, 1, \GMP_LSW_FIRST | \GMP_LITTLE_ENDIAN);
+    }
+
+    public static function base58encode(string $data): string
     {
         $nullBytes = 0;
         while ($nullBytes < \strlen($data) && "\x00" === $data[$nullBytes]) {
@@ -26,12 +36,12 @@ final class Base58
         return str_repeat('1', $nullBytes).$result;
     }
 
-    public static function encodeWithChecksum(string $data): string
+    public static function base58checksum(string $data): string
     {
-        return self::encode($data.substr(Hashing::hash256($data), 0, 4));
+        return self::base58encode($data.substr(Hashing::hash256($data), 0, 4));
     }
 
-    public static function decode(string $data): string
+    public static function base58decode(string $data): string
     {
         // TODO
         return '';

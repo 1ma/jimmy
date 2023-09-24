@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Bitcoin\ECC;
 
-use Bitcoin\Base58;
+use Bitcoin\Encoding;
 use Bitcoin\Hashing;
 
 /**
@@ -44,7 +44,7 @@ final readonly class S256Point extends Point
 
     public function address(bool $compressed = true, bool $testnet = false): string
     {
-        return Base58::encodeWithChecksum(
+        return Encoding::base58checksum(
             ($testnet ? "\x6f" : "\x00").Hashing::hash160($this->sec($compressed))
         );
     }

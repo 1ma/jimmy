@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Bitcoin\ECC;
 
-use Bitcoin\Base58;
+use Bitcoin\Encoding;
 use Bitcoin\Hashing;
 
 final readonly class PrivateKey
@@ -35,7 +35,7 @@ final readonly class PrivateKey
 
     public function wif(bool $compressed = true, bool $testnet = false): string
     {
-        return Base58::encodeWithChecksum(
+        return Encoding::base58checksum(
             ($testnet ? "\xef" : "\x80").str_pad(gmp_export($this->secret), 32, "\x00", \STR_PAD_LEFT).($compressed ? "\x01" : '')
         );
     }
