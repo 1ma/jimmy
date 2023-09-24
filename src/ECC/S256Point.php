@@ -2,7 +2,10 @@
 
 declare(strict_types=1);
 
-namespace Bitcoin;
+namespace Bitcoin\ECC;
+
+use Bitcoin\Base58;
+use Bitcoin\Hashing;
 
 /**
  * Represents a Point on the secp256k1 elliptic curve.

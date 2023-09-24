@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Bitcoin\Tests;
+namespace Bitcoin\Tests\ECC;
 
-use Bitcoin\PrivateKey;
+use Bitcoin\ECC\PrivateKey;
 use PHPUnit\Framework\TestCase;
 
 final class PrivateKeyTest extends TestCase

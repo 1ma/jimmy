@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Bitcoin\Tests;
+namespace Bitcoin\Tests\ECC;
 
-use Bitcoin\FieldElement;
+use Bitcoin\ECC\FieldElement;
 use PHPUnit\Framework\TestCase;
 
 final class FieldElementTest extends TestCase

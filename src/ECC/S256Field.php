@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Bitcoin;
+namespace Bitcoin\ECC;
 
 /**
  * Represents a FieldElement using the secp256k1 prime as the order.

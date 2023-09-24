@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Bitcoin;
+namespace Bitcoin\ECC;
 
 /**
  * Secp256k1 elliptic curve parameters.

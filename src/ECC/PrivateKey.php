@@ -2,7 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Bitcoin;
+namespace Bitcoin\ECC;
+
+use Bitcoin\Base58;
 
 final readonly class PrivateKey
 {

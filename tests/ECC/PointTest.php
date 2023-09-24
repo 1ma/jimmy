@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-namespace Bitcoin\Tests;
+namespace Bitcoin\Tests\ECC;
 
-use Bitcoin\FieldElement;
+use Bitcoin\ECC\FieldElement;
+use Bitcoin\ECC\Point;
+use Bitcoin\ECC\S256Field;
+use Bitcoin\ECC\S256Point;
 use Bitcoin\Hashing;
-use Bitcoin\Point;
-use Bitcoin\S256Field;
-use Bitcoin\S256Point;
 use PHPUnit\Framework\TestCase;
 
 final class PointTest extends TestCase

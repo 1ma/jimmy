@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace Bitcoin\Tests;
+namespace Bitcoin\Tests\ECC;
 
-use Bitcoin\S256Field;
-use Bitcoin\S256Params;
+use Bitcoin\ECC\S256Field;
+use Bitcoin\ECC\S256Params;
 use PHPUnit\Framework\TestCase;
 
 final class S256FieldTest extends TestCase

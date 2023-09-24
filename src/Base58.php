@@ -10,9 +10,9 @@ final class Base58
 
     public static function encode(string $data): string
     {
-        $whitespace = 0;
-        while ($whitespace < \strlen($data) && "\x00" === $data[$whitespace]) {
-            ++$whitespace;
+        $nullBytes = 0;
+        while ($nullBytes < \strlen($data) && "\x00" === $data[$nullBytes]) {
+            ++$nullBytes;
         }
 
         $result = '';
@@ -23,7 +23,7 @@ final class Base58
             $result = self::BASE58_ALPHABET[gmp_intval($mod)].$result;
         }
 
-        return str_repeat('1', $whitespace).$result;
+        return str_repeat('1', $nullBytes).$result;
     }
 
     public static function encodeWithChecksum(string $data): string
