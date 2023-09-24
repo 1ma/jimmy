@@ -14,7 +14,7 @@ use Bitcoin\Hashing;
  */
 final class S256Point extends Point
 {
-    public function __construct(?FieldElement $x, ?FieldElement $y)
+    public function __construct(?S256Field $x, ?S256Field $y)
     {
         parent::__construct($x, $y, S256Params::A(), S256Params::B());
     }
