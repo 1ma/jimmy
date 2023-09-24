@@ -12,7 +12,7 @@ use Bitcoin\Hashing;
  *
  * These points are Bitcoin's public keys.
  */
-final class S256Point extends Point
+final readonly class S256Point extends Point
 {
     public function __construct(?S256Field $x, ?S256Field $y)
     {
@@ -27,12 +27,12 @@ final class S256Point extends Point
 
         if ("\x04" === $sec[0]) {
             return new self(
-                new S256Field(gmp_import(substr($sec, 1, 32))),
-                new S256Field(gmp_import(substr($sec, 33, 32)))
+                new S256Field(substr($sec, 1, 32)),
+                new S256Field(substr($sec, 33, 32))
             );
         }
 
-        $x = new S256Field(gmp_import(substr($sec, 1, 32)));
+        $x = new S256Field(substr($sec, 1, 32));
 
         $alpha = $x->exp(3)->add(S256Params::B());
         $beta = $alpha->sqrt();

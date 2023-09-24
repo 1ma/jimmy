@@ -15,4 +15,9 @@ final class Hashing
     {
         return hash('sha256', hash('sha256', $data, true), true);
     }
+
+    public static function sha256hmac(string $data, string $key): string
+    {
+        return hash_hmac('sha256', $data, $key, true);
+    }
 }

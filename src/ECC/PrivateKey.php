@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Bitcoin\ECC;
 
 use Bitcoin\Base58;
+use Bitcoin\Hashing;
 
 final readonly class PrivateKey
 {
@@ -57,21 +58,21 @@ final readonly class PrivateKey
         $k = str_repeat("\x00", 32);
         $v = str_repeat("\x01", 32);
 
-        $k = hash_hmac('sha256', $v."\x00".$eBytes.$zBytes, $k, true);
-        $v = hash_hmac('sha256', $v, $k, true);
+        $k = Hashing::sha256hmac($v."\x00".$eBytes.$zBytes, $k);
+        $v = Hashing::sha256hmac($v, $k);
 
-        $k = hash_hmac('sha256', $v."\x01".$eBytes.$zBytes, $k, true);
-        $v = hash_hmac('sha256', $v, $k, true);
+        $k = Hashing::sha256hmac($v."\x01".$eBytes.$zBytes, $k);
+        $v = Hashing::sha256hmac($v, $k);
 
         while (true) {
-            $v = hash_hmac('sha256', $v, $k, true);
+            $v = Hashing::sha256hmac($v, $k);
             $candidate = gmp_import($v);
             if ($candidate >= 1 && $candidate < S256Params::N()) {
                 return $candidate;
             }
 
-            $k = hash_hmac('sha256', $v."\x00", $k, true);
-            $v = hash_hmac('sha256', $v, $k, true);
+            $k = Hashing::sha256hmac($v."\x00", $k);
+            $v = Hashing::sha256hmac($v, $k);
         }
     }
 }

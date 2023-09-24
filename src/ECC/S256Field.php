@@ -7,12 +7,14 @@ namespace Bitcoin\ECC;
 /**
  * Represents a FieldElement using the secp256k1 prime as the order.
  */
-final class S256Field extends FieldElement
+final readonly class S256Field extends FieldElement
 {
     public function __construct(\GMP|int|string $number)
     {
         if (\is_string($number)) {
-            $number = gmp_init($number);
+            $number = str_starts_with($number, '0x') ?
+                gmp_init($number) :
+                gmp_import($number);
         }
 
         parent::__construct($number, S256Params::P());

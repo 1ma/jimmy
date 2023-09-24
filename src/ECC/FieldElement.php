@@ -4,14 +4,14 @@ declare(strict_types=1);
 
 namespace Bitcoin\ECC;
 
-class FieldElement
+readonly class FieldElement
 {
-    public readonly \GMP $num;
-    public readonly \GMP $order;
+    public \GMP $num;
+    public \GMP $order;
 
     public function __construct(\GMP|int $number, \GMP|int $order)
     {
-        if (gmp_cmp($number, $order) >= 0 || gmp_cmp($number, 0) < 0) {
+        if ($number < 0 || $order <= $number) {
             throw new \InvalidArgumentException("$number not in field range [0, $order)");
         }
 
