@@ -13,7 +13,7 @@ final class S256Params
     /**
      * The order of the finite field. It is a prime number.
      *
-     * In this context "order" means the size of the finite field.
+     * In this context "order" means the size of a finite field.
      *
      * P = 2^256 - 2^32 - 977
      */

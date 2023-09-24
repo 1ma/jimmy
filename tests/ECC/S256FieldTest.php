@@ -9,7 +9,7 @@ use PHPUnit\Framework\TestCase;
 
 final class S256FieldTest extends TestCase
 {
-    public function testVerifyDebugSerialization(): void
+    public function testDebugSerialization(): void
     {
         self::assertSame(
             'S256Field(0000000000000000000000000000000000000000000000000000000000000000)',

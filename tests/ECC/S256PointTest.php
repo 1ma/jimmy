@@ -136,7 +136,7 @@ final class S256PointTest extends TestCase
         $sig = $pvtKey->sign($z);
 
         self::assertSame(
-            'S256Point(8eeacac05e4c29e793b5287ed044637132ce9ead7fded533e7441d87a8dc9c23,36674f81f10c7fb347c1224bd546813ea24ada6f642c02f2248516e3aa8cb303)',
+            'Signature(8eeacac05e4c29e793b5287ed044637132ce9ead7fded533e7441d87a8dc9c23,36674f81f10c7fb347c1224bd546813ea24ada6f642c02f2248516e3aa8cb303)',
             (string) $sig
         );
 
