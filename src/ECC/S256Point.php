@@ -14,18 +14,9 @@ use Bitcoin\Hashing;
  */
 final class S256Point extends Point
 {
-    private static S256Field $A;
-    private static S256Field $B;
-    private static S256Point $G;
-
     public function __construct(?FieldElement $x, ?FieldElement $y)
     {
-        if (!isset(self::$A)) {
-            self::$A = new S256Field(S256Params::A->value);
-            self::$B = new S256Field(S256Params::B->value);
-        }
-
-        parent::__construct($x, $y, self::$A, self::$B);
+        parent::__construct($x, $y, S256Params::A(), S256Params::B());
     }
 
     public static function parse(string $sec): static
@@ -43,12 +34,12 @@ final class S256Point extends Point
 
         $x = new S256Field(gmp_import(substr($sec, 1, 32)));
 
-        $alpha = $x->exp(3)->add(new S256Field(S256Params::B->value));
+        $alpha = $x->exp(3)->add(S256Params::B());
         $beta = $alpha->sqrt();
 
         return "\x02" === $sec[0] ?
-            new self($x, (0 == $beta->num % 2) ? $beta : new S256Field(S256Field::P() - $beta->num)) :
-            new self($x, (0 == $beta->num % 2) ? new S256Field(S256Field::P() - $beta->num) : $beta);
+            new self($x, (0 == $beta->num % 2) ? $beta : new S256Field(S256Params::P() - $beta->num)) :
+            new self($x, (0 == $beta->num % 2) ? new S256Field(S256Params::P() - $beta->num) : $beta);
     }
 
     public function address(bool $compressed = true, bool $testnet = false): string
@@ -71,13 +62,12 @@ final class S256Point extends Point
 
     public function verify(\GMP $z, Signature $sig): bool
     {
-        $N = S256Field::N();
-        $sInv = gmp_powm($sig->s, $N - 2, $N);
+        $sInv = gmp_powm($sig->s, S256Params::N() - 2, S256Params::N());
 
-        $u = ($z * $sInv) % $N;
-        $v = ($sig->r * $sInv) % $N;
+        $u = ($z * $sInv) % S256Params::N();
+        $v = ($sig->r * $sInv) % S256Params::N();
 
-        $R = self::G()->scalarMul($u)->add($this->scalarMul($v));
+        $R = S256Params::G()->scalarMul($u)->add($this->scalarMul($v));
 
         return $R->x->num == $sig->r;
     }
@@ -85,19 +75,7 @@ final class S256Point extends Point
     public function scalarMul(\GMP|int $coefficient): static
     {
         // Optimization: reduce the coefficient before computing the multiplication
-        return parent::scalarMul($coefficient % S256Field::N());
-    }
-
-    /**
-     * Return a copy of secp256k1's generator point G.
-     */
-    public static function G(): static
-    {
-        if (!isset(self::$G)) {
-            self::$G = new self(new S256Field(S256Params::Gx->value), new S256Field(S256Params::Gy->value));
-        }
-
-        return self::$G;
+        return parent::scalarMul($coefficient % S256Params::N());
     }
 
     public function __toString(): string

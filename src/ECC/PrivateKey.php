@@ -14,20 +14,19 @@ final readonly class PrivateKey
     public function __construct(\GMP $secret)
     {
         $this->secret = $secret;
-        $this->pubKey = S256Point::G()->scalarMul($this->secret);
+        $this->pubKey = S256Params::G()->scalarMul($this->secret);
     }
 
     public function sign(\GMP $z): Signature
     {
-        $N = S256Field::N();
-        $k = $this->computeRFC6979KParam($z, $N);
+        $k = $this->computeRFC6979KParam($z);
 
-        $r = S256Point::G()->scalarMul($k)->x->num;
-        $kInv = gmp_powm($k, S256Field::N() - 2, $N);
-        $s = (($z + $r * $this->secret) * $kInv) % $N;
+        $r = S256Params::G()->scalarMul($k)->x->num;
+        $kInv = gmp_powm($k, S256Params::N() - 2, S256Params::N());
+        $s = (($z + $r * $this->secret) * $kInv) % S256Params::N();
 
-        if ($s > $N / 2) {
-            $s = $N - $s;
+        if ($s > S256Params::N() / 2) {
+            $s = S256Params::N() - $s;
         }
 
         return new Signature($r, $s);
@@ -46,10 +45,10 @@ final readonly class PrivateKey
      *
      * @see https://datatracker.ietf.org/doc/html/rfc6979
      */
-    private function computeRFC6979KParam(\GMP $z, \GMP $N): \GMP
+    private function computeRFC6979KParam(\GMP $z): \GMP
     {
-        if ($z > $N) {
-            $z -= $N;
+        if ($z > S256Params::N()) {
+            $z -= S256Params::N();
         }
 
         $zBytes = str_pad(gmp_export($z), 32, "\x00", \STR_PAD_LEFT);
@@ -67,7 +66,7 @@ final readonly class PrivateKey
         while (true) {
             $v = hash_hmac('sha256', $v, $k, true);
             $candidate = gmp_import($v);
-            if ($candidate >= 1 && $candidate < $N) {
+            if ($candidate >= 1 && $candidate < S256Params::N()) {
                 return $candidate;
             }
 
