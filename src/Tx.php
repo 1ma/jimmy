@@ -45,10 +45,21 @@ final readonly class Tx
         return new self($version, $txIns, $txOuts, $locktime, $testnet);
     }
 
+    public function serialize(): string
+    {
+        $version = Encoding::toLE(gmp_init($this->version), 4);
+        $nTxIns = Encoding::encodeVarInt(\count($this->txIns));
+        $txIns = array_reduce($this->txIns, fn (string $txIns, TxIn $txIn): string => $txIns.$txIn->serialize(), '');
+        $nTxOuts = Encoding::encodeVarInt(\count($this->txOuts));
+        $txOuts = array_reduce($this->txOuts, fn (string $txOuts, TxOut $txOut): string => $txOuts.$txOut->serialize(), '');
+        $locktime = Encoding::toLE(gmp_init($this->locktime), 4);
+
+        return $version.$nTxIns.$txIns.$nTxOuts.$txOuts.$locktime;
+    }
+
     public function id(): string
     {
-        // TODO
-        return bin2hex(strrev(Hashing::hash256('12345')));
+        return bin2hex(strrev(Hashing::hash256($this->serialize())));
     }
 
     public function __toString(): string

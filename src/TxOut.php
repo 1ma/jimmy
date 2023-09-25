@@ -26,6 +26,14 @@ final readonly class TxOut
         return new self($amount, $scriptPubKey);
     }
 
+    public function serialize(): string
+    {
+        $amount = Encoding::toLE(gmp_init($this->amount), 8);
+        $scriptPubKey = $this->scriptPubKey->serialize();
+
+        return $amount.$scriptPubKey;
+    }
+
     public function __toString(): string
     {
         return "{$this->amount}:{$this->scriptPubKey}";

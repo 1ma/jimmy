@@ -21,6 +21,13 @@ final class Script
         return new self(fread($stream, Encoding::decodeVarInt($stream)));
     }
 
+    public function serialize(): string
+    {
+        $length = Encoding::encodeVarInt(\strlen($this->script));
+
+        return $length.$this->script;
+    }
+
     public function __toString(): string
     {
         return bin2hex($this->script);
