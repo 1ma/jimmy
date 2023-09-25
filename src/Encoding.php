@@ -8,16 +8,6 @@ final class Encoding
 {
     private const BASE58_ALPHABET = '123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz';
 
-    public static function fromLE(string $payload): \GMP
-    {
-        return gmp_import($payload, 1, \GMP_LSW_FIRST | \GMP_LITTLE_ENDIAN);
-    }
-
-    public static function toLE(\GMP $number, int $padding = 0): string
-    {
-        return str_pad(gmp_export($number, 1, \GMP_LSW_FIRST | \GMP_LITTLE_ENDIAN), $padding, "\x00");
-    }
-
     public static function base58encode(string $data): string
     {
         $nullBytes = 0;
@@ -39,6 +29,16 @@ final class Encoding
     public static function base58checksum(string $data): string
     {
         return self::base58encode($data.substr(Hashing::hash256($data), 0, 4));
+    }
+
+    public static function fromLE(string $payload): \GMP
+    {
+        return gmp_import($payload, 1, \GMP_LSW_FIRST | \GMP_LITTLE_ENDIAN);
+    }
+
+    public static function toLE(\GMP $number, int $padding = 0): string
+    {
+        return str_pad(gmp_export($number, 1, \GMP_LSW_FIRST | \GMP_LITTLE_ENDIAN), $padding, "\x00");
     }
 
     public static function encodeVarInt(int $i): string

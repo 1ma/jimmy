@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Bitcoin;
 
-final class Script
+final readonly class Script
 {
     public string $script;
 
@@ -23,9 +23,7 @@ final class Script
 
     public function serialize(): string
     {
-        $length = Encoding::encodeVarInt(\strlen($this->script));
-
-        return $length.$this->script;
+        return Encoding::encodeVarInt(\strlen($this->script)).$this->script;
     }
 
     public function __toString(): string

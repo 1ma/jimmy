@@ -24,7 +24,7 @@ final readonly class TxIn
      */
     public static function parse($stream): self
     {
-        $prevTxId = strrev(fread($stream, 32));
+        $prevTxId = bin2hex(strrev(fread($stream, 32)));
         $prevIndex = gmp_intval(Encoding::fromLE(fread($stream, 4)));
         $scriptSig = Script::parse($stream);
         $seqNum = gmp_intval(Encoding::fromLE(fread($stream, 4)));
@@ -32,9 +32,25 @@ final readonly class TxIn
         return new self($prevTxId, $prevIndex, $scriptSig, $seqNum);
     }
 
+    /**
+     * @throws \RuntimeException
+     */
+    public function prevAmount(bool $testnet = false): int
+    {
+        return TxFetcher::fetch($this->prevTxId, $testnet)->txOuts[$this->prevIndex]->amount;
+    }
+
+    /**
+     * @throws \RuntimeException
+     */
+    public function prevScriptPubKey(bool $testnet = false): Script
+    {
+        return TxFetcher::fetch($this->prevTxId, $testnet)->txOuts[$this->prevIndex]->scriptPubKey;
+    }
+
     public function serialize(): string
     {
-        $prevTxId = strrev($this->prevTxId);
+        $prevTxId = strrev(hex2bin($this->prevTxId));
         $prevIndex = Encoding::toLE(gmp_init($this->prevIndex), 4);
         $scriptSig = $this->scriptSig->serialize();
         $seqNum = Encoding::toLE(gmp_init($this->seqNum), 4);
@@ -44,8 +60,6 @@ final readonly class TxIn
 
     public function __toString(): string
     {
-        $prevTxId = bin2hex($this->prevTxId);
-
-        return "{$prevTxId}:{$this->prevIndex}";
+        return "{$this->prevTxId}:{$this->prevIndex}";
     }
 }

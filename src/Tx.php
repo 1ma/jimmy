@@ -7,8 +7,13 @@ namespace Bitcoin;
 final readonly class Tx
 {
     public int $version;
+
+    /** @var TxIn[] */
     public array $txIns;
+
+    /** @var TxOut[] */
     public array $txOuts;
+
     public int $locktime;
     public bool $testnet;
 
@@ -60,6 +65,17 @@ final readonly class Tx
     public function id(): string
     {
         return bin2hex(strrev(Hashing::hash256($this->serialize())));
+    }
+
+    /**
+     * @throws \RuntimeException
+     */
+    public function fee(): int
+    {
+        $inAmount = array_reduce($this->txIns, fn (int $subtotal, TxIn $txIn) => $subtotal + $txIn->prevAmount($this->testnet), 0);
+        $outAmount = array_reduce($this->txOuts, fn (int $subtotal, TxOut $txOut) => $subtotal + $txOut->amount, 0);
+
+        return $inAmount - $outAmount;
     }
 
     public function __toString(): string
