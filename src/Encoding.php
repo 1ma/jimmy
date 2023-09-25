@@ -13,9 +13,9 @@ final class Encoding
         return gmp_import($payload, 1, \GMP_LSW_FIRST | \GMP_LITTLE_ENDIAN);
     }
 
-    public static function toLE(\GMP $number): string
+    public static function toLE(\GMP $number, int $padding = 0): string
     {
-        return gmp_export($number, 1, \GMP_LSW_FIRST | \GMP_LITTLE_ENDIAN);
+        return str_pad(gmp_export($number, 1, \GMP_LSW_FIRST | \GMP_LITTLE_ENDIAN), $padding, "\x00");
     }
 
     public static function base58encode(string $data): string
@@ -41,9 +41,38 @@ final class Encoding
         return self::base58encode($data.substr(Hashing::hash256($data), 0, 4));
     }
 
-    public static function base58decode(string $data): string
+    public static function encodeVarInt(int $i): string
     {
-        // TODO
-        return '';
+        if ($i < 0xFD) {
+            return self::toLE(gmp_init($i));
+        } elseif ($i < 0x10000) {
+            return "\xfd".self::toLE(gmp_init($i), 2);
+        } elseif ($i < 0x100000000) {
+            return "\xfe".self::toLE(gmp_init($i), 4);
+        }
+
+        return "\xff".self::toLE(gmp_init($i), 8);
+    }
+
+    /**
+     * @param resource $stream
+     */
+    public static function decodeVarInt($stream): int
+    {
+        $i = gmp_intval(self::fromLE(fread($stream, 1)));
+
+        if (0xFD === $i) {
+            return gmp_intval(self::fromLE(fread($stream, 2)));
+        }
+
+        if (0xFE === $i) {
+            return gmp_intval(self::fromLE(fread($stream, 4)));
+        }
+
+        if (0xFF === $i) {
+            return gmp_intval(self::fromLE(fread($stream, 8)));
+        }
+
+        return $i;
     }
 }
