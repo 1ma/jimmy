@@ -28,7 +28,21 @@ final readonly class Tx
     {
         $version = gmp_intval(Encoding::fromLE(fread($stream, 4)));
 
-        return new self($version, [], [], 0, $testnet);
+        $txIns = [];
+        $nIns = Encoding::decodeVarInt($stream);
+        for ($i = 0; $i < $nIns; ++$i) {
+            $txIns[] = TxIn::parse($stream);
+        }
+
+        $txOuts = [];
+        $nOuts = Encoding::decodeVarInt($stream);
+        for ($i = 0; $i < $nOuts; ++$i) {
+            $txOuts[] = TxOut::parse($stream);
+        }
+
+        $locktime = gmp_intval(Encoding::fromLE(fread($stream, 4)));
+
+        return new self($version, $txIns, $txOuts, $locktime, $testnet);
     }
 
     public function id(): string

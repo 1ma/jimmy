@@ -10,6 +10,8 @@ use PHPUnit\Framework\TestCase;
 
 final class EncodingTest extends TestCase
 {
+    use StreamingHelperTrait;
+
     /**
      * @dataProvider encodingDataProvider
      */
@@ -51,17 +53,5 @@ final class EncodingTest extends TestCase
         self::assertSame(555, Encoding::decodeVarInt(self::stream(hex2bin('fd2b02'))));
         self::assertSame(70015, Encoding::decodeVarInt(self::stream(hex2bin('fe7f110100'))));
         self::assertSame(18005558675309, Encoding::decodeVarInt(self::stream(hex2bin('ff6dc7ed3e60100000'))));
-    }
-
-    /**
-     * @return resource
-     */
-    private static function stream(string $data)
-    {
-        $stream = fopen('php://memory', 'r+');
-        fwrite($stream, $data);
-        rewind($stream);
-
-        return $stream;
     }
 }
