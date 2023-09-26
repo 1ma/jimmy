@@ -78,6 +78,11 @@ final readonly class Script
         return Encoding::encodeVarInt(\strlen($result)).$result;
     }
 
+    public function combine(self $other): self
+    {
+        return new self(array_merge($this->cmds, $other->cmds));
+    }
+
     public function __toString(): string
     {
         return bin2hex(self::serialize());
