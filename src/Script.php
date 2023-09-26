@@ -6,11 +6,12 @@ namespace Bitcoin;
 
 final readonly class Script
 {
-    public string $script;
+    /** @var <int|string>[] */
+    public array $cmds;
 
-    public function __construct(string $script)
+    public function __construct(array $cmds = [])
     {
-        $this->script = $script;
+        $this->cmds = $cmds;
     }
 
     /**
@@ -18,16 +19,102 @@ final readonly class Script
      */
     public static function parse($stream): self
     {
-        return new self(fread($stream, Encoding::decodeVarInt($stream)));
+        $count = 0;
+        $cmds = [];
+        $length = Encoding::decodeVarInt($stream);
+
+        while ($count < $length) {
+            $current = fread($stream, 1);
+            ++$count;
+            $decodedCurrent = gmp_intval(Encoding::fromLE($current));
+            if (0x01 <= $decodedCurrent && $decodedCurrent <= 0x4B) {
+                $cmds[] = fread($stream, $decodedCurrent);
+                $count += $decodedCurrent;
+            } elseif (OpCodes::OP_PUSHDATA1->value === $decodedCurrent) {
+                $dataLength = gmp_intval(Encoding::fromLE(fread($stream, 1)));
+                $cmds[] = fread($stream, $dataLength);
+                $count += $dataLength + 1;
+            } elseif (OpCodes::OP_PUSHDATA2->value === $decodedCurrent) {
+                $dataLength = gmp_intval(Encoding::fromLE(fread($stream, 2)));
+                $cmds[] = fread($stream, $dataLength);
+                $count += $dataLength + 2;
+            } else {
+                $cmds[] = $decodedCurrent;
+            }
+        }
+
+        if ($count !== $length) {
+            throw new \InvalidArgumentException('Parsing script failed');
+        }
+
+        return new self($cmds);
     }
 
     public function serialize(): string
     {
-        return Encoding::encodeVarInt(\strlen($this->script)).$this->script;
+        $result = '';
+        foreach ($this->cmds as $cmd) {
+            if (\is_int($cmd)) {
+                $result .= Encoding::toLE(gmp_init($cmd));
+                continue;
+            }
+
+            $length = \strlen($cmd);
+            if ($length <= 75) {
+                $result .= Encoding::toLE(gmp_init($length));
+            } elseif ($length < 256) {
+                $result .= Encoding::toLE(gmp_init(OpCodes::OP_PUSHDATA1->value));
+                $result .= Encoding::toLE(gmp_init($length, 1));
+            } elseif ($length <= 520) {
+                $result .= Encoding::toLE(gmp_init(OpCodes::OP_PUSHDATA2->value));
+                $result .= Encoding::toLE(gmp_init($length, 2));
+            } else {
+                throw new \RuntimeException('cmd too long: '.$cmd);
+            }
+
+            $result .= $cmd;
+        }
+
+        return Encoding::encodeVarInt(\strlen($result)).$result;
     }
 
     public function __toString(): string
     {
-        return bin2hex($this->script);
+        return bin2hex(self::serialize());
+    }
+
+    private function opDup(array &$stack): bool
+    {
+        if (\count($stack) < 1) {
+            return false;
+        }
+
+        $stack[] = $stack[array_key_last($stack)];
+
+        return true;
+    }
+
+    private function opHash256(array &$stack): bool
+    {
+        if (\count($stack) < 1) {
+            return false;
+        }
+
+        $top = array_pop($stack);
+        $stack[] = Hashing::hash256($top);
+
+        return true;
+    }
+
+    private function opHash160(array &$stack): bool
+    {
+        if (\count($stack) < 1) {
+            return false;
+        }
+
+        $top = array_pop($stack);
+        $stack[] = Hashing::hash160($top);
+
+        return true;
     }
 }
