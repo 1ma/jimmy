@@ -21,7 +21,7 @@ final readonly class S256Point extends Point
 
     public static function parse(string $sec): static
     {
-        if (33 !== \strlen($sec) && 65 !== \strlen($sec)) {
+        if (!self::validSecString($sec)) {
             throw new \InvalidArgumentException('Invalid SEC data format');
         }
 
@@ -89,5 +89,11 @@ final readonly class S256Point extends Point
             str_pad(gmp_strval($this->x->num, 16), 64, '0', \STR_PAD_LEFT),
             str_pad(gmp_strval($this->y->num, 16), 64, '0', \STR_PAD_LEFT)
         );
+    }
+
+    private static function validSecString(string $data): bool
+    {
+        return (33 === \strlen($data) && ("\x02" === $data[0] || "\x03" === $data[0]))
+            || (65 === \strlen($data) && "\x04" === $data[0]);
     }
 }
