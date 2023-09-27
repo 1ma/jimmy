@@ -73,9 +73,9 @@ readonly class Point
 
     public function scalarMul(\GMP|int $coefficient): static
     {
-        $c = $coefficient instanceof \GMP ? $coefficient : gmp_init($coefficient);
+        $c       = $coefficient instanceof \GMP ? $coefficient : gmp_init($coefficient);
         $current = clone $this;
-        $result = self::infinity($this->a, $this->b);
+        $result  = self::infinity($this->a, $this->b);
 
         while ($c > 0) {
             if (gmp_testbit($c, 0)) {
@@ -95,7 +95,7 @@ readonly class Point
     public function groupOrder(): \GMP
     {
         $order = gmp_init(1);
-        $m = clone $this;
+        $m     = clone $this;
 
         while (null !== $m->x) {
             $m = $m->add($this);

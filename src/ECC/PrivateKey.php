@@ -22,9 +22,9 @@ final readonly class PrivateKey
     {
         $k = $this->computeRFC6979KParam($z);
 
-        $r = S256Params::G()->scalarMul($k)->x->num;
+        $r    = S256Params::G()->scalarMul($k)->x->num;
         $kInv = gmp_powm($k, S256Params::N() - 2, S256Params::N());
-        $s = (($z + $r * $this->secret) * $kInv) % S256Params::N();
+        $s    = (($z + $r * $this->secret) * $kInv) % S256Params::N();
 
         if ($s > S256Params::N() / 2) {
             $s = S256Params::N() - $s;
@@ -65,7 +65,7 @@ final readonly class PrivateKey
         $v = Hashing::sha256hmac($v, $k);
 
         while (true) {
-            $v = Hashing::sha256hmac($v, $k);
+            $v         = Hashing::sha256hmac($v, $k);
             $candidate = gmp_import($v);
             if ($candidate >= 1 && $candidate < S256Params::N()) {
                 return $candidate;

@@ -19,8 +19,8 @@ final readonly class Script
      */
     public static function parse($stream): self
     {
-        $count = 0;
-        $cmds = [];
+        $count  = 0;
+        $cmds   = [];
         $length = Encoding::decodeVarInt($stream);
 
         while ($count < $length) {
@@ -32,11 +32,11 @@ final readonly class Script
                 $count += $decodedCurrent;
             } elseif (OpCodes::OP_PUSHDATA1->value === $decodedCurrent) {
                 $dataLength = gmp_intval(Encoding::fromLE(fread($stream, 1)));
-                $cmds[] = fread($stream, $dataLength);
+                $cmds[]     = fread($stream, $dataLength);
                 $count += $dataLength + 1;
             } elseif (OpCodes::OP_PUSHDATA2->value === $decodedCurrent) {
                 $dataLength = gmp_intval(Encoding::fromLE(fread($stream, 2)));
-                $cmds[] = fread($stream, $dataLength);
+                $cmds[]     = fread($stream, $dataLength);
                 $count += $dataLength + 2;
             } else {
                 $cmds[] = $decodedCurrent;
@@ -105,7 +105,7 @@ final readonly class Script
             return false;
         }
 
-        $top = array_pop($stack);
+        $top     = array_pop($stack);
         $stack[] = Hashing::hash256($top);
 
         return true;
@@ -117,7 +117,7 @@ final readonly class Script
             return false;
         }
 
-        $top = array_pop($stack);
+        $top     = array_pop($stack);
         $stack[] = Hashing::hash160($top);
 
         return true;

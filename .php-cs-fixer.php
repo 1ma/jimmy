@@ -13,7 +13,9 @@ return (new PhpCsFixer\Config())
     ->setUsingCache(false)
     ->setRiskyAllowed(true)
     ->setRules([
-        '@Symfony' => true,
-        '@Symfony:risky' => true,
-        'declare_strict_types' => true,
+        '@Symfony'               => true,
+        '@Symfony:risky'         => true,
+        'array_indentation'      => true,
+        'binary_operator_spaces' => ['default' => 'align_single_space_minimal'],
+        'declare_strict_types'   => true,
     ]);

@@ -11,7 +11,7 @@ final readonly class TxOut
 
     public function __construct(int $amount, Script $scriptPubKey)
     {
-        $this->amount = $amount;
+        $this->amount       = $amount;
         $this->scriptPubKey = $scriptPubKey;
     }
 
@@ -20,7 +20,7 @@ final readonly class TxOut
      */
     public static function parse($stream)
     {
-        $amount = gmp_intval(Encoding::fromLE(fread($stream, 8)));
+        $amount       = gmp_intval(Encoding::fromLE(fread($stream, 8)));
         $scriptPubKey = Script::parse($stream);
 
         return new self($amount, $scriptPubKey);
@@ -28,7 +28,7 @@ final readonly class TxOut
 
     public function serialize(): string
     {
-        $amount = Encoding::toLE(gmp_init($this->amount), 8);
+        $amount       = Encoding::toLE(gmp_init($this->amount), 8);
         $scriptPubKey = $this->scriptPubKey->serialize();
 
         return $amount.$scriptPubKey;

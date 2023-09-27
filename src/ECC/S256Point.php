@@ -35,7 +35,7 @@ final readonly class S256Point extends Point
         $x = new S256Field(substr($sec, 1, 32));
 
         $alpha = $x->exp(3)->add(S256Params::B());
-        $beta = $alpha->sqrt();
+        $beta  = $alpha->sqrt();
 
         return "\x02" === $sec[0] ?
             new self($x, (0 == $beta->num % 2) ? $beta : new S256Field(S256Params::P() - $beta->num)) :
@@ -64,7 +64,7 @@ final readonly class S256Point extends Point
     {
         $sInv = gmp_powm($sig->s, S256Params::N() - 2, S256Params::N());
 
-        $u = ($z * $sInv) % S256Params::N();
+        $u = ($z * $sInv)      % S256Params::N();
         $v = ($sig->r * $sInv) % S256Params::N();
 
         $R = S256Params::G()->scalarMul($u)->add($this->scalarMul($v));

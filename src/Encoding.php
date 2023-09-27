@@ -16,11 +16,11 @@ final class Encoding
         }
 
         $result = '';
-        $num = gmp_import($data);
+        $num    = gmp_import($data);
 
         while ($num > 0) {
             [$num, $mod] = gmp_div_qr($num, 58);
-            $result = self::BASE58_ALPHABET[gmp_intval($mod)].$result;
+            $result      = self::BASE58_ALPHABET[gmp_intval($mod)].$result;
         }
 
         return str_repeat('1', $nullBytes).$result;

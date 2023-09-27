@@ -22,7 +22,7 @@ final readonly class Signature
             $rBytes = "\x00".$rBytes;
         }
 
-        $rLen = \strlen($rBytes);
+        $rLen   = \strlen($rBytes);
         $rBytes = "\x02".pack('C', $rLen).$rBytes;
 
         $sBytes = gmp_export($this->s);
@@ -30,7 +30,7 @@ final readonly class Signature
             $sBytes = "\x00".$sBytes;
         }
 
-        $sLen = \strlen($sBytes);
+        $sLen   = \strlen($sBytes);
         $sBytes = "\x02".pack('C', $sLen).$sBytes;
 
         return "\x30".pack('C', 2 + $rLen + 2 + $sLen).$rBytes.$sBytes;

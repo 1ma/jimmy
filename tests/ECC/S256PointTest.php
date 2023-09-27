@@ -18,7 +18,7 @@ final class S256PointTest extends TestCase
     {
         // Check that G is a point on the secp256k1 curve
         self::assertEquals(
-            (S256Params::G()->y->num ** 2) % S256Params::P(),
+            (S256Params::G()->y->num ** 2)     % S256Params::P(),
             (S256Params::G()->x->num ** 3 + 7) % S256Params::P()
         );
 
@@ -38,8 +38,8 @@ final class S256PointTest extends TestCase
         );
 
         $sInv = gmp_powm($s, S256Params::N() - 2, S256Params::N());
-        $u = ($z * $sInv) % S256Params::N();
-        $v = ($r * $sInv) % S256Params::N();
+        $u    = ($z * $sInv) % S256Params::N();
+        $v    = ($r * $sInv) % S256Params::N();
 
         self::assertTrue($r == S256Params::G()->scalarMul($u)->add($point->scalarMul($v))->x->num);
     }
@@ -57,8 +57,8 @@ final class S256PointTest extends TestCase
         $s = gmp_init('0x68342ceff8935ededd102dd876ffd6ba72d6a427a3edb13d26eb0781cb423c4');
 
         $sInv = gmp_powm($s, S256Params::N() - 2, S256Params::N());
-        $u = ($z * $sInv) % S256Params::N();
-        $v = ($r * $sInv) % S256Params::N();
+        $u    = ($z * $sInv) % S256Params::N();
+        $v    = ($r * $sInv) % S256Params::N();
 
         self::assertTrue($r == S256Params::G()->scalarMul($u)->add($point->scalarMul($v))->x->num);
 
@@ -68,8 +68,8 @@ final class S256PointTest extends TestCase
         $s = gmp_init('0xc7207fee197d27c618aea621406f6bf5ef6fca38681d82b2f06fddbdce6feab6');
 
         $sInv = gmp_powm($s, S256Params::N() - 2, S256Params::N());
-        $u = ($z * $sInv) % S256Params::N();
-        $v = ($r * $sInv) % S256Params::N();
+        $u    = ($z * $sInv) % S256Params::N();
+        $v    = ($r * $sInv) % S256Params::N();
 
         self::assertTrue($r == S256Params::G()->scalarMul($u)->add($point->scalarMul($v))->x->num);
     }
@@ -80,9 +80,9 @@ final class S256PointTest extends TestCase
         $e = gmp_import(Hashing::hash256('my secret'));
         $z = gmp_import(Hashing::hash256('my message'));
 
-        $r = S256Params::G()->scalarMul($k)->x->num;
-        $kInv = gmp_powm($k, S256Params::N() - 2, S256Params::N());
-        $s = (($z + $r * $e) * $kInv) % S256Params::N();
+        $r     = S256Params::G()->scalarMul($k)->x->num;
+        $kInv  = gmp_powm($k, S256Params::N() - 2, S256Params::N());
+        $s     = (($z + $r * $e) * $kInv) % S256Params::N();
         $point = S256Params::G()->scalarMul($e);
 
         self::assertSame('S256Point(028d003eab2e428d11983f3e97c3fa0addf3b42740df0d211795ffb3be2f6c52,0ae987b9ec6ea159c78cb2a937ed89096fb218d9e7594f02b547526d8cd309e2)', (string) $point);
@@ -97,9 +97,9 @@ final class S256PointTest extends TestCase
         $e = 12345;
         $z = gmp_import(Hashing::hash256('Programming Bitcoin!'));
 
-        $r = S256Params::G()->scalarMul($k)->x->num;
-        $kInv = gmp_powm($k, S256Params::N() - 2, S256Params::N());
-        $s = (($z + $r * $e) * $kInv) % S256Params::N();
+        $r     = S256Params::G()->scalarMul($k)->x->num;
+        $kInv  = gmp_powm($k, S256Params::N() - 2, S256Params::N());
+        $s     = (($z + $r * $e) * $kInv) % S256Params::N();
         $point = S256Params::G()->scalarMul($e);
 
         self::assertSame('S256Point(f01d6b9018ab421dd410404cb869072065522bf85734008f105cf385a023a80f,0eba29d0f0c5408ed681984dc525982abefccd9f7ff01dd26da4999cf3f6a295)', (string) $point);
@@ -131,9 +131,9 @@ final class S256PointTest extends TestCase
     {
         // Test case partially based on exercise 7 from chapter 3 (k is not 1234567890)
 
-        $z = gmp_import(Hashing::hash256('Programming Bitcoin!'));
+        $z      = gmp_import(Hashing::hash256('Programming Bitcoin!'));
         $pvtKey = new PrivateKey(gmp_init(12345));
-        $sig = $pvtKey->sign($z);
+        $sig    = $pvtKey->sign($z);
 
         self::assertSame(
             'Signature(8eeacac05e4c29e793b5287ed044637132ce9ead7fded533e7441d87a8dc9c23,36674f81f10c7fb347c1224bd546813ea24ada6f642c02f2248516e3aa8cb303)',

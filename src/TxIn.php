@@ -13,10 +13,10 @@ final readonly class TxIn
 
     public function __construct(string $prevTxId, int $prevIndex, Script $scriptSig, int $seqNum)
     {
-        $this->prevTxId = $prevTxId;
+        $this->prevTxId  = $prevTxId;
         $this->prevIndex = $prevIndex;
         $this->scriptSig = $scriptSig;
-        $this->seqNum = $seqNum;
+        $this->seqNum    = $seqNum;
     }
 
     /**
@@ -24,10 +24,10 @@ final readonly class TxIn
      */
     public static function parse($stream): self
     {
-        $prevTxId = bin2hex(strrev(fread($stream, 32)));
+        $prevTxId  = bin2hex(strrev(fread($stream, 32)));
         $prevIndex = gmp_intval(Encoding::fromLE(fread($stream, 4)));
         $scriptSig = Script::parse($stream);
-        $seqNum = gmp_intval(Encoding::fromLE(fread($stream, 4)));
+        $seqNum    = gmp_intval(Encoding::fromLE(fread($stream, 4)));
 
         return new self($prevTxId, $prevIndex, $scriptSig, $seqNum);
     }
@@ -50,10 +50,10 @@ final readonly class TxIn
 
     public function serialize(): string
     {
-        $prevTxId = strrev(hex2bin($this->prevTxId));
+        $prevTxId  = strrev(hex2bin($this->prevTxId));
         $prevIndex = Encoding::toLE(gmp_init($this->prevIndex), 4);
         $scriptSig = $this->scriptSig->serialize();
-        $seqNum = Encoding::toLE(gmp_init($this->seqNum), 4);
+        $seqNum    = Encoding::toLE(gmp_init($this->seqNum), 4);
 
         return $prevTxId.$prevIndex.$scriptSig.$seqNum;
     }

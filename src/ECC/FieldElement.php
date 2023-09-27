@@ -19,7 +19,7 @@ readonly class FieldElement
             throw new \InvalidArgumentException('Order must be a prime number');
         }
 
-        $this->num = $number instanceof \GMP ? $number : gmp_init($number);
+        $this->num   = $number instanceof \GMP ? $number : gmp_init($number);
         $this->order = $order instanceof \GMP ? $order : gmp_init($order);
     }
 
