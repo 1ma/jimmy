@@ -15,6 +15,12 @@ final readonly class Signature
         $this->s = $s;
     }
 
+    public static function parse(string $der): self
+    {
+        // TODO
+        return new self(gmp_init(0), gmp_init(0));
+    }
+
     public function der(): string
     {
         $rBytes = gmp_export($this->r);

@@ -87,39 +87,4 @@ final readonly class Script
     {
         return bin2hex(self::serialize());
     }
-
-    private function opDup(array &$stack): bool
-    {
-        if (\count($stack) < 1) {
-            return false;
-        }
-
-        $stack[] = $stack[array_key_last($stack)];
-
-        return true;
-    }
-
-    private function opHash256(array &$stack): bool
-    {
-        if (\count($stack) < 1) {
-            return false;
-        }
-
-        $top     = array_pop($stack);
-        $stack[] = Hashing::hash256($top);
-
-        return true;
-    }
-
-    private function opHash160(array &$stack): bool
-    {
-        if (\count($stack) < 1) {
-            return false;
-        }
-
-        $top     = array_pop($stack);
-        $stack[] = Hashing::hash160($top);
-
-        return true;
-    }
 }
