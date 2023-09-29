@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Bitcoin;
 
-final class Hashing
+final readonly class Hashing
 {
     public static function hash160(string $data): string
     {

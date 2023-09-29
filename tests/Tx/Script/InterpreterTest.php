@@ -88,6 +88,7 @@ final class InterpreterTest extends TestCase
         // B
 
         // OP_VERIFY - At this point we've checked that A and B are not the same value
+        //             while retaining them in the stack.
         // A
         // B
 

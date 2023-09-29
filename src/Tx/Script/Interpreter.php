@@ -6,10 +6,11 @@ namespace Bitcoin\Tx\Script;
 
 use Bitcoin\ECC\S256Point;
 use Bitcoin\ECC\Signature;
+use Bitcoin\Encoding;
 use Bitcoin\Hashing;
 use Bitcoin\Tx\Script;
 
-final class Interpreter
+final readonly class Interpreter
 {
     public static function evaluate(Script $script, \GMP $z): bool
     {
@@ -68,54 +69,12 @@ final class Interpreter
             }
         }
 
-        return !empty($stack) && self::encodeNum(0) !== $stack[array_key_last($stack)];
-    }
-
-    private static function encodeNum(int $num): string
-    {
-        if (0 === $num) {
-            return '';
-        }
-
-        $absNum   = abs($num);
-        $negative = $num < 0;
-        $result   = [];
-        while ($absNum > 0) {
-            $result[] = $absNum & 0xFF;
-            $absNum >>= 8;
-        }
-
-        if ($result[array_key_last($result)] & 0x80) {
-            $result[] = $negative ? 0x80 : 0x00;
-        } elseif ($negative) {
-            $result[array_key_last($result)] |= 0x80;
-        }
-
-        return pack('C'.\count($result), ...$result);
-    }
-
-    private static function decodeNum(string $element): int
-    {
-        if ('' === $element) {
-            return 0;
-        }
-
-        $bigEndian = array_values(unpack('C'.\strlen($element), strrev($element)));
-
-        $negative = $bigEndian[0] & 0x80;
-        $result   = $bigEndian[0] & 0x80 ? $bigEndian[0] & 0x7F : $bigEndian[0];
-
-        for ($i = 1; $i < \count($bigEndian); ++$i) {
-            $result <<= 8;
-            $result += $bigEndian[$i];
-        }
-
-        return $negative ? -$result : $result;
+        return !empty($stack) && Encoding::encodeStackNum(0) !== $stack[array_key_last($stack)];
     }
 
     private static function opNum(array &$stack, int $num): bool
     {
-        $stack[] = self::encodeNum($num);
+        $stack[] = Encoding::encodeStackNum($num);
 
         return true;
     }
@@ -132,7 +91,7 @@ final class Interpreter
 
     private static function opVerify(array &$stack): bool
     {
-        return !empty($stack) && self::encodeNum(0) !== array_pop($stack);
+        return !empty($stack) && Encoding::encodeStackNum(0) !== array_pop($stack);
     }
 
     private static function opToAltStack(array &$stack, array &$altstack): bool
@@ -214,8 +173,8 @@ final class Interpreter
         }
 
         $stack[] = array_pop($stack) === array_pop($stack) ?
-            self::encodeNum(1) :
-            self::encodeNum(0);
+            Encoding::encodeStackNum(1) :
+            Encoding::encodeStackNum(0);
 
         return true;
     }
@@ -231,9 +190,9 @@ final class Interpreter
             return false;
         }
 
-        $stack[] = match (self::decodeNum(array_pop($stack))) {
-            0       => self::encodeNum(1),
-            default => self::encodeNum(0)
+        $stack[] = match (Encoding::decodeStackNum(array_pop($stack))) {
+            0       => Encoding::encodeStackNum(1),
+            default => Encoding::encodeStackNum(0)
         };
 
         return true;
@@ -245,9 +204,9 @@ final class Interpreter
             return false;
         }
 
-        $stack[] = match (self::decodeNum(array_pop($stack))) {
-            0       => self::encodeNum(0),
-            default => self::encodeNum(1)
+        $stack[] = match (Encoding::decodeStackNum(array_pop($stack))) {
+            0       => Encoding::encodeStackNum(0),
+            default => Encoding::encodeStackNum(1)
         };
 
         return true;
@@ -259,8 +218,8 @@ final class Interpreter
             return false;
         }
 
-        $stack[] = self::encodeNum(
-            self::decodeNum(array_pop($stack)) + self::decodeNum(array_pop($stack))
+        $stack[] = Encoding::encodeStackNum(
+            Encoding::decodeStackNum(array_pop($stack)) + Encoding::decodeStackNum(array_pop($stack))
         );
 
         return true;
@@ -315,8 +274,8 @@ final class Interpreter
         }
 
         $stack[] = $pubKey->verify($z, $signature) ?
-            self::encodeNum(1) :
-            self::encodeNum(0);
+            Encoding::encodeStackNum(1) :
+            Encoding::encodeStackNum(0);
 
         return true;
     }
