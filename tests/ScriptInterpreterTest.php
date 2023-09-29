@@ -24,4 +24,21 @@ final class ScriptInterpreterTest extends TestCase
 
         self::assertTrue(ScriptInterpreter::evaluate($scriptSig->combine($scriptPubKey), $z));
     }
+
+    public function testSillyScript(): void
+    {
+        // Based on example from Chapter 6 page 124
+        $scriptPubKey = new Script([
+            OpCodes::OP_5->value,
+            OpCodes::OP_ADD->value,
+            OpCodes::OP_9->value,
+            OpCodes::OP_EQUAL->value,
+        ]);
+
+        $scriptSig = new Script([
+            OpCodes::OP_4->value,
+        ]);
+
+        self::assertTrue(ScriptInterpreter::evaluate($scriptSig->combine($scriptPubKey), gmp_init(0)));
+    }
 }

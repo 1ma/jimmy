@@ -23,19 +23,29 @@ final class ScriptInterpreter
                 continue;
             }
 
+            if (OpCodes::OP_1->value <= $cmd && $cmd <= OpCodes::OP_16->value) {
+                self::opNum($stack, $cmd - 0x50);
+                continue;
+            }
+
             if (!match ($cmd) {
+                OpCodes::OP_0->value => self::opNum($stack, 0),
+
                 OpCodes::OP_IF->value    => self::opIf($stack, $cmds),
                 OpCodes::OP_NOTIF->value => self::opNotIf($stack, $cmds),
 
                 OpCodes::OP_VERIFY->value => self::opVerify($stack),
 
-                OpCodes::OP_EQUAL->value       => self::opEqual($stack),
-                OpCodes::OP_EQUALVERIFY->value => self::opEqualVerify($stack),
-
                 OpCodes::OP_TOALTSTACK->value   => self::opToAltStack($stack, $altstack),
                 OpCodes::OP_FROMALTSTACK->value => self::opFromAltStack($stack, $altstack),
 
-                OpCodes::OP_DUP->value     => self::opDup($stack),
+                OpCodes::OP_DUP->value => self::opDup($stack),
+
+                OpCodes::OP_EQUAL->value       => self::opEqual($stack),
+                OpCodes::OP_EQUALVERIFY->value => self::opEqualVerify($stack),
+
+                OpCodes::OP_ADD->value => self::opAdd($stack),
+
                 OpCodes::OP_HASH160->value => self::opHash160($stack),
                 OpCodes::OP_HASH256->value => self::opHash256($stack),
 
@@ -95,6 +105,13 @@ final class ScriptInterpreter
         return $negative ? -$result : $result;
     }
 
+    private static function opNum(array &$stack, int $num): bool
+    {
+        $stack[] = self::encodeNum($num);
+
+        return true;
+    }
+
     private static function opIf(array &$stack, array $cmds): bool
     {
         return false;
@@ -108,6 +125,27 @@ final class ScriptInterpreter
     private static function opVerify(array &$stack): bool
     {
         return !empty($stack) && self::encodeNum(0) !== array_pop($stack);
+    }
+
+    private static function opToAltStack(array &$stack, array &$altstack): bool
+    {
+        return false;
+    }
+
+    private static function opFromAltStack(array &$stack, array &$altstack): bool
+    {
+        return false;
+    }
+
+    private static function opDup(array &$stack): bool
+    {
+        if (\count($stack) < 1) {
+            return false;
+        }
+
+        $stack[] = $stack[array_key_last($stack)];
+
+        return true;
     }
 
     private static function opEqual(array &$stack): bool
@@ -128,23 +166,16 @@ final class ScriptInterpreter
         return self::opEqual($stack) && self::opVerify($stack);
     }
 
-    private static function opToAltStack(array &$stack, array &$altstack): bool
+    private static function opAdd(array &$stack): bool
     {
-        return false;
-    }
-
-    private static function opFromAltStack(array &$stack, array &$altstack): bool
-    {
-        return false;
-    }
-
-    private static function opDup(array &$stack): bool
-    {
-        if (\count($stack) < 1) {
+        if (\count($stack) < 2) {
             return false;
         }
 
-        $stack[] = $stack[array_key_last($stack)];
+        $a = self::decodeNum(array_pop($stack));
+        $b = self::decodeNum(array_pop($stack));
+
+        $stack[] = self::encodeNum($a + $b);
 
         return true;
     }
