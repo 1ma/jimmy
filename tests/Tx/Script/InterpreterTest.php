@@ -44,6 +44,9 @@ final class InterpreterTest extends TestCase
 
     public function testSha1CollisionScript(): void
     {
+        $scr = new Script(['a', 'b', 'c', OpCodes::OP_3DUP->value]);
+        self::assertTrue(Interpreter::evaluate($scr, gmp_init(0)));
+
         // Based on exercise 4 from Chapter 6
         $scriptPubKey = new Script([    // 6E 87 91 69 A7 7C A7 87
             OpCodes::OP_2DUP->value,    // Duplicates the top two stack items.

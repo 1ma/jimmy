@@ -25,39 +25,38 @@ final class Interpreter
                 continue;
             }
 
+            // So that's why they called it OP_RETURN. Bonkers.
+            if (OpCodes::OP_RETURN->value === $cmd) {
+                return false;
+            }
+
             if (OpCodes::OP_1->value <= $cmd && $cmd <= OpCodes::OP_16->value) {
                 self::opNum($stack, $cmd - OpCodes::OP_1->value + 1);
                 continue;
             }
 
             if (!match ($cmd) {
-                OpCodes::OP_0->value => self::opNum($stack, 0),
-
-                OpCodes::OP_IF->value    => self::opIf($stack, $cmds),
-                OpCodes::OP_NOTIF->value => self::opNotIf($stack, $cmds),
-
-                OpCodes::OP_VERIFY->value => self::opVerify($stack),
-
-                OpCodes::OP_TOALTSTACK->value   => self::opToAltStack($stack, $altstack),
-                OpCodes::OP_FROMALTSTACK->value => self::opFromAltStack($stack, $altstack),
-
-                OpCodes::OP_2DUP->value => self::op2Dup($stack),
-
-                OpCodes::OP_DUP->value  => self::opDup($stack),
-                OpCodes::OP_SWAP->value => self::opSwap($stack),
-
-                OpCodes::OP_EQUAL->value       => self::opEqual($stack),
-                OpCodes::OP_EQUALVERIFY->value => self::opEqualVerify($stack),
-
-                OpCodes::OP_NOT->value => self::opNot($stack),
-                OpCodes::OP_ADD->value => self::opAdd($stack),
-
-                OpCodes::OP_RIPEMD160->value => self::opHash($stack, 'ripemd160'),
-                OpCodes::OP_SHA1->value      => self::opHash($stack, 'sha1'),
-                OpCodes::OP_SHA256->value    => self::opHash($stack, 'sha256'),
-                OpCodes::OP_HASH160->value   => self::opHash160($stack),
-                OpCodes::OP_HASH256->value   => self::opHash256($stack),
-
+                OpCodes::OP_0->value                   => self::opNum($stack, 0),
+                OpCodes::OP_IF->value                  => self::opIf($stack, $cmds),
+                OpCodes::OP_NOTIF->value               => self::opNotIf($stack, $cmds),
+                OpCodes::OP_VERIFY->value              => self::opVerify($stack),
+                OpCodes::OP_TOALTSTACK->value          => self::opToAltStack($stack, $altstack),
+                OpCodes::OP_FROMALTSTACK->value        => self::opFromAltStack($stack, $altstack),
+                OpCodes::OP_DROP->value                => self::opDrop($stack),
+                OpCodes::OP_2DUP->value                => self::op2Dup($stack),
+                OpCodes::OP_3DUP->value                => self::op3Dup($stack),
+                OpCodes::OP_DUP->value                 => self::opDup($stack),
+                OpCodes::OP_SWAP->value                => self::opSwap($stack),
+                OpCodes::OP_EQUAL->value               => self::opEqual($stack),
+                OpCodes::OP_EQUALVERIFY->value         => self::opEqualVerify($stack),
+                OpCodes::OP_NOT->value                 => self::opNot($stack),
+                OpCodes::OP_0NOTEQUAL->value           => self::op0NotEqual($stack),
+                OpCodes::OP_ADD->value                 => self::opAdd($stack),
+                OpCodes::OP_RIPEMD160->value           => self::opHash($stack, 'ripemd160'),
+                OpCodes::OP_SHA1->value                => self::opHash($stack, 'sha1'),
+                OpCodes::OP_SHA256->value              => self::opHash($stack, 'sha256'),
+                OpCodes::OP_HASH160->value             => self::opHash160($stack),
+                OpCodes::OP_HASH256->value             => self::opHash256($stack),
                 OpCodes::OP_CHECKSIG->value            => self::opCheckSig($stack, $z),
                 OpCodes::OP_CHECKSIGVERIFY->value      => self::opCheckSigVerify($stack, $z),
                 OpCodes::OP_CHECKMULTISIG->value       => self::opCheckMultiSig($stack, $z),
@@ -146,6 +145,17 @@ final class Interpreter
         return false;
     }
 
+    private static function opDrop(array &$stack): bool
+    {
+        if (\count($stack) < 1) {
+            return false;
+        }
+
+        array_pop($stack);
+
+        return true;
+    }
+
     private static function op2Dup(array &$stack): bool
     {
         if (\count($stack) < 2) {
@@ -154,6 +164,19 @@ final class Interpreter
 
         $stack[] = $stack[array_key_last($stack) - 1];
         $stack[] = $stack[array_key_last($stack) - 1];
+
+        return true;
+    }
+
+    private static function op3Dup(array &$stack): bool
+    {
+        if (\count($stack) < 3) {
+            return false;
+        }
+
+        $stack[] = $stack[array_key_last($stack) - 2];
+        $stack[] = $stack[array_key_last($stack) - 2];
+        $stack[] = $stack[array_key_last($stack) - 2];
 
         return true;
     }
@@ -202,7 +225,7 @@ final class Interpreter
         return self::opEqual($stack) && self::opVerify($stack);
     }
 
-    private static function OpNot(array &$stack): bool
+    private static function opNot(array &$stack): bool
     {
         if (\count($stack) < 1) {
             return false;
@@ -211,6 +234,20 @@ final class Interpreter
         $stack[] = match (self::decodeNum(array_pop($stack))) {
             0       => self::encodeNum(1),
             default => self::encodeNum(0)
+        };
+
+        return true;
+    }
+
+    private static function op0NotEqual(array &$stack): bool
+    {
+        if (\count($stack) < 1) {
+            return false;
+        }
+
+        $stack[] = match (self::decodeNum(array_pop($stack))) {
+            0       => self::encodeNum(0),
+            default => self::encodeNum(1)
         };
 
         return true;

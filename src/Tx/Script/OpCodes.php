@@ -33,21 +33,24 @@ enum OpCodes: int
     case OP_NOTIF = 0x64;
 
     case OP_VERIFY = 0x69;
-    case OP_RETURN = 0x6A;
 
+    case OP_RETURN       = 0x6A;
     case OP_TOALTSTACK   = 0x6B;
     case OP_FROMALTSTACK = 0x6C;
+    case OP_DROP         = 0x6D;
+    case OP_2DUP         = 0x6E;
+    case OP_3DUP         = 0x6F;
 
-    case OP_2DUP = 0x6E;
+    case OP_DUP = 0x76;
 
-    case OP_DUP  = 0x76;
     case OP_SWAP = 0x7C;
 
     case OP_EQUAL       = 0x87;
     case OP_EQUALVERIFY = 0x88;
 
-    case OP_NOT = 0x91;
-    case OP_ADD = 0x93;
+    case OP_NOT       = 0x91;
+    case OP_0NOTEQUAL = 0x92;
+    case OP_ADD       = 0x93;
 
     case OP_RIPEMD160 = 0xA6;
     case OP_SHA1      = 0xA7;
