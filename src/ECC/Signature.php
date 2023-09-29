@@ -9,16 +9,42 @@ final readonly class Signature
     public \GMP $r;
     public \GMP $s;
 
+    // 1 (int marker 02) + 1 (r length) + 32 bytes + 1 (int marker 02) + 1 (s length) + 32 bytes
+    private const MIN_DER_LENGTH = 68;
+
+    // 1 (int marker 02) + 1 (r length) + 1 (padding 00) + 32 bytes + 1 (int marker 02) + 1 (s length) + 1 (padding 00) + 32 bytes
+    private const MAX_DER_LENGTH = 70;
+
     public function __construct(\GMP $r, \GMP $s)
     {
         $this->r = $r;
         $this->s = $s;
     }
 
-    public static function parse(string $der): self
+    public static function parse(string $der): static
     {
-        // TODO
-        return new self(gmp_init(0), gmp_init(0));
+        $derLen = \strlen($der);
+        if ($derLen < 2 || "\x30" !== $der[0]) {
+            throw new \InvalidArgumentException('Invalid DER signature');
+        }
+
+        $dataLen = unpack('C', $der[1])[1];
+        if (!\in_array($dataLen, range(self::MIN_DER_LENGTH, self::MAX_DER_LENGTH)) || \strlen(substr($der, 2, $dataLen)) !== $derLen - 2) {
+            throw new \InvalidArgumentException('Invalid DER signature');
+        }
+
+        $rLen = unpack('C', $der[3])[1];
+        if ("\x02" !== $der[2] || (32 !== $rLen && 33 !== $rLen)) {
+            throw new \InvalidArgumentException('Invalid DER signature');
+        }
+
+        $sOffset = 4 + $rLen;
+        $sLen    = unpack('C', $der[$sOffset + 1])[1];
+        if ("\x02" !== $der[$sOffset] || (32 !== $sLen && 33 !== $sLen) || $dataLen !== 4 + $rLen + $sLen) {
+            throw new \InvalidArgumentException('Invalid DER signature');
+        }
+
+        return new self(gmp_import(substr($der, 4, $rLen)), gmp_import(substr($der, $sOffset + 2, $sLen)));
     }
 
     public function der(): string
