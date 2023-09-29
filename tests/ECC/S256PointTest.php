@@ -235,5 +235,9 @@ final class S256PointTest extends TestCase
         self::assertSame('mmTPbXQFxboEtNRkwfh6K51jvdtHLxGeMA', $s1->pubKey->address(false, true));
         self::assertSame('mopVkxp8UhXqRYbCYJsbeE1h1fiF64jcoH', $s2->pubKey->address(true, true));
         self::assertSame('1F1Pn2y6pDb68E5nYJJeba4TLg2U7B6KF1', $s3->pubKey->address());
+
+        // Based on example from Chapter 6 page 120
+        $p1 = S256Point::parse(hex2bin('0250863ad64a87ae8a2fe83c1af1a8403cb53f53e486d8511dad8a04887e5b2352'));
+        self::assertSame('1PMycacnJaSqwwJqjawXBErnLsZ7RkXUAs', $p1->address());
     }
 }

@@ -27,6 +27,11 @@ final class ScriptInterpreter
                 OpCodes::OP_IF->value    => self::opIf($stack, $cmds),
                 OpCodes::OP_NOTIF->value => self::opNotIf($stack, $cmds),
 
+                OpCodes::OP_VERIFY->value => self::opVerify($stack),
+
+                OpCodes::OP_EQUAL->value       => self::opEqual($stack),
+                OpCodes::OP_EQUALVERIFY->value => self::opEqualVerify($stack),
+
                 OpCodes::OP_TOALTSTACK->value   => self::opToAltStack($stack, $altstack),
                 OpCodes::OP_FROMALTSTACK->value => self::opFromAltStack($stack, $altstack),
 
@@ -100,6 +105,29 @@ final class ScriptInterpreter
         return false;
     }
 
+    private static function opVerify(array &$stack): bool
+    {
+        return !empty($stack) && self::encodeNum(0) !== array_pop($stack);
+    }
+
+    private static function opEqual(array &$stack): bool
+    {
+        if (\count($stack) < 2) {
+            return false;
+        }
+
+        $stack[] = array_pop($stack) === array_pop($stack) ?
+            self::encodeNum(1) :
+            self::encodeNum(0);
+
+        return true;
+    }
+
+    private static function opEqualVerify(array &$stack): bool
+    {
+        return self::opEqual($stack) && self::opVerify($stack);
+    }
+
     private static function opToAltStack(array &$stack, array &$altstack): bool
     {
         return false;
@@ -145,15 +173,6 @@ final class ScriptInterpreter
 
     private static function opCheckSig(array &$stack, \GMP $z): bool
     {
-        $stack[] = self::opCheckSigVerify($stack, $z) ?
-            self::encodeNum(1) :
-            self::encodeNum(0);
-
-        return true;
-    }
-
-    private static function opCheckSigVerify(array &$stack, \GMP $z): bool
-    {
         if (\count($stack) < 2) {
             return false;
         }
@@ -167,7 +186,16 @@ final class ScriptInterpreter
             return false;
         }
 
-        return $pubKey->verify($z, $signature);
+        $stack[] = $pubKey->verify($z, $signature) ?
+            self::encodeNum(1) :
+            self::encodeNum(0);
+
+        return true;
+    }
+
+    private static function opCheckSigVerify(array &$stack, \GMP $z): bool
+    {
+        return self::opCheckSig($stack, $z) && self::opVerify($stack);
     }
 
     private static function opCheckMultiSig(array &$stack, \GMP $z): bool

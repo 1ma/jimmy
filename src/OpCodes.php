@@ -13,7 +13,11 @@ enum OpCodes: int
     case OP_IF    = 0x63;
     case OP_NOTIF = 0x64;
 
+    case OP_VERIFY = 0x69;
     case OP_RETURN = 0x6A;
+
+    case OP_EQUAL       = 0x87;
+    case OP_EQUALVERIFY = 0x88;
 
     case OP_TOALTSTACK   = 0x6B;
     case OP_FROMALTSTACK = 0x6C;
