@@ -38,15 +38,22 @@ enum OpCodes: int
     case OP_TOALTSTACK   = 0x6B;
     case OP_FROMALTSTACK = 0x6C;
 
-    case OP_DUP = 0x76;
+    case OP_2DUP = 0x6E;
+
+    case OP_DUP  = 0x76;
+    case OP_SWAP = 0x7C;
 
     case OP_EQUAL       = 0x87;
     case OP_EQUALVERIFY = 0x88;
 
+    case OP_NOT = 0x91;
     case OP_ADD = 0x93;
 
-    case OP_HASH160 = 0xA9;
-    case OP_HASH256 = 0xAA;
+    case OP_RIPEMD160 = 0xA6;
+    case OP_SHA1      = 0xA7;
+    case OP_SHA256    = 0xA8;
+    case OP_HASH160   = 0xA9;
+    case OP_HASH256   = 0xAA;
 
     case OP_CHECKSIG            = 0xAC;
     case OP_CHECKSIGVERIFY      = 0xAD;

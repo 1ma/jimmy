@@ -41,15 +41,22 @@ final class Interpreter
                 OpCodes::OP_TOALTSTACK->value   => self::opToAltStack($stack, $altstack),
                 OpCodes::OP_FROMALTSTACK->value => self::opFromAltStack($stack, $altstack),
 
-                OpCodes::OP_DUP->value => self::opDup($stack),
+                OpCodes::OP_2DUP->value => self::op2Dup($stack),
+
+                OpCodes::OP_DUP->value  => self::opDup($stack),
+                OpCodes::OP_SWAP->value => self::opSwap($stack),
 
                 OpCodes::OP_EQUAL->value       => self::opEqual($stack),
                 OpCodes::OP_EQUALVERIFY->value => self::opEqualVerify($stack),
 
+                OpCodes::OP_NOT->value => self::opNot($stack),
                 OpCodes::OP_ADD->value => self::opAdd($stack),
 
-                OpCodes::OP_HASH160->value => self::opHash160($stack),
-                OpCodes::OP_HASH256->value => self::opHash256($stack),
+                OpCodes::OP_RIPEMD160->value => self::opHash($stack, 'ripemd160'),
+                OpCodes::OP_SHA1->value      => self::opHash($stack, 'sha1'),
+                OpCodes::OP_SHA256->value    => self::opHash($stack, 'sha256'),
+                OpCodes::OP_HASH160->value   => self::opHash160($stack),
+                OpCodes::OP_HASH256->value   => self::opHash256($stack),
 
                 OpCodes::OP_CHECKSIG->value            => self::opCheckSig($stack, $z),
                 OpCodes::OP_CHECKSIGVERIFY->value      => self::opCheckSigVerify($stack, $z),
@@ -139,6 +146,18 @@ final class Interpreter
         return false;
     }
 
+    private static function op2Dup(array &$stack): bool
+    {
+        if (\count($stack) < 2) {
+            return false;
+        }
+
+        $stack[] = $stack[array_key_last($stack) - 1];
+        $stack[] = $stack[array_key_last($stack) - 1];
+
+        return true;
+    }
+
     private static function opDup(array &$stack): bool
     {
         if (\count($stack) < 1) {
@@ -146,6 +165,21 @@ final class Interpreter
         }
 
         $stack[] = $stack[array_key_last($stack)];
+
+        return true;
+    }
+
+    private static function opSwap(array &$stack): bool
+    {
+        if (\count($stack) < 2) {
+            return false;
+        }
+
+        $a = array_pop($stack);
+        $b = array_pop($stack);
+
+        $stack[] = $a;
+        $stack[] = $b;
 
         return true;
     }
@@ -168,6 +202,20 @@ final class Interpreter
         return self::opEqual($stack) && self::opVerify($stack);
     }
 
+    private static function OpNot(array &$stack): bool
+    {
+        if (\count($stack) < 1) {
+            return false;
+        }
+
+        $stack[] = match (self::decodeNum(array_pop($stack))) {
+            0       => self::encodeNum(1),
+            default => self::encodeNum(0)
+        };
+
+        return true;
+    }
+
     private static function opAdd(array &$stack): bool
     {
         if (\count($stack) < 2) {
@@ -177,6 +225,17 @@ final class Interpreter
         $stack[] = self::encodeNum(
             self::decodeNum(array_pop($stack)) + self::decodeNum(array_pop($stack))
         );
+
+        return true;
+    }
+
+    private static function opHash(array &$stack, string $algorithm): bool
+    {
+        if (\count($stack) < 1) {
+            return false;
+        }
+
+        $stack[] = hash($algorithm, array_pop($stack), true);
 
         return true;
     }
