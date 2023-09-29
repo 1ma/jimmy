@@ -2,9 +2,11 @@
 
 declare(strict_types=1);
 
-namespace Bitcoin;
+namespace Bitcoin\Tx;
 
-final readonly class TxIn
+use Bitcoin\Encoding;
+
+final readonly class Input
 {
     public string $prevTxId;
     public int $prevIndex;
@@ -37,7 +39,7 @@ final readonly class TxIn
      */
     public function prevAmount(bool $testnet = false): int
     {
-        return TxFetcher::fetch($this->prevTxId, $testnet)->txOuts[$this->prevIndex]->amount;
+        return Fetcher::fetch($this->prevTxId, $testnet)->txOuts[$this->prevIndex]->amount;
     }
 
     /**
@@ -45,7 +47,7 @@ final readonly class TxIn
      */
     public function prevScriptPubKey(bool $testnet = false): Script
     {
-        return TxFetcher::fetch($this->prevTxId, $testnet)->txOuts[$this->prevIndex]->scriptPubKey;
+        return Fetcher::fetch($this->prevTxId, $testnet)->txOuts[$this->prevIndex]->scriptPubKey;
     }
 
     public function serialize(): string

@@ -2,9 +2,11 @@
 
 declare(strict_types=1);
 
-namespace Bitcoin;
+namespace Bitcoin\Tx;
 
-final readonly class TxOut
+use Bitcoin\Encoding;
+
+final readonly class Output
 {
     public int $amount;
     public Script $scriptPubKey;

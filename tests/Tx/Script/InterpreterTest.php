@@ -2,14 +2,14 @@
 
 declare(strict_types=1);
 
-namespace Bitcoin\Tests;
+namespace Bitcoin\Tests\Tx\Script;
 
-use Bitcoin\OpCodes;
-use Bitcoin\Script;
-use Bitcoin\ScriptInterpreter;
+use Bitcoin\Tx\Script;
+use Bitcoin\Tx\Script\Interpreter;
+use Bitcoin\Tx\Script\OpCodes;
 use PHPUnit\Framework\TestCase;
 
-final class ScriptInterpreterTest extends TestCase
+final class InterpreterTest extends TestCase
 {
     public function testPayToPubKey(): void
     {
@@ -22,7 +22,7 @@ final class ScriptInterpreterTest extends TestCase
         $scriptPubKey = new Script([$sec, OpCodes::OP_CHECKSIG->value]);
         $scriptSig    = new Script([$der]);
 
-        self::assertTrue(ScriptInterpreter::evaluate($scriptSig->combine($scriptPubKey), $z));
+        self::assertTrue(Interpreter::evaluate($scriptSig->combine($scriptPubKey), $z));
     }
 
     public function testSillyScript(): void
@@ -39,6 +39,6 @@ final class ScriptInterpreterTest extends TestCase
             OpCodes::OP_4->value,
         ]);
 
-        self::assertTrue(ScriptInterpreter::evaluate($scriptSig->combine($scriptPubKey), gmp_init(0)));
+        self::assertTrue(Interpreter::evaluate($scriptSig->combine($scriptPubKey), gmp_init(0)));
     }
 }

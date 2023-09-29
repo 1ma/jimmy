@@ -2,7 +2,10 @@
 
 declare(strict_types=1);
 
-namespace Bitcoin;
+namespace Bitcoin\Tx;
+
+use Bitcoin\Encoding;
+use Bitcoin\Tx\Script\OpCodes;
 
 final readonly class Script
 {

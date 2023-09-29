@@ -2,9 +2,11 @@
 
 declare(strict_types=1);
 
-namespace Bitcoin;
+namespace Bitcoin\Tx;
 
-final class TxFetcher
+use Bitcoin\Tx;
+
+final class Fetcher
 {
     private const MAINNET = 'https://mempool.space';
     private const TESTNET = 'https://mempool.space/testnet';

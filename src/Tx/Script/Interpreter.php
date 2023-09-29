@@ -2,12 +2,14 @@
 
 declare(strict_types=1);
 
-namespace Bitcoin;
+namespace Bitcoin\Tx\Script;
 
 use Bitcoin\ECC\S256Point;
 use Bitcoin\ECC\Signature;
+use Bitcoin\Hashing;
+use Bitcoin\Tx\Script;
 
-final class ScriptInterpreter
+final class Interpreter
 {
     public static function evaluate(Script $script, \GMP $z): bool
     {
@@ -24,7 +26,7 @@ final class ScriptInterpreter
             }
 
             if (OpCodes::OP_1->value <= $cmd && $cmd <= OpCodes::OP_16->value) {
-                self::opNum($stack, $cmd - 0x50);
+                self::opNum($stack, $cmd - OpCodes::OP_1->value + 1);
                 continue;
             }
 
@@ -172,10 +174,9 @@ final class ScriptInterpreter
             return false;
         }
 
-        $a = self::decodeNum(array_pop($stack));
-        $b = self::decodeNum(array_pop($stack));
-
-        $stack[] = self::encodeNum($a + $b);
+        $stack[] = self::encodeNum(
+            self::decodeNum(array_pop($stack)) + self::decodeNum(array_pop($stack))
+        );
 
         return true;
     }
