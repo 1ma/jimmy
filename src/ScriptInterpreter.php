@@ -16,7 +16,7 @@ final class ScriptInterpreter
         $cmds     = $script->cmds;
 
         while (!empty($cmds)) {
-            $cmd = array_pop($cmds);
+            $cmd = array_shift($cmds);
 
             if (!\is_int($cmd)) {
                 $stack[] = $cmd;
@@ -35,9 +35,9 @@ final class ScriptInterpreter
                 OpCodes::OP_HASH256->value => self::opHash256($stack),
 
                 OpCodes::OP_CHECKSIG->value            => self::opCheckSig($stack, $z),
-                OpCodes::OP_CHECKSIGVERIFY->value      => self::opCheckSig($stack, $z),
-                OpCodes::OP_CHECKMULTISIG->value       => self::opCheckSig($stack, $z),
-                OpCodes::OP_CHECKMULTISIGVERIFY->value => self::opCheckSig($stack, $z),
+                OpCodes::OP_CHECKSIGVERIFY->value      => self::opCheckSigVerify($stack, $z),
+                OpCodes::OP_CHECKMULTISIG->value       => self::opCheckMultiSig($stack, $z),
+                OpCodes::OP_CHECKMULTISIGVERIFY->value => self::opCheckMultiSigVerify($stack, $z),
 
                 default => false
             }) {
@@ -45,7 +45,49 @@ final class ScriptInterpreter
             }
         }
 
-        return !empty($stack) && "\x00" != $stack[array_key_last($stack)];
+        return !empty($stack) && self::encodeNum(0) !== $stack[array_key_last($stack)];
+    }
+
+    private static function encodeNum(int $num): string
+    {
+        if (0 === $num) {
+            return '';
+        }
+
+        $absNum   = abs($num);
+        $negative = $num < 0;
+        $result   = [];
+        while ($absNum > 0) {
+            $result[] = $absNum & 0xFF;
+            $absNum >>= 8;
+        }
+
+        if ($result[array_key_last($result)] & 0x80) {
+            $result[] = $negative ? 0x80 : 0x00;
+        } elseif ($negative) {
+            $result[array_key_last($result)] |= 0x80;
+        }
+
+        return pack('C'.\count($result), ...$result);
+    }
+
+    private static function decodeNum(string $element): int
+    {
+        if ('' === $element) {
+            return 0;
+        }
+
+        $bigEndian = array_values(unpack('C'.\strlen($element), strrev($element)));
+
+        $negative = $bigEndian[0] & 0x80;
+        $result   = $bigEndian[0] & 0x80 ? $bigEndian[0] & 0x7F : $bigEndian[0];
+
+        for ($i = 1; $i < \count($bigEndian); ++$i) {
+            $result <<= 8;
+            $result += $bigEndian[$i];
+        }
+
+        return $negative ? -$result : $result;
     }
 
     private static function opIf(array &$stack, array $cmds): bool
@@ -85,8 +127,7 @@ final class ScriptInterpreter
             return false;
         }
 
-        $top     = array_pop($stack);
-        $stack[] = Hashing::hash160($top);
+        $stack[] = Hashing::hash160(array_pop($stack));
 
         return true;
     }
@@ -97,33 +138,36 @@ final class ScriptInterpreter
             return false;
         }
 
-        $top     = array_pop($stack);
-        $stack[] = Hashing::hash256($top);
+        $stack[] = Hashing::hash256(array_pop($stack));
 
         return true;
     }
 
     private static function opCheckSig(array &$stack, \GMP $z): bool
     {
-        if (\count($stack) < 2) {
-            return false;
-        }
-
-        try {
-            $pubKey    = S256Point::parse(array_pop($stack));
-            $signature = Signature::parse(array_pop($stack));
-        } catch (\InvalidArgumentException) {
-            return false;
-        }
-
-        $stack[] = $pubKey->verify($z, $signature) ? "\x01" : '';
+        $stack[] = self::opCheckSigVerify($stack, $z) ?
+            self::encodeNum(1) :
+            self::encodeNum(0);
 
         return true;
     }
 
     private static function opCheckSigVerify(array &$stack, \GMP $z): bool
     {
-        return false;
+        if (\count($stack) < 2) {
+            return false;
+        }
+
+        try {
+            $pubKey = S256Point::parse(array_pop($stack));
+
+            // sighash byte must be stripped from the DER data
+            $signature = Signature::parse(substr(array_pop($stack), 0, -1));
+        } catch (\InvalidArgumentException) {
+            return false;
+        }
+
+        return $pubKey->verify($z, $signature);
     }
 
     private static function opCheckMultiSig(array &$stack, \GMP $z): bool

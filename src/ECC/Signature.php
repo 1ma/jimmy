@@ -9,9 +9,6 @@ final readonly class Signature
     public \GMP $r;
     public \GMP $s;
 
-    // 1 (int marker 02) + 1 (r length) + 32 bytes + 1 (int marker 02) + 1 (s length) + 32 bytes
-    private const MIN_DER_LENGTH = 68;
-
     // 1 (int marker 02) + 1 (r length) + 1 (padding 00) + 32 bytes + 1 (int marker 02) + 1 (s length) + 1 (padding 00) + 32 bytes
     private const MAX_DER_LENGTH = 70;
 
@@ -29,7 +26,7 @@ final readonly class Signature
         }
 
         $dataLen = unpack('C', $der[1])[1];
-        if (!\in_array($dataLen, range(self::MIN_DER_LENGTH, self::MAX_DER_LENGTH)) || \strlen(substr($der, 2, $dataLen)) !== $derLen - 2) {
+        if ($dataLen > self::MAX_DER_LENGTH || \strlen(substr($der, 2, $dataLen)) !== $derLen - 2) {
             throw new \InvalidArgumentException('Invalid DER signature');
         }
 
