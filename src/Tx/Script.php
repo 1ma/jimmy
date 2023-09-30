@@ -17,6 +17,17 @@ final readonly class Script
         $this->cmds = $cmds;
     }
 
+    public static function payToPubKeyHash(string $h160): self
+    {
+        return new self([
+            OpCodes::OP_DUP->value,
+            OpCodes::OP_HASH160->value,
+            $h160,
+            OpCodes::OP_EQUALVERIFY->value,
+            OpCodes::OP_CHECKSIG->value,
+        ]);
+    }
+
     /**
      * @param resource $stream
      */

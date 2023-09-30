@@ -13,11 +13,13 @@ final readonly class Input
     public Script $scriptSig;
     public int $seqNum;
 
-    public function __construct(string $prevTxId, int $prevIndex, Script $scriptSig, int $seqNum)
+    private const DEFAULT_SEQUENCE_NUMBER = 0xFFFFFFFF;
+
+    public function __construct(string $prevTxId, int $prevIndex, Script $scriptSig = null, int $seqNum = self::DEFAULT_SEQUENCE_NUMBER)
     {
         $this->prevTxId  = $prevTxId;
         $this->prevIndex = $prevIndex;
-        $this->scriptSig = $scriptSig;
+        $this->scriptSig = $scriptSig ?? new Script();
         $this->seqNum    = $seqNum;
     }
 

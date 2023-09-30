@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Bitcoin\Tests;
 
+use Bitcoin\Encoding;
 use Bitcoin\Tx;
 use PHPUnit\Framework\TestCase;
 
@@ -82,5 +83,26 @@ TXT;
             'Testnet legacy transaction, 1 input 2 outputs'  => ['52559dc26a305f38a1a058a0f413f0a3142c76841176b3a2fe701128f582bfcc'],
             'Testnet legacy transaction, 2 inputs 2 outputs' => ['1f66560bda7196f6378f8cc7c9d2ff8abafb196d4fb2b5d1660fd0ff4a71dd25'],
         ];
+    }
+
+    public function testTransactionCreation(): void
+    {
+        $txIn = new Tx\Input('0d6fe5213c0b3291f208cba8bfb59b7476dffacc4e5cb66f6eb20a080843a299', 13);
+
+        $txOut1 = new Tx\Output(33000000, Tx\Script::payToPubKeyHash(Encoding::base58decode('mzx5YhAH9kNHtcN481u6WkjeHjYtVeKVh2')));
+        $txOut2 = new Tx\Output(10000000, Tx\Script::payToPubKeyHash(Encoding::base58decode('mvWZEw2tsFaKVDb77ntJPrYrqnLCDYsbWX')));
+
+        $expectedSerialization = <<<TXT
+tx: a8581a29534cfa50cc545c56efd9e9241b77395a08f4c971354f3039605b69ec
+version: 1
+tx_ins:
+0d6fe5213c0b3291f208cba8bfb59b7476dffacc4e5cb66f6eb20a080843a299:13
+tx_outs:
+33000000:1976a914d52ad7ca9b3d096a38e752c2018e6fbc40cdf26f88ac
+10000000:1976a914a476a47413b44c8a2067cf947d97b4ecccdb739488ac
+locktime: 0
+TXT;
+
+        self::assertSame($expectedSerialization, (string) new Tx(1, [$txIn], [$txOut1, $txOut2], locktime: 0, testnet: true));
     }
 }
