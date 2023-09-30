@@ -19,7 +19,7 @@ final class TxTest extends TestCase
         $tx = new Tx(1, [], [], 0, true);
 
         $expectedSerialization = <<<TXT
-tx: 276abb0e0c27f6a7a9b482579dd9861deccdab04b10c4f3e117549bd6b3f5308
+tx: d21633ba23f70118185227be58a63527675641ad37967e2aa461559f577aec43
 version: 1
 tx_ins:
 tx_outs:

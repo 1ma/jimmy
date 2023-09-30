@@ -38,7 +38,10 @@ final readonly class Encoding
 
     public static function toLE(\GMP $number, int $padding = 0): string
     {
-        return str_pad(gmp_export($number, 1, \GMP_LSW_FIRST | \GMP_LITTLE_ENDIAN), $padding, "\x00");
+        // gmp_export(GMP(0)) returns an empty string instead of the 0x00 byte
+        $le = 0 == $number ? "\x00" : gmp_export($number, 1, \GMP_LSW_FIRST | \GMP_LITTLE_ENDIAN);
+
+        return str_pad($le, $padding, "\x00");
     }
 
     public static function encodeVarInt(int $i): string

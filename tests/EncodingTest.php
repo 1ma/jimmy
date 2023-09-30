@@ -42,12 +42,14 @@ final class EncodingTest extends TestCase
 
     public function testVarIntEncodingAndParsing(): void
     {
+        self::assertSame('00', bin2hex(Encoding::encodeVarInt(0)));
         self::assertSame('64', bin2hex(Encoding::encodeVarInt(100)));
         self::assertSame('fdff00', bin2hex(Encoding::encodeVarInt(255)));
         self::assertSame('fd2b02', bin2hex(Encoding::encodeVarInt(555)));
         self::assertSame('fe7f110100', bin2hex(Encoding::encodeVarInt(70015)));
         self::assertSame('ff6dc7ed3e60100000', bin2hex(Encoding::encodeVarInt(18005558675309)));
 
+        self::assertSame(0, Encoding::decodeVarInt(self::stream(hex2bin('00'))));
         self::assertSame(100, Encoding::decodeVarInt(self::stream(hex2bin('64'))));
         self::assertSame(255, Encoding::decodeVarInt(self::stream(hex2bin('fdff00'))));
         self::assertSame(555, Encoding::decodeVarInt(self::stream(hex2bin('fd2b02'))));
