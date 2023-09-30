@@ -75,10 +75,10 @@ final readonly class Tx
      */
     public function fee(): int
     {
-        $inAmount  = array_reduce($this->txIns, fn (int $subtotal, Input $txIn) => $subtotal + $txIn->prevAmount($this->testnet), 0);
-        $outAmount = array_reduce($this->txOuts, fn (int $subtotal, Output $txOut) => $subtotal + $txOut->amount, 0);
+        $inAmount  = array_reduce($this->txIns, fn (\GMP $subtotal, Input $txIn) => $subtotal + $txIn->prevAmount($this->testnet), gmp_init(0));
+        $outAmount = array_reduce($this->txOuts, fn (\GMP $subtotal, Output $txOut) => $subtotal + $txOut->amount, gmp_init(0));
 
-        return $inAmount - $outAmount;
+        return gmp_intval($inAmount - $outAmount);
     }
 
     public function __toString(): string
