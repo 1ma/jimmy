@@ -31,6 +31,32 @@ final readonly class Encoding
         return self::base58encode($data.substr(Hashing::hash256($data), 0, 4));
     }
 
+    public static function base58decode(string $address): string
+    {
+        $num = gmp_init(0);
+        for ($i = 0; $i < \strlen($address); ++$i) {
+            $num *= 58;
+            $digit = strpos(self::BASE58_ALPHABET, $address[$i]);
+
+            if (false === $digit) {
+                throw new \InvalidArgumentException('Invalid character in base58 data: '.$address[$i]);
+            }
+
+            $num += $digit;
+        }
+
+        $combined = str_pad(gmp_export($num), 25, "\x00", \STR_PAD_LEFT);
+        $checksum = substr($combined, -4);
+        $data     = substr($combined, 0, -4);
+        // expected data: 00f54a5851e9372b87810a8e60cdd2e7cfd80b6e31
+
+        if (substr(Hashing::hash256($data), 0, 4) !== $checksum) {
+            throw new \InvalidArgumentException('bad address');
+        }
+
+        return substr($data, 1);
+    }
+
     public static function fromLE(string $payload): \GMP
     {
         return gmp_import($payload, 1, \GMP_LSW_FIRST | \GMP_LITTLE_ENDIAN);
