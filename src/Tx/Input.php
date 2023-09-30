@@ -6,12 +6,12 @@ namespace Bitcoin\Tx;
 
 use Bitcoin\Encoding;
 
-final readonly class Input
+final class Input
 {
-    public string $prevTxId;
-    public int $prevIndex;
+    public readonly string $prevTxId;
+    public readonly int $prevIndex;
     public Script $scriptSig;
-    public int $seqNum;
+    public readonly int $seqNum;
 
     private const DEFAULT_SEQUENCE_NUMBER = 0xFFFFFFFF;
 

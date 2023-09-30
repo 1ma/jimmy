@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Bitcoin\Tests;
 
+use Bitcoin\ECC\PrivateKey;
 use Bitcoin\Encoding;
 use Bitcoin\Tx;
 use PHPUnit\Framework\TestCase;
@@ -87,22 +88,68 @@ TXT;
 
     public function testTransactionCreation(): void
     {
-        $txIn = new Tx\Input('0d6fe5213c0b3291f208cba8bfb59b7476dffacc4e5cb66f6eb20a080843a299', 13);
+        $txIn = new Tx\Input('f781eac22fd176430c7dbf37b9e55dcb2128089854b7d7c0f43eb61012d610e5', 0);
 
-        $txOut1 = new Tx\Output(33000000, Tx\Script::payToPubKeyHash(Encoding::base58decode('mzx5YhAH9kNHtcN481u6WkjeHjYtVeKVh2')));
-        $txOut2 = new Tx\Output(10000000, Tx\Script::payToPubKeyHash(Encoding::base58decode('mvWZEw2tsFaKVDb77ntJPrYrqnLCDYsbWX')));
+        $txOut1 = new Tx\Output(14424, Tx\Script::payToPubKeyHash(Encoding::base58decode('n14VanAQTFrZcMV8GqfUQmors2NCUBXCin')));
+        $txOut2 = new Tx\Output(4878, Tx\Script::payToPubKeyHash(Encoding::base58decode('mfoZu55yYex1X575MRpHJc8yDDttzvyx3M')));
+        $txOut3 = new Tx\Output(0, Tx\Script::opReturn('Aquesta transacció ha estat construïda amb PHP, sang i llàgrimes.'));
 
         $expectedSerialization = <<<TXT
-tx: a8581a29534cfa50cc545c56efd9e9241b77395a08f4c971354f3039605b69ec
+tx: ef448d0587b95a118ab8fb77fd528ef82883d6a97c1a06313f2b99b9d52abea1
 version: 1
 tx_ins:
-0d6fe5213c0b3291f208cba8bfb59b7476dffacc4e5cb66f6eb20a080843a299:13
+f781eac22fd176430c7dbf37b9e55dcb2128089854b7d7c0f43eb61012d610e5:0
 tx_outs:
-33000000:1976a914d52ad7ca9b3d096a38e752c2018e6fbc40cdf26f88ac
-10000000:1976a914a476a47413b44c8a2067cf947d97b4ecccdb739488ac
+14424:1976a914d6616725f82bef6379cc3a9b9993939dacf31eea88ac
+4878:1976a9140324603ae536eed36317f4940e367cd8e027293288ac
+0:466a4441717565737461207472616e7361636369c3b320686120657374617420636f6e73747275c3af646120616d62205048502c2073616e672069206c6cc3a06772696d65732e
 locktime: 0
 TXT;
 
-        self::assertSame($expectedSerialization, (string) new Tx(1, [$txIn], [$txOut1, $txOut2], locktime: 0, testnet: true));
+        $tx = new Tx(1, [$txIn], [$txOut1, $txOut2, $txOut3], locktime: 0, testnet: true);
+
+        self::assertSame($expectedSerialization, (string) $tx);
+        self::assertSame(314, $tx->fee());
+
+        self::assertTrue($tx->signInput(0, new PrivateKey(gmp_import(hex2bin('97fd784cf2f47514bbff4ae9047b5e6a98a8b456b92f8f2c3aa61ce71911430a')))));
+        self::assertTrue($tx->verify());
+
+        self::assertSame(
+            '0100000001e510d61210b63ef4c0d7b75498082821cb5de5b937bf7d0c4376d12fc2ea81f7000000006a47304402201a8c717ea78f9072f1f2f7ccf93a9512fb8d49dd0bdf614d67a1237761c7cd8c022030bb04d2057d2e8133fe12d9a6104442a9ddbef993a3f5adc382d908dda24b0801210290c7f33f050a916c31fb17250d8fd755448ee79ff8398f848ce74e056a545606ffffffff0358380000000000001976a914d6616725f82bef6379cc3a9b9993939dacf31eea88ac0e130000000000001976a9140324603ae536eed36317f4940e367cd8e027293288ac0000000000000000466a4441717565737461207472616e7361636369c3b320686120657374617420636f6e73747275c3af646120616d62205048502c2073616e672069206c6cc3a06772696d65732e00000000',
+            bin2hex($tx->serialize())
+        );
+    }
+
+    public function testWhackyTransactionCreation(): void
+    {
+        $txIn1 = new Tx\Input('7684d6893890d63a6ee8e14f6400e3168fd1638926350bbee8b79dc733f81159', 0);
+        $txIn2 = new Tx\Input('7684d6893890d63a6ee8e14f6400e3168fd1638926350bbee8b79dc733f81159', 1);
+
+        $txOut = new Tx\Output(0, Tx\Script::opReturn('Tot vostre, fills de puta.'));
+
+        $expectedSerialization = <<<TXT
+tx: da060c1b0d7832320c7b2a52ca9ec4c43533fc095eb9509c750c2ec9cb465fbd
+version: 1
+tx_ins:
+7684d6893890d63a6ee8e14f6400e3168fd1638926350bbee8b79dc733f81159:0
+7684d6893890d63a6ee8e14f6400e3168fd1638926350bbee8b79dc733f81159:1
+tx_outs:
+0:1c6a1a546f7420766f737472652c2066696c6c7320646520707574612e
+locktime: 0
+TXT;
+
+        $tx = new Tx(1, [$txIn1, $txIn2], [$txOut], locktime: 0, testnet: true);
+
+        self::assertSame($expectedSerialization, (string) $tx);
+        self::assertSame(19302, $tx->fee());
+
+        self::assertTrue($tx->signInput(0, new PrivateKey(gmp_import(hex2bin('99816cbf9908dc7d0e03eadb953eccd4c1661d4ca52c5084beb0b2dd866e1e8b')))));
+        self::assertTrue($tx->signInput(1, new PrivateKey(gmp_import(hex2bin('21c4255160194c216c61b4d58b1f8e41d1280bfa67ed9260441d94f6a9e9f94e')))));
+        self::assertTrue($tx->verify());
+
+        self::assertSame(
+            '01000000025911f833c79db7e8be0b35268963d18f16e300644fe1e86e3ad6903889d68476000000006b48304502210097f902579afdf610fad780c9ced8f80217fa875581a9f169903fdec4bb8eda22022075afba423b644d2fcbe35f77d95d36ede561b8b86a4dab68a70bcd33ee7c1acb012102738c300ffa2c330a80ba9249da9ab1e27ff1ad5e5256e16158821ebb1d427bd7ffffffff5911f833c79db7e8be0b35268963d18f16e300644fe1e86e3ad6903889d68476010000006b4830450221008bfd7ba214c5e56baa78431c5a42920b30f0114972a62b86a2794e9504bf37c50220721315cc58d9983a476555d2e7f2b33ebabb755d4634226d3a0da3cfe361eedb012102757b06ba06c5f2cf8d5060af94774d6873b9d4b1e83ba7b93f8889f07d539860ffffffff0100000000000000001c6a1a546f7420766f737472652c2066696c6c7320646520707574612e00000000',
+            bin2hex($tx->serialize())
+        );
     }
 }

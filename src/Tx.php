@@ -4,13 +4,14 @@ declare(strict_types=1);
 
 namespace Bitcoin;
 
+use Bitcoin\ECC\PrivateKey;
 use Bitcoin\Tx\Input;
 use Bitcoin\Tx\Output;
 use Bitcoin\Tx\Script;
 
-final readonly class Tx
+final class Tx
 {
-    public int $version;
+    public readonly int $version;
 
     /** @var Input[] */
     public array $txIns;
@@ -18,8 +19,8 @@ final readonly class Tx
     /** @var Output[] */
     public array $txOuts;
 
-    public int $locktime;
-    public bool $testnet;
+    public readonly int $locktime;
+    public readonly bool $testnet;
 
     private const SIGHASH_ALL = 0x01;
 
@@ -82,6 +83,21 @@ final readonly class Tx
         $outAmount = array_reduce($this->txOuts, fn (\GMP $subtotal, Output $txOut) => $subtotal + $txOut->amount, gmp_init(0));
 
         return gmp_intval($inAmount - $outAmount);
+    }
+
+    public function signInput(int $inputIndex, PrivateKey $key): bool
+    {
+        if ($inputIndex < 0 || $inputIndex >= \count($this->txIns)) {
+            throw new \InvalidArgumentException('Input index out of bounds');
+        }
+
+        $z   = $this->sigHash($inputIndex);
+        $sig = $key->sign($z)->der()."\x01"; // SIGHASH_ALL byte
+        $sec = $key->pubKey->sec();
+
+        $this->txIns[$inputIndex]->scriptSig = new Script([$sig, $sec]);
+
+        return $this->verifyInput($inputIndex);
     }
 
     public function verify(): bool
