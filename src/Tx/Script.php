@@ -17,6 +17,11 @@ final readonly class Script
         $this->cmds = $cmds;
     }
 
+    public static function opReturn(string $data): self
+    {
+        return new self([OpCodes::OP_RETURN->value, $data]);
+    }
+
     public static function payToPubKeyHash(string $h160): self
     {
         return new self([
