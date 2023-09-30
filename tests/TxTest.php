@@ -66,4 +66,21 @@ TXT;
         self::assertSame($expectedSerialization, (string) $tx);
         self::assertSame(self::LARGE_TX, bin2hex($tx->serialize()));
     }
+
+    /**
+     * @dataProvider transactionVerificationProvider
+     */
+    public function testTransactionVerification(string $txId): void
+    {
+        self::assertTrue(Tx\Fetcher::fetch($txId, testnet: true)->verify());
+    }
+
+    public static function transactionVerificationProvider(): array
+    {
+        return [
+            'Testnet legacy transaction, 1 input 1 output'   => ['c91bfb1368353aa3d30e2492f3ec4eb8e701d28bd2dfe0aa2731543ff3f29218'],
+            'Testnet legacy transaction, 1 input 2 outputs'  => ['52559dc26a305f38a1a058a0f413f0a3142c76841176b3a2fe701128f582bfcc'],
+            'Testnet legacy transaction, 2 inputs 2 outputs' => ['1f66560bda7196f6378f8cc7c9d2ff8abafb196d4fb2b5d1660fd0ff4a71dd25'],
+        ];
+    }
 }

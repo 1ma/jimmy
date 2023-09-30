@@ -6,6 +6,7 @@ namespace Bitcoin;
 
 use Bitcoin\Tx\Input;
 use Bitcoin\Tx\Output;
+use Bitcoin\Tx\Script;
 
 final readonly class Tx
 {
@@ -19,6 +20,8 @@ final readonly class Tx
 
     public int $locktime;
     public bool $testnet;
+
+    private const SIGHASH_ALL = 0x01;
 
     public function __construct(int $version, array $txIns, array $txOuts, int $locktime, bool $testnet = false)
     {
@@ -79,6 +82,59 @@ final readonly class Tx
         $outAmount = array_reduce($this->txOuts, fn (\GMP $subtotal, Output $txOut) => $subtotal + $txOut->amount, gmp_init(0));
 
         return gmp_intval($inAmount - $outAmount);
+    }
+
+    public function verify(): bool
+    {
+        if ($this->fee() < 0) {
+            return false;
+        }
+
+        foreach ($this->txIns as $idx => $_) {
+            if (!$this->verifyInput($idx)) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    public function verifyInput(int $inputIndex): bool
+    {
+        if ($inputIndex < 0 || $inputIndex >= \count($this->txIns)) {
+            throw new \InvalidArgumentException('Input index out of bounds');
+        }
+
+        $txIn = $this->txIns[$inputIndex];
+
+        return Script\Interpreter::evaluate(
+            $txIn->scriptSig->combine($txIn->prevScriptPubKey($this->testnet)),
+            $this->sigHash($inputIndex)
+        );
+    }
+
+    private function sigHash(int $inputIndex): \GMP
+    {
+        $tx = Encoding::toLE(gmp_init($this->version), 4);
+        $tx .= Encoding::encodeVarInt(\count($this->txIns));
+        foreach ($this->txIns as $i => $txIn) {
+            $tx .= (new Input(
+                $txIn->prevTxId,
+                $txIn->prevIndex,
+                $i === $inputIndex ? $txIn->prevScriptPubKey($this->testnet) : new Script(),
+                $txIn->seqNum
+            ))->serialize();
+        }
+
+        $tx .= Encoding::encodeVarInt(\count($this->txOuts));
+        foreach ($this->txOuts as $txOut) {
+            $tx .= $txOut->serialize();
+        }
+
+        $tx .= Encoding::toLE(gmp_init($this->locktime), 4);
+        $tx .= Encoding::toLE(gmp_init(self::SIGHASH_ALL), 4);
+
+        return gmp_import(Hashing::hash256($tx));
     }
 
     public function __toString(): string
