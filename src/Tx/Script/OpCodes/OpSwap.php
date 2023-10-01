@@ -12,11 +12,11 @@ final readonly class OpSwap
             return false;
         }
 
-        $first  = array_pop($stack);
-        $second = array_pop($stack);
+        $top    = array_pop($stack);
+        $bottom = array_pop($stack);
 
-        $stack[] = $first;
-        $stack[] = $second;
+        $stack[] = $top;
+        $stack[] = $bottom;
 
         return true;
     }

@@ -94,7 +94,7 @@ TXT;
         $txOut2 = new Tx\Output(4878, Tx\Script::payToPubKeyHash(Encoding::base58decode('mfoZu55yYex1X575MRpHJc8yDDttzvyx3M')));
         $txOut3 = new Tx\Output(0, Tx\Script::opReturn('Aquesta transacció ha estat construïda amb PHP, sang i llàgrimes.'));
 
-        $expectedSerialization = <<<TXT
+        $expectedDebugView = <<<TXT
 tx: ef448d0587b95a118ab8fb77fd528ef82883d6a97c1a06313f2b99b9d52abea1
 version: 1
 tx_ins:
@@ -108,10 +108,10 @@ TXT;
 
         $tx = new Tx(1, [$txIn], [$txOut1, $txOut2, $txOut3], locktime: 0, testnet: true);
 
-        self::assertSame($expectedSerialization, (string) $tx);
+        self::assertSame($expectedDebugView, (string) $tx);
         self::assertSame(314, $tx->fee());
 
-        self::assertTrue($tx->signInput(0, new PrivateKey(gmp_import(hex2bin('97fd784cf2f47514bbff4ae9047b5e6a98a8b456b92f8f2c3aa61ce71911430a')))));
+        self::assertTrue($tx->signInput(0, new PrivateKey(gmp_init('0x97fd784cf2f47514bbff4ae9047b5e6a98a8b456b92f8f2c3aa61ce71911430a'))));
         self::assertTrue($tx->verify());
 
         self::assertSame(
@@ -127,7 +127,7 @@ TXT;
 
         $txOut = new Tx\Output(0, Tx\Script::opReturn('Tot vostre, fills de puta.'));
 
-        $expectedSerialization = <<<TXT
+        $expectedDebugView = <<<TXT
 tx: da060c1b0d7832320c7b2a52ca9ec4c43533fc095eb9509c750c2ec9cb465fbd
 version: 1
 tx_ins:
@@ -140,11 +140,11 @@ TXT;
 
         $tx = new Tx(1, [$txIn1, $txIn2], [$txOut], locktime: 0, testnet: true);
 
-        self::assertSame($expectedSerialization, (string) $tx);
+        self::assertSame($expectedDebugView, (string) $tx);
         self::assertSame(19302, $tx->fee());
 
-        self::assertTrue($tx->signInput(0, new PrivateKey(gmp_import(hex2bin('99816cbf9908dc7d0e03eadb953eccd4c1661d4ca52c5084beb0b2dd866e1e8b')))));
-        self::assertTrue($tx->signInput(1, new PrivateKey(gmp_import(hex2bin('21c4255160194c216c61b4d58b1f8e41d1280bfa67ed9260441d94f6a9e9f94e')))));
+        self::assertTrue($tx->signInput(0, new PrivateKey(gmp_init('0x99816cbf9908dc7d0e03eadb953eccd4c1661d4ca52c5084beb0b2dd866e1e8b'))));
+        self::assertTrue($tx->signInput(1, new PrivateKey(gmp_init('0x21c4255160194c216c61b4d58b1f8e41d1280bfa67ed9260441d94f6a9e9f94e'))));
         self::assertTrue($tx->verify());
 
         self::assertSame(

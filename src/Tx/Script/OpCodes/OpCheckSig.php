@@ -25,9 +25,7 @@ final readonly class OpCheckSig
             return false;
         }
 
-        $stack[] = $pubKey->verify($z, $signature) ?
-            Encoding::encodeStackNum(1) :
-            Encoding::encodeStackNum(0);
+        $stack[] = Encoding::encodeStackNum($pubKey->verify($z, $signature) ? 1 : 0);
 
         return true;
     }
