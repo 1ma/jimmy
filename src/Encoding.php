@@ -48,7 +48,6 @@ final readonly class Encoding
         $combined = str_pad(gmp_export($num), 25, "\x00", \STR_PAD_LEFT);
         $checksum = substr($combined, -4);
         $data     = substr($combined, 0, -4);
-        // expected data: 00f54a5851e9372b87810a8e60cdd2e7cfd80b6e31
 
         if (substr(Hashing::hash256($data), 0, 4) !== $checksum) {
             throw new \InvalidArgumentException('bad address');

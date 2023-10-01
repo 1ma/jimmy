@@ -74,7 +74,7 @@ TXT;
      */
     public function testTransactionVerification(string $txId): void
     {
-        self::assertTrue(Tx\Fetcher::fetch($txId, testnet: true)->verify());
+        self::assertTrue(Tx\Finder::find($txId, testnet: true)->verify());
     }
 
     public static function transactionVerificationProvider(): array

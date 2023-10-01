@@ -41,7 +41,7 @@ final class Input
      */
     public function prevAmount(bool $testnet = false): int
     {
-        return Fetcher::fetch($this->prevTxId, $testnet)->txOuts[$this->prevIndex]->amount;
+        return Finder::find($this->prevTxId, $testnet)->txOuts[$this->prevIndex]->amount;
     }
 
     /**
@@ -49,7 +49,7 @@ final class Input
      */
     public function prevScriptPubKey(bool $testnet = false): Script
     {
-        return Fetcher::fetch($this->prevTxId, $testnet)->txOuts[$this->prevIndex]->scriptPubKey;
+        return Finder::find($this->prevTxId, $testnet)->txOuts[$this->prevIndex]->scriptPubKey;
     }
 
     public function serialize(): string
