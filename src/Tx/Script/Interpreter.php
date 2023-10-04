@@ -21,29 +21,8 @@ final readonly class Interpreter
             if (!\is_int($cmd)) {
                 $stack[] = $cmd;
 
-                if (self::bip16Condition($cmds)) {
-                    array_shift($cmds);
-                    $scriptHash = array_shift($cmds);
-                    array_shift($cmds);
-
-                    // Stack is empty so no element can be hashed
-                    if (!OpCodes\OpHash::eval($stack, 'hash160')) {
-                        return false;
-                    }
-
-                    $stack[] = $scriptHash;
-
-                    // The two topmost elements of the stack aren't equal
-                    if (!(OpCodes\OpEqual::eval($stack) && OpCodes\OpVerify::eval($stack))) {
-                        return false;
-                    }
-
-                    // Parse RedeemScript (it's still $cmd from before we entered the BIP-16 branch)
-                    // and assign it to the command list (it's empty at this point).
-                    try {
-                        $cmds = Script::parseAsString(Encoding::encodeVarInt(\strlen($cmd)).$cmd)->cmds;
-                    } catch (\InvalidArgumentException) {
-                        // Invalid script that cannot be correctly parsed.
+                if (self::payToScriptHashSequence($cmds)) {
+                    if (!self::payToScriptHashEvaluation($cmds, $stack, $cmd)) {
                         return false;
                     }
                 }
@@ -100,12 +79,42 @@ final readonly class Interpreter
      *
      * @see https://github.com/bitcoin/bips/blob/master/bip-0016.mediawiki
      */
-    private static function bip16Condition(array $cmds): bool
+    private static function payToScriptHashSequence(array $cmds): bool
     {
         return 3        === \count($cmds)
             && $cmds[0] === OpCodes::OP_HASH160->value
             && \is_string($cmds[1])
             && 20       === \strlen($cmds[1])
             && $cmds[2] === OpCodes::OP_EQUAL->value;
+    }
+
+    private static function payToScriptHashEvaluation(array &$cmds, array &$stack, string $script): bool
+    {
+        array_shift($cmds);
+        $scriptHash = array_shift($cmds);
+        array_shift($cmds);
+
+        // Stack is empty so no element can be hashed
+        if (!OpCodes\OpHash::eval($stack, 'hash160')) {
+            return false;
+        }
+
+        $stack[] = $scriptHash;
+
+        // The two topmost elements of the stack aren't equal
+        if (!(OpCodes\OpEqual::eval($stack) && OpCodes\OpVerify::eval($stack))) {
+            return false;
+        }
+
+        // Parse RedeemScript (it's still $cmd from before we entered the BIP-16 branch)
+        // and assign it to the command list (it's empty at this point).
+        try {
+            $cmds = Script::parseAsString(Encoding::encodeVarInt(\strlen($script)).$script)->cmds;
+        } catch (\InvalidArgumentException) {
+            // Invalid script that cannot be correctly parsed.
+            return false;
+        }
+
+        return true;
     }
 }
