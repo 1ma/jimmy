@@ -233,15 +233,15 @@ final class S256PointTest extends TestCase
         $s2 = new PrivateKey(gmp_init(2020 ** 5));
         $s3 = new PrivateKey(gmp_init(0x12345DEADBEEF));
 
-        self::assertSame('mmTPbXQFxboEtNRkwfh6K51jvdtHLxGeMA', $s1->pubKey->address(false, true));
-        self::assertSame('mopVkxp8UhXqRYbCYJsbeE1h1fiF64jcoH', $s2->pubKey->address(true, true));
-        self::assertSame('1F1Pn2y6pDb68E5nYJJeba4TLg2U7B6KF1', $s3->pubKey->address());
+        self::assertSame('mmTPbXQFxboEtNRkwfh6K51jvdtHLxGeMA', $s1->pubKey->address(compressed: false, testnet: true));
+        self::assertSame('mopVkxp8UhXqRYbCYJsbeE1h1fiF64jcoH', $s2->pubKey->address(compressed: true, testnet: true));
+        self::assertSame('1F1Pn2y6pDb68E5nYJJeba4TLg2U7B6KF1', $s3->pubKey->address(compressed: true, testnet: false));
 
         // Based on example from Chapter 6 page 120
         $sec    = hex2bin('0250863ad64a87ae8a2fe83c1af1a8403cb53f53e486d8511dad8a04887e5b2352');
         $pubkey = S256Point::parse($sec);
 
-        self::assertSame('1PMycacnJaSqwwJqjawXBErnLsZ7RkXUAs', $pubkey->address());
+        self::assertSame('1PMycacnJaSqwwJqjawXBErnLsZ7RkXUAs', $pubkey->address(compressed: true, testnet: false));
         self::assertSame(Hashing::hash160($sec), Encoding::base58decode('1PMycacnJaSqwwJqjawXBErnLsZ7RkXUAs'));
     }
 }

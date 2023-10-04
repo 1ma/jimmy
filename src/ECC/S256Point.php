@@ -42,7 +42,7 @@ final readonly class S256Point extends Point
             new self($x, (0 == $beta->num % 2) ? new S256Field(S256Params::P() - $beta->num) : $beta);
     }
 
-    public function address(bool $compressed = true, bool $testnet = false): string
+    public function address(bool $compressed = true, bool $testnet = true): string
     {
         return Encoding::base58checksum(
             ($testnet ? "\x6f" : "\x00").Hashing::hash160($this->sec($compressed))

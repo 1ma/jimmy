@@ -1,8 +1,8 @@
 {
     "name": "uma/jimmy",
-    "description": "Programming Bitcoin",
+    "description": "Programming Bitcoin library",
     "type": "project",
-    "license": "proprietary",
+    "license": "MIT",
     "autoload": {
         "psr-4": {
             "Bitcoin\\": "src/"

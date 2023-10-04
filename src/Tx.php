@@ -24,7 +24,7 @@ final class Tx
 
     private const SIGHASH_ALL = 0x01;
 
-    public function __construct(int $version, array $txIns, array $txOuts, int $locktime, bool $testnet = false)
+    public function __construct(int $version, array $txIns, array $txOuts, int $locktime, bool $testnet = true)
     {
         $this->version  = $version;
         $this->txIns    = $txIns;
@@ -36,7 +36,7 @@ final class Tx
     /**
      * @param resource $stream
      */
-    public static function parse($stream, bool $testnet = false): self
+    public static function parse($stream, bool $testnet = true): self
     {
         $version = gmp_intval(Encoding::fromLE(fread($stream, 4)));
 

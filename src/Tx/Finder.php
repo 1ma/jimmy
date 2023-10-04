@@ -19,7 +19,7 @@ final class Finder
     /**
      * @throws \RuntimeException
      */
-    public static function find(string $txId, bool $testnet = false): Tx
+    public static function find(string $txId, bool $testnet = true): Tx
     {
         if (!isset(self::$fetcher)) {
             self::$fetcher = new MempoolFetcher();
@@ -43,10 +43,5 @@ final class Finder
         self::$cache[$txId] = $tx;
 
         return $tx;
-    }
-
-    private static function getUrl(bool $testnet): string
-    {
-        return $testnet ? self::TESTNET : self::MAINNET;
     }
 }

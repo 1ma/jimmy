@@ -33,7 +33,7 @@ final readonly class PrivateKey
         return new Signature($r, $s);
     }
 
-    public function wif(bool $compressed = true, bool $testnet = false): string
+    public function wif(bool $compressed = true, bool $testnet = true): string
     {
         return Encoding::base58checksum(
             ($testnet ? "\xef" : "\x80").str_pad(gmp_export($this->secret), 32, "\x00", \STR_PAD_LEFT).($compressed ? "\x01" : '')

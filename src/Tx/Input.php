@@ -39,7 +39,7 @@ final class Input
     /**
      * @throws \RuntimeException
      */
-    public function prevAmount(bool $testnet = false): int
+    public function prevAmount(bool $testnet = true): int
     {
         return Finder::find($this->prevTxId, $testnet)->txOuts[$this->prevIndex]->amount;
     }
@@ -47,7 +47,7 @@ final class Input
     /**
      * @throws \RuntimeException
      */
-    public function prevScriptPubKey(bool $testnet = false): Script
+    public function prevScriptPubKey(bool $testnet = true): Script
     {
         return Finder::find($this->prevTxId, $testnet)->txOuts[$this->prevIndex]->scriptPubKey;
     }
