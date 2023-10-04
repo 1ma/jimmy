@@ -21,9 +21,9 @@ final readonly class OpCheckMultiSig
             return false;
         }
 
-        $pubkeys = [];
+        $pubKeys = [];
         while ($n > 0) {
-            $pubkeys[] = array_pop($stack);
+            $pubKeys[] = array_pop($stack);
             --$n;
         }
 
@@ -42,28 +42,35 @@ final readonly class OpCheckMultiSig
         array_pop($stack);
 
         try {
-            $pubkeys = array_map(fn (string $sec): S256Point => S256Point::parse($sec), $pubkeys);
-            $sigs    = array_map(fn (string $der): Signature => Signature::parse($der), $sigs);
+            $pubKeys = array_map(fn (string $sec): S256Point => S256Point::parse($sec), $pubKeys);
+            $sigs    = array_map(fn (string $der): Signature => Signature::parse(substr($der, 0, -1)), $sigs);
 
             foreach ($sigs as $sig) {
-                if (empty($pubkeys)) {
-                    return false;
+                if (empty($pubKeys)) {
+                    $stack[] = Encoding::encodeStackNum(0);
+
+                    return true;
                 }
 
                 $match = false;
-                foreach ($pubkeys as $pubkey) {
+                foreach ($pubKeys as $key => $pubkey) {
                     if ($match = $pubkey->verify($z, $sig)) {
+                        unset($pubKeys[$key]);
                         break;
                     }
                 }
 
                 if (!$match) {
-                    return false;
+                    $stack[] = Encoding::encodeStackNum(0);
+
+                    return true;
                 }
             }
         } catch (\InvalidArgumentException) {
             return false;
         }
+
+        $stack[] = Encoding::encodeStackNum(1);
 
         return true;
     }

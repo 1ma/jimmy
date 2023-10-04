@@ -5,6 +5,9 @@
 
 Jimmy Song's [Programming Bitcoin](https://github.com/jimmysong/programmingbitcoin/) code implemented in PHP.
 
+```shell
+composer require uma/jimmy:dev-master
+```
 
 ## Disclaimer
 
@@ -26,7 +29,7 @@ To further emphasize it the library assumes that it runs on testnet by default i
 - [X] Chapter 5: Transactions
 - [X] Chapter 6: Script
 - [X] Chapter 7: Transaction Creation and Validation
-- [ ] Chapter 8: Pay-to-Script Hash
+- [X] Chapter 8: Pay-to-Script Hash
 - [ ] Chapter 9: Blocks
 - [ ] Chapter 10: Networking
 - [ ] Chapter 11: Simplified Payment Verification

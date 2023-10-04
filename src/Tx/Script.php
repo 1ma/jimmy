@@ -117,6 +117,15 @@ final readonly class Script
         return new self(array_merge($this->cmds, $other->cmds));
     }
 
+    public function isP2SH(): bool
+    {
+        return 3              === \count($this->cmds)
+            && $this->cmds[0] === OpCodes::OP_HASH160->value
+            && \is_string($this->cmds[1])
+            && 20             === \strlen($this->cmds[1])
+            && $this->cmds[2] === OpCodes::OP_EQUAL->value;
+    }
+
     public function __toString(): string
     {
         return bin2hex(self::serialize());

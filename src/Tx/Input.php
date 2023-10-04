@@ -39,17 +39,9 @@ final class Input
     /**
      * @throws \RuntimeException
      */
-    public function prevAmount(bool $testnet = true): int
+    public function prevOutput(bool $testnet = true): Output
     {
-        return Finder::find($this->prevTxId, $testnet)->txOuts[$this->prevIndex]->amount;
-    }
-
-    /**
-     * @throws \RuntimeException
-     */
-    public function prevScriptPubKey(bool $testnet = true): Script
-    {
-        return Finder::find($this->prevTxId, $testnet)->txOuts[$this->prevIndex]->scriptPubKey;
+        return Finder::find($this->prevTxId, $testnet)->txOuts[$this->prevIndex];
     }
 
     public function serialize(): string

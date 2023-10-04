@@ -79,7 +79,7 @@ final class Tx
      */
     public function fee(): int
     {
-        $inAmount  = array_reduce($this->txIns, fn (\GMP $subtotal, Input $txIn) => $subtotal + $txIn->prevAmount($this->testnet), gmp_init(0));
+        $inAmount  = array_reduce($this->txIns, fn (\GMP $subtotal, Input $txIn) => $subtotal + $txIn->prevOutput($this->testnet)->amount, gmp_init(0));
         $outAmount = array_reduce($this->txOuts, fn (\GMP $subtotal, Output $txOut) => $subtotal + $txOut->amount, gmp_init(0));
 
         return gmp_intval($inAmount - $outAmount);
@@ -121,23 +121,35 @@ final class Tx
             throw new \InvalidArgumentException('Input index out of bounds');
         }
 
-        $txIn = $this->txIns[$inputIndex];
+        $txIn    = $this->txIns[$inputIndex];
+        $prevOut = $txIn->prevOutput($this->testnet);
+
+        $redeemScript = null;
+        if ($prevOut->scriptPubKey->isP2SH()) {
+            $redeemScriptCode = $txIn->scriptSig->cmds[array_key_last($txIn->scriptSig->cmds)];
+            $redeemScript     = Script::parseAsString(Encoding::encodeVarInt(\strlen($redeemScriptCode)).$redeemScriptCode);
+        }
 
         return Script\Interpreter::evaluate(
-            $txIn->scriptSig->combine($txIn->prevScriptPubKey($this->testnet)),
-            $this->sigHash($inputIndex)
+            $txIn->scriptSig->combine($prevOut->scriptPubKey),
+            $this->sigHash($inputIndex, $redeemScript)
         );
     }
 
-    private function sigHash(int $inputIndex): \GMP
+    private function sigHash(int $inputIndex, Script $redeemScript = null): \GMP
     {
         $tx = Encoding::toLE(gmp_init($this->version), 4);
         $tx .= Encoding::encodeVarInt(\count($this->txIns));
         foreach ($this->txIns as $i => $txIn) {
+            $scriptSig = new Script();
+            if ($i === $inputIndex) {
+                $scriptSig = $redeemScript ?? $txIn->prevOutput($this->testnet)->scriptPubKey;
+            }
+
             $tx .= (new Input(
                 $txIn->prevTxId,
                 $txIn->prevIndex,
-                $i === $inputIndex ? $txIn->prevScriptPubKey($this->testnet) : new Script(),
+                $scriptSig,
                 $txIn->seqNum
             ))->serialize();
         }

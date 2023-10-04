@@ -8,9 +8,6 @@ use Bitcoin\Tx;
 
 final class Finder
 {
-    private const MAINNET = 'https://mempool.space';
-    private const TESTNET = 'https://mempool.space/testnet';
-
     /** @var Tx[] */
     private static array $cache = [];
 
