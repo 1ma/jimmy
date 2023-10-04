@@ -1,6 +1,7 @@
 # Programming Bitcoin
 
 [![CI](https://github.com/1ma/jimmy/actions/workflows/ci.yml/badge.svg)](https://github.com/1ma/jimmy/actions/workflows/ci.yml)
+[![Coverage](https://scrutinizer-ci.com/g/1ma/jimmy/badges/coverage.png?b=master)](https://scrutinizer-ci.com/g/1ma/jimmy/?branch=master)
 
 Jimmy Song's [Programming Bitcoin](https://github.com/jimmysong/programmingbitcoin/) code implemented in PHP.
 
