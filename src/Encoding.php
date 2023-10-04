@@ -8,6 +8,12 @@ final readonly class Encoding
 {
     private const BASE58_ALPHABET = '123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz';
 
+    private const P2PKH_MAINNET_PREFIX = "\x00";
+    private const P2PKH_TESTNET_PREFIX = "\x6f";
+
+    private const P2SH_MAINNET_PREFIX = "\x05";
+    private const P2SH_TESTNET_PREFIX = "\xc4";
+
     public static function base58encode(string $data): string
     {
         $nullBytes = 0;
@@ -54,6 +60,16 @@ final readonly class Encoding
         }
 
         return substr($data, 1);
+    }
+
+    public static function hash160ToPayToPublicKeyHashAddress(string $hash, bool $testnet = true): string
+    {
+        return self::base58checksum(($testnet ? self::P2PKH_TESTNET_PREFIX : self::P2PKH_MAINNET_PREFIX).$hash);
+    }
+
+    public static function hash160ToPayToScriptKeyHashAddress(string $hash, bool $testnet = true): string
+    {
+        return self::base58checksum(($testnet ? self::P2SH_TESTNET_PREFIX : self::P2SH_MAINNET_PREFIX).$hash);
     }
 
     public static function fromLE(string $payload): \GMP

@@ -44,9 +44,7 @@ final readonly class S256Point extends Point
 
     public function address(bool $compressed = true, bool $testnet = true): string
     {
-        return Encoding::base58checksum(
-            ($testnet ? "\x6f" : "\x00").Hashing::hash160($this->sec($compressed))
-        );
+        return Encoding::hash160ToPayToPublicKeyHashAddress(Hashing::hash160($this->sec($compressed)), $testnet);
     }
 
     public function sec(bool $compressed = true): string

@@ -56,4 +56,10 @@ final class EncodingTest extends TestCase
         self::assertSame(70015, Encoding::decodeVarInt(self::stream(hex2bin('fe7f110100'))));
         self::assertSame(18005558675309, Encoding::decodeVarInt(self::stream(hex2bin('ff6dc7ed3e60100000'))));
     }
+
+    public function testP2SHAddressGeneration(): void
+    {
+        // Based on example from Chapter 8 page 157
+        self::assertSame('3CLoMMyuoDQTPRD3XYZtCvgvkadrAdvdXh', Encoding::hash160ToPayToScriptKeyHashAddress(hex2bin('74d691da1574e6b3c192ecfb52cc8984ee7b6c56'), testnet: false));
+    }
 }

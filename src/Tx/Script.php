@@ -33,6 +33,21 @@ final readonly class Script
         ]);
     }
 
+    public static function parseAsString(string $bytes): self
+    {
+        $stream = fopen('php://memory', 'r+');
+        fwrite($stream, $bytes);
+        rewind($stream);
+
+        try {
+            $script = self::parse($stream);
+        } finally {
+            fclose($stream);
+        }
+
+        return $script;
+    }
+
     /**
      * @param resource $stream
      */
