@@ -22,7 +22,7 @@ final class InterpreterTest extends TestCase
         $scriptPubKey = new Script([$sec, OpCodes::OP_CHECKSIG->value]);
         $scriptSig    = new Script([$der]);
 
-        self::assertTrue(Interpreter::evaluate($scriptSig->combine($scriptPubKey), $z));
+        self::assertTrue(Interpreter::evaluate($scriptSig->combine($scriptPubKey), $z, witness: []));
     }
 
     public function testSillyScript(): void
@@ -39,13 +39,13 @@ final class InterpreterTest extends TestCase
             OpCodes::OP_4->value,
         ]);
 
-        self::assertTrue(Interpreter::evaluate($scriptSig->combine($scriptPubKey), gmp_init(0)));
+        self::assertTrue(Interpreter::evaluate($scriptSig->combine($scriptPubKey), gmp_init(0), witness: []));
     }
 
     public function testSha1CollisionScript(): void
     {
         $scr = new Script(['a', 'b', 'c', OpCodes::OP_3DUP->value]);
-        self::assertTrue(Interpreter::evaluate($scr, gmp_init(0)));
+        self::assertTrue(Interpreter::evaluate($scr, gmp_init(0), witness: []));
 
         // Based on exercise 4 from Chapter 6
         $scriptPubKey = new Script([    // 6E 87 91 69 A7 7C A7 87
@@ -65,7 +65,7 @@ final class InterpreterTest extends TestCase
             hex2bin('255044462d312e330a25e2e3cfd30a0a0a312030206f626a0a3c3c2f57696474682032203020522f4865696768742033203020522f547970652034203020522f537562747970652035203020522f46696c7465722036203020522f436f6c6f7253706163652037203020522f4c656e6774682038203020522f42697473506572436f6d706f6e656e7420383e3e0a73747265616d0affd8fffe00245348412d3120697320646561642121212121852fec092339759c39b1a1c63c4c97e1fffe017346dc9166b67e118f029ab621b2560ff9ca67cca8c7f85ba84c79030c2b3de218f86db3a90901d5df45c14f26fedfb3dc38e96ac22fe7bd728f0e45bce046d23c570feb141398bb552ef5a0a82be331fea48037b8b5d71f0e332edf93ac3500eb4ddc0decc1a864790c782c76215660dd309791d06bd0af3f98cda4bc4629b1'),
         ]);
 
-        self::assertTrue(Interpreter::evaluate($scriptSig->combine($scriptPubKey), gmp_init(0)));
+        self::assertTrue(Interpreter::evaluate($scriptSig->combine($scriptPubKey), gmp_init(0), witness: []));
 
         // Initial state (ScriptSig)
         // A

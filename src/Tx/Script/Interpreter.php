@@ -9,7 +9,7 @@ use Bitcoin\Tx\Script;
 
 final readonly class Interpreter
 {
-    public static function evaluate(Script $script, \GMP $z): bool
+    public static function evaluate(Script $script, \GMP $z, array $witness): bool
     {
         $stack    = [];
         $altstack = [];
@@ -25,6 +25,13 @@ final readonly class Interpreter
                     if (!self::payToScriptHashEvaluation($cmds, $stack, $cmd)) {
                         return false;
                     }
+                }
+
+                if (self::payToWitnessPubKeyHashSequence($stack)) {
+                    $cmds = array_merge($cmds, $witness);
+                    $cmds = array_merge($cmds, Script::payToPubKeyHash(array_pop($stack))->cmds);
+
+                    array_pop($stack); // OP_0
                 }
 
                 continue;
@@ -116,5 +123,13 @@ final readonly class Interpreter
         }
 
         return true;
+    }
+
+    private static function payToWitnessPubKeyHashSequence(array $stack): bool
+    {
+        return 2         === \count($stack)
+            && $stack[0] === Encoding::encodeStackNum(0)
+            && \is_string($stack[1])
+            && 20 === \strlen($stack[1]);
     }
 }

@@ -28,9 +28,26 @@ final class SegwitTxTest extends TestCase
         self::assertSame(hex2bin(self::SIMPLE_SEGWIT_WITNESS_1), $tx->txIns[0]->witness[1]);
         self::assertCount(2, $tx->txOuts);
         self::assertSame(2530151, $tx->locktime);
+    }
+
+    public function testSegwitTxSerialization(): void
+    {
+        $tx = Tx::parse(self::stream(hex2bin(self::SIMPLE_SEGWIT_TX)));
 
         self::assertSame(hex2bin(self::SIMPLE_SEGWIT_TX), $tx->serialize());
+    }
+
+    public function testSegwitTxIdCalculation(): void
+    {
+        $tx = Tx::parse(self::stream(hex2bin(self::SIMPLE_SEGWIT_TX)));
 
         self::assertSame('d19e7e6869dae7dfc7575d5ce07a018dbeadde26e6b35cce22bc6f9498b13521', $tx->id());
+    }
+
+    public function testP2WPKHValidation(): void
+    {
+        $tx = Tx::parse(self::stream(hex2bin(self::SIMPLE_SEGWIT_TX)));
+
+        self::assertTrue($tx->verify());
     }
 }

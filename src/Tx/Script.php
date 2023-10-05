@@ -12,6 +12,10 @@ final readonly class Script
     /** @var <int|string>[] */
     public array $cmds;
 
+    private const P2PKH_HASH_LENGTH  = 20;
+    private const P2WPKH_HASH_LENGTH = 20;
+    private const P2WSH_HASH_LENGTH  = 32;
+
     public function __construct(array $cmds = [])
     {
         $this->cmds = $cmds;
@@ -24,6 +28,10 @@ final readonly class Script
 
     public static function payToPubKeyHash(string $h160): self
     {
+        if (self::P2PKH_HASH_LENGTH !== \strlen($h160)) {
+            throw new \InvalidArgumentException('Invalid hash length');
+        }
+
         return new self([
             OpCodes::OP_DUP->value,
             OpCodes::OP_HASH160->value,
@@ -31,6 +39,15 @@ final readonly class Script
             OpCodes::OP_EQUALVERIFY->value,
             OpCodes::OP_CHECKSIG->value,
         ]);
+    }
+
+    public static function payToSegWitV0(string $hash): self
+    {
+        if (!\in_array(\strlen($hash), [self::P2WPKH_HASH_LENGTH, self::P2WSH_HASH_LENGTH])) {
+            throw new \InvalidArgumentException('Invalid hash length');
+        }
+
+        return new self([OpCodes::OP_0->value, $hash]);
     }
 
     public static function parseAsString(string $bytes): self
@@ -124,6 +141,14 @@ final readonly class Script
             && \is_string($this->cmds[1])
             && 20             === \strlen($this->cmds[1])
             && $this->cmds[2] === OpCodes::OP_EQUAL->value;
+    }
+
+    public function isP2WPKH(): bool
+    {
+        return 2              === \count($this->cmds)
+            && $this->cmds[0] === OpCodes::OP_0->value
+            && \is_string($this->cmds[1])
+            && 20 === \strlen($this->cmds[1]);
     }
 
     public function __toString(): string
