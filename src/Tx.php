@@ -81,7 +81,9 @@ final class Tx
 
     public function id(): string
     {
-        return bin2hex(strrev(Hashing::hash256($this->serialize())));
+        return bin2hex(strrev(Hashing::hash256(
+            (new self($this->version, $this->txIns, $this->txOuts, $this->locktime, $this->testnet, segwit: false))->serialize()
+        )));
     }
 
     /**

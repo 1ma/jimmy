@@ -30,5 +30,7 @@ final class SegwitTxTest extends TestCase
         self::assertSame(2530151, $tx->locktime);
 
         self::assertSame(hex2bin(self::SIMPLE_SEGWIT_TX), $tx->serialize());
+
+        self::assertSame('d19e7e6869dae7dfc7575d5ce07a018dbeadde26e6b35cce22bc6f9498b13521', $tx->id());
     }
 }
