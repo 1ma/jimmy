@@ -34,6 +34,18 @@ final readonly class Interpreter
                     array_pop($stack); // OP_0
                 }
 
+                if (self::payToWitnessScriptHashSequence($stack)) {
+                    $witnessScript = $witness[array_key_last($witness)];
+                    if (array_pop($stack) !== hash('sha256', $witnessScript, true)) {
+                        return false;
+                    }
+
+                    $cmds = array_merge($cmds, \array_slice($witness, 0, -1));
+                    $cmds = array_merge($cmds, Script::parseAsString($witnessScript)->cmds);
+
+                    array_pop($stack); // OP_O
+                }
+
                 continue;
             }
 
@@ -131,5 +143,13 @@ final readonly class Interpreter
             && $stack[0] === Encoding::encodeStackNum(0)
             && \is_string($stack[1])
             && 20 === \strlen($stack[1]);
+    }
+
+    private static function payToWitnessScriptHashSequence(array $stack): bool
+    {
+        return 2         === \count($stack)
+            && $stack[0] === Encoding::encodeStackNum(0)
+            && \is_string($stack[1])
+            && 32 === \strlen($stack[1]);
     }
 }

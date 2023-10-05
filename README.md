@@ -34,7 +34,7 @@ To further emphasize it the library assumes that it runs on testnet by default i
 - [ ] Chapter 10: Networking
 - [ ] Chapter 11: Simplified Payment Verification
 - [ ] Chapter 12: Bloom Filters
-- [ ] Chapter 13: SegWit
+- [X] Chapter 13: SegWit
 
 
 ## How

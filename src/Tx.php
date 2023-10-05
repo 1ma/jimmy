@@ -145,14 +145,26 @@ final class Tx
             $redeemScript     = Script::parseAsString(Encoding::encodeVarInt(\strlen($redeemScriptCode)).$redeemScriptCode);
 
             if ($redeemScript->isP2WPKH()) {
-                $z       = $this->sigHashBip143($inputIndex, $redeemScript);
+                $z       = $this->sigHashBip143($inputIndex, redeemScript: $redeemScript);
+                $witness = $txIn->witness;
+            } elseif ($redeemScript->isP2WSH()) {
+                $command       = $txIn->witness[array_key_last($txIn->witness)];
+                $witnessScript = Script::parseAsString(Encoding::encodeVarInt(\strlen($command)).$command);
+
+                $z       = $this->sigHashBip143($inputIndex, witnessScript: $witnessScript);
                 $witness = $txIn->witness;
             } else {
-                $z       = $this->sigHash($inputIndex, $redeemScript);
+                $z       = $this->sigHash($inputIndex, redeemScript: $redeemScript);
                 $witness = [];
             }
         } elseif ($prevOut->scriptPubKey->isP2WPKH()) {
             $z       = $this->sigHashBip143($inputIndex);
+            $witness = $txIn->witness;
+        } elseif ($prevOut->scriptPubKey->isP2WSH()) {
+            $command       = $txIn->witness[array_key_last($txIn->witness)];
+            $witnessScript = Script::parseAsString(Encoding::encodeVarInt(\strlen($command)).$command);
+
+            $z       = $this->sigHashBip143($inputIndex, witnessScript: $witnessScript);
             $witness = $txIn->witness;
         } else {
             $z       = $this->sigHash($inputIndex);
@@ -229,7 +241,7 @@ final class Tx
         }
     }
 
-    private function sigHashBip143(int $inputIndex, Script $redeemScript = null): \GMP
+    private function sigHashBip143(int $inputIndex, Script $redeemScript = null, Script $witnessScript = null): \GMP
     {
         $this->initBip143Hashes();
 
@@ -239,17 +251,21 @@ final class Tx
         $tx .= strrev(hex2bin($this->txIns[$inputIndex]->prevTxId));
         $tx .= Encoding::toLE(gmp_init($this->txIns[$inputIndex]->prevIndex), 4);
 
-        // TODO P2WSH
-        if (null !== $redeemScript) {
-            $scriptCode = Script::payToPubKeyHash($redeemScript->cmds[1]);
+        if (null !== $witnessScript) {
+            $script = $witnessScript;
+        } elseif (null !== $redeemScript) {
+            $script = Script::payToPubKeyHash($redeemScript->cmds[1]);
         } else {
-            $scriptCode = Script::payToPubKeyHash($this->txIns[$inputIndex]->prevOutput($this->testnet)->scriptPubKey->cmds[1]);
+            $script = Script::payToPubKeyHash($this->txIns[$inputIndex]->prevOutput($this->testnet)->scriptPubKey->cmds[1]);
         }
 
-        $tx .= $scriptCode->serialize();
+        $tx .= $script->serialize();
+
         $tx .= Encoding::toLE(gmp_init($this->txIns[$inputIndex]->prevOutput($this->testnet)->amount), 8);
         $tx .= Encoding::toLE(gmp_init($this->txIns[$inputIndex]->seqNum), 4);
+
         $tx .= $this->hashOutputs;
+
         $tx .= Encoding::toLE(gmp_init($this->locktime), 4);
         $tx .= Encoding::toLE(gmp_init(self::SIGHASH_ALL), 4);
 

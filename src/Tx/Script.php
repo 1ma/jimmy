@@ -151,6 +151,14 @@ final readonly class Script
             && 20 === \strlen($this->cmds[1]);
     }
 
+    public function isP2WSH(): bool
+    {
+        return 2              === \count($this->cmds)
+            && $this->cmds[0] === OpCodes::OP_0->value
+            && \is_string($this->cmds[1])
+            && 32 === \strlen($this->cmds[1]);
+    }
+
     public function __toString(): string
     {
         return bin2hex(self::serialize());
