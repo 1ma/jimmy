@@ -13,14 +13,18 @@ final class Input
     public Script $scriptSig;
     public readonly int $seqNum;
 
+    /** @var <int|string>[] */
+    public array $witness;
+
     private const DEFAULT_SEQUENCE_NUMBER = 0xFFFFFFFF;
 
-    public function __construct(string $prevTxId, int $prevIndex, Script $scriptSig = null, int $seqNum = self::DEFAULT_SEQUENCE_NUMBER)
+    public function __construct(string $prevTxId, int $prevIndex, Script $scriptSig = null, int $seqNum = self::DEFAULT_SEQUENCE_NUMBER, array $witness = [])
     {
         $this->prevTxId  = $prevTxId;
         $this->prevIndex = $prevIndex;
         $this->scriptSig = $scriptSig ?? new Script();
         $this->seqNum    = $seqNum;
+        $this->witness   = $witness;
     }
 
     /**

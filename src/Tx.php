@@ -21,16 +21,21 @@ final class Tx
 
     public readonly int $locktime;
     public readonly bool $testnet;
+    public readonly bool $segwit;
 
     private const SIGHASH_ALL = 0x01;
 
-    public function __construct(int $version, array $txIns, array $txOuts, int $locktime, bool $testnet = true)
+    private const SEGWIT_MARKER = "\x00";
+    private const SEGWIT_FLAG   = "\x01";
+
+    public function __construct(int $version, array $txIns, array $txOuts, int $locktime, bool $testnet = true, bool $segwit = true)
     {
         $this->version  = $version;
         $this->txIns    = $txIns;
         $this->txOuts   = $txOuts;
         $this->locktime = $locktime;
         $this->testnet  = $testnet;
+        $this->segwit   = $segwit;
     }
 
     /**
@@ -38,23 +43,15 @@ final class Tx
      */
     public static function parse($stream, bool $testnet = true): self
     {
-        $version = gmp_intval(Encoding::fromLE(fread($stream, 4)));
+        fread($stream, 4);
 
-        $txIns = [];
-        $nIns  = Encoding::decodeVarInt($stream);
-        for ($i = 0; $i < $nIns; ++$i) {
-            $txIns[] = Input::parse($stream);
-        }
+        $segwit = self::SEGWIT_MARKER === fread($stream, 1);
 
-        $txOuts = [];
-        $nOuts  = Encoding::decodeVarInt($stream);
-        for ($i = 0; $i < $nOuts; ++$i) {
-            $txOuts[] = Output::parse($stream);
-        }
+        rewind($stream);
 
-        $locktime = gmp_intval(Encoding::fromLE(fread($stream, 4)));
-
-        return new self($version, $txIns, $txOuts, $locktime, $testnet);
+        return $segwit ?
+            self::parseSegwit($stream, $testnet) :
+            self::parseLegacy($stream, $testnet);
     }
 
     public function serialize(): string
@@ -136,6 +133,18 @@ final class Tx
         );
     }
 
+    public function __toString(): string
+    {
+        return sprintf(
+            "tx: %s\nversion: %d\ntx_ins:\n%stx_outs:\n%slocktime: %d",
+            $this->id(),
+            $this->version,
+            array_reduce($this->txIns, fn (string $txIns, Input $txIn): string => $txIns.$txIn."\n", ''),
+            array_reduce($this->txOuts, fn (string $txOuts, Output $txOut): string => $txOuts.$txOut."\n", ''),
+            $this->locktime
+        );
+    }
+
     private function sigHash(int $inputIndex, Script $redeemScript = null): \GMP
     {
         $tx = Encoding::toLE(gmp_init($this->version), 4);
@@ -165,15 +174,61 @@ final class Tx
         return gmp_import(Hashing::hash256($tx));
     }
 
-    public function __toString(): string
+    private static function parseLegacy($stream, bool $testnet): self
     {
-        return sprintf(
-            "tx: %s\nversion: %d\ntx_ins:\n%stx_outs:\n%slocktime: %d",
-            $this->id(),
-            $this->version,
-            array_reduce($this->txIns, fn (string $txIns, Input $txIn): string => $txIns.$txIn."\n", ''),
-            array_reduce($this->txOuts, fn (string $txOuts, Output $txOut): string => $txOuts.$txOut."\n", ''),
-            $this->locktime
-        );
+        $version = gmp_intval(Encoding::fromLE(fread($stream, 4)));
+
+        $txIns = [];
+        $nIns  = Encoding::decodeVarInt($stream);
+        for ($i = 0; $i < $nIns; ++$i) {
+            $txIns[] = Input::parse($stream);
+        }
+
+        $txOuts = [];
+        $nOuts  = Encoding::decodeVarInt($stream);
+        for ($i = 0; $i < $nOuts; ++$i) {
+            $txOuts[] = Output::parse($stream);
+        }
+
+        $locktime = gmp_intval(Encoding::fromLE(fread($stream, 4)));
+
+        return new self($version, $txIns, $txOuts, $locktime, $testnet, segwit: false);
+    }
+
+    private static function parseSegwit($stream, bool $testnet): self
+    {
+        $version = gmp_intval(Encoding::fromLE(fread($stream, 4)));
+
+        $marker = fread($stream, 2);
+        if (self::SEGWIT_MARKER.self::SEGWIT_FLAG !== $marker) {
+            throw new \InvalidArgumentException('Not a SegWit transaction');
+        }
+
+        $txIns = [];
+        $nIns  = Encoding::decodeVarInt($stream);
+        for ($i = 0; $i < $nIns; ++$i) {
+            $txIns[] = Input::parse($stream);
+        }
+
+        $txOuts = [];
+        $nOuts  = Encoding::decodeVarInt($stream);
+        for ($i = 0; $i < $nOuts; ++$i) {
+            $txOuts[] = Output::parse($stream);
+        }
+
+        $witness = [];
+        foreach ($txIns as $txIn) {
+            $nWitness = Encoding::decodeVarInt($stream);
+            for ($i = 0; $i < $nWitness; ++$i) {
+                $itemLength = Encoding::decodeVarInt($stream);
+                $witness[]  = 0 === $itemLength ? 0 : fread($stream, $itemLength);
+            }
+
+            $txIn->witness = $witness;
+        }
+
+        $locktime = gmp_intval(Encoding::fromLE(fread($stream, 4)));
+
+        return new self($version, $txIns, $txOuts, $locktime, $testnet, segwit: true);
     }
 }

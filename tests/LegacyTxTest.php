@@ -9,7 +9,7 @@ use Bitcoin\Encoding;
 use Bitcoin\Tx;
 use PHPUnit\Framework\TestCase;
 
-final class TxTest extends TestCase
+final class LegacyTxTest extends TestCase
 {
     use StreamingHelperTrait;
 
@@ -19,7 +19,7 @@ final class TxTest extends TestCase
 
     public function testDebugSerialization(): void
     {
-        $tx = new Tx(1, [], [], 0, true);
+        $tx = new Tx(1, [], [], 0, testnet: true, segwit: false);
 
         $expectedSerialization = <<<TXT
 tx: d21633ba23f70118185227be58a63527675641ad37967e2aa461559f577aec43
@@ -107,7 +107,7 @@ tx_outs:
 locktime: 0
 TXT;
 
-        $tx = new Tx(1, [$txIn], [$txOut1, $txOut2, $txOut3], locktime: 0, testnet: true);
+        $tx = new Tx(1, [$txIn], [$txOut1, $txOut2, $txOut3], locktime: 0, testnet: true, segwit: false);
 
         self::assertSame($expectedDebugView, (string) $tx);
         self::assertSame(314, $tx->fee());
@@ -139,7 +139,7 @@ tx_outs:
 locktime: 0
 TXT;
 
-        $tx = new Tx(1, [$txIn1, $txIn2], [$txOut], locktime: 0, testnet: true);
+        $tx = new Tx(1, [$txIn1, $txIn2], [$txOut], locktime: 0, testnet: true, segwit: false);
 
         self::assertSame($expectedDebugView, (string) $tx);
         self::assertSame(19302, $tx->fee());
