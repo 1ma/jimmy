@@ -158,6 +158,6 @@ TXT;
     {
         $p2shTx = Tx::parse(self::stream(hex2bin(self::P2SH_TX)), testnet: false);
 
-        self::assertTrue($p2shTx->verifyInput(0));
+        self::assertTrue($p2shTx->verify());
     }
 }

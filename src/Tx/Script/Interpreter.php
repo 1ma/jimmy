@@ -41,7 +41,7 @@ final readonly class Interpreter
                     }
 
                     $cmds = array_merge($cmds, \array_slice($witness, 0, -1));
-                    $cmds = array_merge($cmds, Script::parseAsString($witnessScript)->cmds);
+                    $cmds = array_merge($cmds, Script::parseAsString(Encoding::encodeVarInt(\strlen($witnessScript)).$witnessScript)->cmds);
 
                     array_pop($stack); // OP_O
                 }
