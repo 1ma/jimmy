@@ -28,5 +28,7 @@ final class SegwitTxTest extends TestCase
         self::assertSame(hex2bin(self::SIMPLE_SEGWIT_WITNESS_1), $tx->txIns[0]->witness[1]);
         self::assertCount(2, $tx->txOuts);
         self::assertSame(2530151, $tx->locktime);
+
+        self::assertSame(hex2bin(self::SIMPLE_SEGWIT_TX), $tx->serialize());
     }
 }

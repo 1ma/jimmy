@@ -50,20 +50,33 @@ final class Tx
         rewind($stream);
 
         return $segwit ?
-            self::parseSegwit($stream, $testnet) :
+            self::parseSegWit($stream, $testnet) :
             self::parseLegacy($stream, $testnet);
     }
 
     public function serialize(): string
     {
         $version  = Encoding::toLE(gmp_init($this->version), 4);
+        $markers  = $this->segwit ? self::SEGWIT_MARKER.self::SEGWIT_FLAG : '';
         $nTxIns   = Encoding::encodeVarInt(\count($this->txIns));
         $txIns    = array_reduce($this->txIns, fn (string $txIns, Input $txIn): string => $txIns.$txIn->serialize(), '');
         $nTxOuts  = Encoding::encodeVarInt(\count($this->txOuts));
         $txOuts   = array_reduce($this->txOuts, fn (string $txOuts, Output $txOut): string => $txOuts.$txOut->serialize(), '');
         $locktime = Encoding::toLE(gmp_init($this->locktime), 4);
 
-        return $version.$nTxIns.$txIns.$nTxOuts.$txOuts.$locktime;
+        $witness = '';
+        if ($this->segwit) {
+            foreach ($this->txIns as $txIn) {
+                $witness .= Encoding::encodeVarInt(\count($txIn->witness));
+                foreach ($txIn->witness as $element) {
+                    $witness .= \is_int($element) ?
+                        Encoding::toLE(gmp_init($element)) :
+                        Encoding::encodeVarInt(\strlen($element)).$element;
+                }
+            }
+        }
+
+        return $version.$markers.$nTxIns.$txIns.$nTxOuts.$txOuts.$witness.$locktime;
     }
 
     public function id(): string
@@ -195,7 +208,7 @@ final class Tx
         return new self($version, $txIns, $txOuts, $locktime, $testnet, segwit: false);
     }
 
-    private static function parseSegwit($stream, bool $testnet): self
+    private static function parseSegWit($stream, bool $testnet): self
     {
         $version = gmp_intval(Encoding::fromLE(fread($stream, 4)));
 
