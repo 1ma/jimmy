@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Bitcoin\Tests;
 
+use Bitcoin\ECC\PrivateKey;
+use Bitcoin\Hashing;
 use Bitcoin\Tx;
 use PHPUnit\Framework\TestCase;
 
@@ -75,6 +77,41 @@ final class SegwitTxTest extends TestCase
     {
         $tx = Tx::parse(self::stream(hex2bin(self::P2WSH_TX)));
 
+        self::assertTrue($tx->verify());
+    }
+
+    public function testP2WSHTransactionCreation(): void
+    {
+        $txIn = new Tx\Input('1f0cf1732193dba6d0ac867aae36bf745cdb69b4a525bb7fc016401937551326', 0);
+
+        $changePubKey = hex2bin('03d684657d57e60eb34dafe9a9f00ab5bb96dfa4c0a1ef7ae056d39c0dbe318350');
+        $txOut0       = new Tx\Output(381633, Tx\Script::payToSegWitV0(Hashing::hash160($changePubKey)));
+
+        $revealPubKey = hex2bin('024478db27085089124c76a6d14d2421ea65ba01ddd94b769ebcd5fcc251d81826');
+        $p2pk         = Tx\Script::payToPubKey($revealPubKey);
+        $scriptHash   = hash('sha256', substr($p2pk->serialize(), 1), true);
+        $txOut1       = new Tx\Output(1000, Tx\Script::payToSegWitV0($scriptHash));
+
+        $tx = new Tx(1, [$txIn], [$txOut0, $txOut1], locktime: 0, testnet: true, segwit: true);
+
+        self::assertSame('e9df24a4a712622589a7fa0c0eb3972a5a943b4523a9a3c8ecf81a10126bb6ed', $tx->id());
+        self::assertTrue($tx->signInput(0, new PrivateKey(gmp_init('0x704a5511e8127119c22805f2c93789fa87e05b3d69b3df4dc801af10c0c15ced'))));
+        self::assertTrue($tx->verify());
+    }
+
+    public function testP2WSHTransactionRedemption(): void
+    {
+        $revealPubKey = hex2bin('024478db27085089124c76a6d14d2421ea65ba01ddd94b769ebcd5fcc251d81826');
+        $p2pk         = Tx\Script::payToPubKey($revealPubKey);
+
+        $txIn = new Tx\Input('e9df24a4a712622589a7fa0c0eb3972a5a943b4523a9a3c8ecf81a10126bb6ed', 1, witness: [substr($p2pk->serialize(), 1)]);
+
+        $txOut = new Tx\Output(0, Tx\Script::opReturn('Behold the mythical P2WSH-P2PK transaction.'));
+
+        $tx = new Tx(1, [$txIn], [$txOut], locktime: 0, testnet: true, segwit: true);
+
+        self::assertSame('ba51067de0df0ae015ed3e68477683443bdc31639b4b1cec8d4b15a1c561ad84', $tx->id());
+        self::assertTrue($tx->signInput(0, new PrivateKey(gmp_init('0xf3661cd21190e88a2d06cd3df27a32798169d23e460f507e51967f681255c20a'))));
         self::assertTrue($tx->verify());
     }
 }

@@ -107,11 +107,30 @@ final class Tx
             throw new \InvalidArgumentException('Input index out of bounds');
         }
 
-        $z   = $this->sigHash($inputIndex);
+        if ($this->segwit) {
+            if ($this->txIns[$inputIndex]->prevOutput($this->testnet)->scriptPubKey->isP2WSH()) {
+                $witnessScript = $this->txIns[$inputIndex]->witness[array_key_last($this->txIns[$inputIndex]->witness)];
+                $z             = $this->sigHashBip143($inputIndex, witnessScript: Script::parseAsString(Encoding::encodeVarInt(\strlen($witnessScript)).$witnessScript));
+            } else {
+                $z = $this->sigHashBip143($inputIndex);
+            }
+        } else {
+            $z = $this->sigHash($inputIndex);
+        }
+
         $sig = $key->sign($z)->der()."\x01"; // SIGHASH_ALL byte
         $sec = $key->pubKey->sec();
 
-        $this->txIns[$inputIndex]->scriptSig = new Script([$sig, $sec]);
+        if ($this->segwit) {
+            if ($this->txIns[$inputIndex]->prevOutput($this->testnet)->scriptPubKey->isP2WSH()) {
+                array_unshift($this->txIns[$inputIndex]->witness, $sig);
+            } else {
+                array_unshift($this->txIns[$inputIndex]->witness, $sec);
+                array_unshift($this->txIns[$inputIndex]->witness, $sig);
+            }
+        } else {
+            $this->txIns[$inputIndex]->scriptSig = new Script([$sig, $sec]);
+        }
 
         return $this->verifyInput($inputIndex);
     }

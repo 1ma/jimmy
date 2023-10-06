@@ -26,6 +26,11 @@ final readonly class Script
         return new self([OpCodes::OP_RETURN->value, $data]);
     }
 
+    public static function payToPubKey(string $pubkey): self
+    {
+        return new self([$pubkey, OpCodes::OP_CHECKSIG->value]);
+    }
+
     public static function payToPubKeyHash(string $h160): self
     {
         if (self::P2PKH_HASH_LENGTH !== \strlen($h160)) {
