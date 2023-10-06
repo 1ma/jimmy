@@ -90,6 +90,24 @@ final class Tx
         )));
     }
 
+    public function isCoinbase(): bool
+    {
+        return 1                                                                  === \count($this->txIns)
+            && '0000000000000000000000000000000000000000000000000000000000000000' === $this->txIns[0]->prevTxId
+            && 0xFFFFFFFF                                                         === $this->txIns[0]->prevIndex;
+    }
+
+    public function blockHeight(): int|false
+    {
+        if (!$this->isCoinbase()) {
+            return false;
+        }
+
+        // BIP-34 forces miners to record the block height as the first element of
+        // the coinbase ScriptSig to prevent duplicated Tx IDs.
+        return gmp_intval(Encoding::fromLE($this->txIns[0]->scriptSig->cmds[0]));
+    }
+
     /**
      * @throws \RuntimeException
      */
