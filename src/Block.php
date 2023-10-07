@@ -55,6 +55,24 @@ final readonly class Block
         return bin2hex(strrev(Hashing::hash256($this->serialize())));
     }
 
+    public function target(): \GMP
+    {
+        $exponent    = $this->bits >> 24;
+        $coefficient = $this->bits & 0x00FFFFFF;
+
+        return gmp_mul($coefficient, gmp_pow(256, $exponent - 3));
+    }
+
+    public function difficulty(): \GMP
+    {
+        return gmp_div(gmp_mul(0xFFFF, gmp_pow(256, 0x1D - 3)), $this->target());
+    }
+
+    public function checkPOW(): bool
+    {
+        return Encoding::fromLE(Hashing::hash256($this->serialize())) < $this->target();
+    }
+
     public function bip9(): bool
     {
         return ($this->version >> 29) === 0b001;

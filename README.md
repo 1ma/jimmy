@@ -30,7 +30,7 @@ To further emphasize it the library assumes that it runs on testnet by default i
 - [X] Chapter 6: Script
 - [X] Chapter 7: Transaction Creation and Validation
 - [X] Chapter 8: Pay-to-Script Hash
-- [ ] Chapter 9: Blocks
+- [X] Chapter 9: Blocks
 - [ ] Chapter 10: Networking
 - [ ] Chapter 11: Simplified Payment Verification
 - [ ] Chapter 12: Bloom Filters
