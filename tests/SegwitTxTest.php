@@ -97,6 +97,11 @@ final class SegwitTxTest extends TestCase
         self::assertSame('e9df24a4a712622589a7fa0c0eb3972a5a943b4523a9a3c8ecf81a10126bb6ed', $tx->id());
         self::assertTrue($tx->signInput(0, new PrivateKey(gmp_init('0x704a5511e8127119c22805f2c93789fa87e05b3d69b3df4dc801af10c0c15ced'))));
         self::assertTrue($tx->verify());
+
+        self::assertSame(
+            '0100000000010126135537194016c07fbb25a5b469db5c74bf36ae7a86acd0a6db932173f10c1f0000000000ffffffff02c1d205000000000016001479482854f90ee78eb082b6a7c1fa256774111adce8030000000000002200200571f70813549b790ac5fee72d8001324006a2c16e9d6459c3b6e596e8e6644302483045022100a299ecdc7e41bc0ed902e34438ec99aa4aa63c81ba2859362659a9a83bf42b250220087c7bf88e5e3ca9441d44255b7b296d0aa828fa08378adc841c371dab18a7b7012103d08bb6d058136f737f76d320af14c06335822e725fbe45cc70297db2d2b35e5e00000000',
+            bin2hex($tx->serialize())
+        );
     }
 
     public function testP2WSHTransactionRedemption(): void
@@ -113,5 +118,10 @@ final class SegwitTxTest extends TestCase
         self::assertSame('ba51067de0df0ae015ed3e68477683443bdc31639b4b1cec8d4b15a1c561ad84', $tx->id());
         self::assertTrue($tx->signInput(0, new PrivateKey(gmp_init('0xf3661cd21190e88a2d06cd3df27a32798169d23e460f507e51967f681255c20a'))));
         self::assertTrue($tx->verify());
+
+        self::assertSame(
+            '01000000000101edb66b12101af8ecc8a3a923453b945a2a97b30e0cfaa789256212a7a424dfe90100000000ffffffff0100000000000000002d6a2b4265686f6c6420746865206d7974686963616c2050325753482d5032504b207472616e73616374696f6e2e0247304402203c32b2459470182e4d1b58b9f65438313c6af4fbceabd4b0c0480b7bb308a13d022061d6c8902872fb006c0be6d23411354935204ed0b68c8cd7a593f1d1cf7fd7de012321024478db27085089124c76a6d14d2421ea65ba01ddd94b769ebcd5fcc251d81826ac00000000',
+            bin2hex($tx->serialize())
+        );
     }
 }
