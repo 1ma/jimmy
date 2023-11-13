@@ -6,7 +6,8 @@ namespace Bitcoin;
 
 final readonly class Encoding
 {
-    private const BASE58_ALPHABET = '123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz';
+    private const BTC_BASE58_ALPHABET = '123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz';
+    private const GMP_BASE58_ALPHABET = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuv';
 
     private const P2PKH_MAINNET_PREFIX = "\x00";
     private const P2PKH_TESTNET_PREFIX = "\x6f";
@@ -21,15 +22,9 @@ final readonly class Encoding
             ++$nullBytes;
         }
 
-        $result = '';
-        $num    = gmp_import($data);
+        $encoded = gmp_strval(gmp_import($data), 58);
 
-        while ($num > 0) {
-            [$num, $mod] = gmp_div_qr($num, 58);
-            $result      = self::BASE58_ALPHABET[gmp_intval($mod)].$result;
-        }
-
-        return str_repeat('1', $nullBytes).$result;
+        return str_repeat('1', $nullBytes).strtr($encoded, self::GMP_BASE58_ALPHABET, self::BTC_BASE58_ALPHABET);
     }
 
     public static function base58checksum(string $data): string
@@ -37,29 +32,48 @@ final readonly class Encoding
         return self::base58encode($data.substr(Hashing::hash256($data), 0, 4));
     }
 
-    public static function base58decode(string $address): string
+    public static function decodeLegacyAddress(string $address): string
     {
-        $num = gmp_init(0);
-        for ($i = 0; $i < \strlen($address); ++$i) {
-            $num *= 58;
-            $digit = strpos(self::BASE58_ALPHABET, $address[$i]);
+        $data = self::base58decode($address, check: true);
+        if (21 !== \strlen($data)) {
+            throw new \InvalidArgumentException('unexpected data length');
+        }
 
-            if (false === $digit) {
-                throw new \InvalidArgumentException('Invalid character in base58 data: '.$address[$i]);
+        // Ignore address version, just return the payload (hash160 of the public key)
+        return substr($data, 1);
+    }
+
+    /**
+     * If $check is true the last 4 bytes of the decoded data (the checksum) are not returned.
+     */
+    public static function base58decode(string $data, bool $check = false): string
+    {
+        $nullBytes = 0;
+        while ('' !== $data && '1' === $data[0]) {
+            ++$nullBytes;
+            $data = substr($data, 1);
+        }
+
+        $decoded = str_repeat("\x00", $nullBytes);
+
+        if ('' === $data) {
+            return $decoded;
+        }
+
+        $decoded .= gmp_export(gmp_init(strtr($data, self::BTC_BASE58_ALPHABET, self::GMP_BASE58_ALPHABET), 58));
+
+        if ($check) {
+            $checksum = substr($decoded, -4);
+            $payload  = substr($decoded, 0, -4);
+
+            if (substr(Hashing::hash256($payload), 0, 4) !== $checksum) {
+                throw new \InvalidArgumentException('invalid checksum');
             }
 
-            $num += $digit;
+            $decoded = $payload;
         }
 
-        $combined = str_pad(gmp_export($num), 25, "\x00", \STR_PAD_LEFT);
-        $checksum = substr($combined, -4);
-        $data     = substr($combined, 0, -4);
-
-        if (substr(Hashing::hash256($data), 0, 4) !== $checksum) {
-            throw new \InvalidArgumentException('bad address');
-        }
-
-        return substr($data, 1);
+        return $decoded;
     }
 
     public static function hash160ToPayToPublicKeyHashAddress(string $hash, bool $testnet = true): string

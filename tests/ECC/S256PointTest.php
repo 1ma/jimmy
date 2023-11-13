@@ -242,6 +242,6 @@ final class S256PointTest extends TestCase
         $pubkey = S256Point::parse($sec);
 
         self::assertSame('1PMycacnJaSqwwJqjawXBErnLsZ7RkXUAs', $pubkey->address(compressed: true, testnet: false));
-        self::assertSame(Hashing::hash160($sec), Encoding::base58decode('1PMycacnJaSqwwJqjawXBErnLsZ7RkXUAs'));
+        self::assertSame(Hashing::hash160($sec), Encoding::decodeLegacyAddress('1PMycacnJaSqwwJqjawXBErnLsZ7RkXUAs'));
     }
 }
