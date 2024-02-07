@@ -10,7 +10,7 @@ use PHPUnit\Framework\TestCase;
 
 final class PointTest extends TestCase
 {
-    private const ORDER = 223;
+    private const int ORDER = 223;
 
     /**
      * @dataProvider validPointDataProvider

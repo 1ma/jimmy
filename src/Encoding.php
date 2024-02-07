@@ -6,14 +6,14 @@ namespace Bitcoin;
 
 final readonly class Encoding
 {
-    private const BTC_BASE58_ALPHABET = '123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz';
-    private const GMP_BASE58_ALPHABET = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuv';
+    private const string BTC_BASE58_ALPHABET = '123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz';
+    private const string GMP_BASE58_ALPHABET = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuv';
 
-    private const P2PKH_MAINNET_PREFIX = "\x00";
-    private const P2PKH_TESTNET_PREFIX = "\x6f";
+    private const string P2PKH_MAINNET_PREFIX = "\x00";
+    private const string P2PKH_TESTNET_PREFIX = "\x6f";
 
-    private const P2SH_MAINNET_PREFIX = "\x05";
-    private const P2SH_TESTNET_PREFIX = "\xc4";
+    private const string P2SH_MAINNET_PREFIX = "\x05";
+    private const string P2SH_TESTNET_PREFIX = "\xc4";
 
     public static function base58encode(string $data): string
     {

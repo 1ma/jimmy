@@ -27,10 +27,10 @@ final class Tx
     private ?string $hashSequence = null;
     private ?string $hashOutputs  = null;
 
-    private const SIGHASH_ALL = 0x01;
+    private const int SIGHASH_ALL = 0x01;
 
-    private const SEGWIT_MARKER = "\x00";
-    private const SEGWIT_FLAG   = "\x01";
+    private const string SEGWIT_MARKER = "\x00";
+    private const string SEGWIT_FLAG   = "\x01";
 
     public function __construct(int $version, array $txIns, array $txOuts, int $locktime, bool $testnet = true, bool $segwit = true)
     {
@@ -223,7 +223,7 @@ final class Tx
         );
     }
 
-    private function sigHash(int $inputIndex, Script $redeemScript = null): \GMP
+    private function sigHash(int $inputIndex, ?Script $redeemScript = null): \GMP
     {
         $tx = Encoding::toLE(gmp_init($this->version), 4);
         $tx .= Encoding::encodeVarInt(\count($this->txIns));
@@ -278,7 +278,7 @@ final class Tx
         }
     }
 
-    private function sigHashBip143(int $inputIndex, Script $redeemScript = null, Script $witnessScript = null): \GMP
+    private function sigHashBip143(int $inputIndex, ?Script $redeemScript = null, ?Script $witnessScript = null): \GMP
     {
         $this->initBip143Hashes();
 

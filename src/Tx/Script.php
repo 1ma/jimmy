@@ -12,9 +12,9 @@ final readonly class Script
     /** @var <int|string>[] */
     public array $cmds;
 
-    private const P2PKH_HASH_LENGTH  = 20;
-    private const P2WPKH_HASH_LENGTH = 20;
-    private const P2WSH_HASH_LENGTH  = 32;
+    private const int P2PKH_HASH_LENGTH  = 20;
+    private const int P2WPKH_HASH_LENGTH = 20;
+    private const int P2WSH_HASH_LENGTH  = 32;
 
     public function __construct(array $cmds = [])
     {

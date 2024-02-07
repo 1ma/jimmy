@@ -12,7 +12,7 @@ final class EnvelopeTest extends TestCase
 {
     use StreamingHelperTrait;
 
-    private const SAMPLE_VERACK_NETWORK_ENVELOPE = 'f9beb4d976657261636b000000000000000000005df6e0e2';
+    private const string SAMPLE_VERACK_NETWORK_ENVELOPE = 'f9beb4d976657261636b000000000000000000005df6e0e2';
 
     public function testParsing(): void
     {

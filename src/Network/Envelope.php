@@ -9,8 +9,8 @@ use Bitcoin\Hashing;
 
 final readonly class Envelope
 {
-    public const MAINNET_MAGIC = "\xf9\xbe\xb4\xd9";
-    public const TESTNET_MAGIC = "\x0b\x11\x09\x07";
+    public const string MAINNET_MAGIC = "\xf9\xbe\xb4\xd9";
+    public const string TESTNET_MAGIC = "\x0b\x11\x09\x07";
 
     public string $magic;
     public string $command;

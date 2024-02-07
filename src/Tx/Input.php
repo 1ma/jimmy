@@ -16,9 +16,9 @@ final class Input
     /** @var <int|string>[] */
     public array $witness;
 
-    private const DEFAULT_SEQUENCE_NUMBER = 0xFFFFFFFF;
+    private const int DEFAULT_SEQUENCE_NUMBER = 0xFFFFFFFF;
 
-    public function __construct(string $prevTxId, int $prevIndex, Script $scriptSig = null, int $seqNum = self::DEFAULT_SEQUENCE_NUMBER, array $witness = [])
+    public function __construct(string $prevTxId, int $prevIndex, ?Script $scriptSig = null, int $seqNum = self::DEFAULT_SEQUENCE_NUMBER, array $witness = [])
     {
         $this->prevTxId  = $prevTxId;
         $this->prevIndex = $prevIndex;

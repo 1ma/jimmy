@@ -12,7 +12,7 @@ jobs:
           fetch-depth: 2
       - uses: shivammathur/setup-php@v2
         with:
-          php-version: 8.2
+          php-version: 8.3
       - run: composer install
       - run: php vendor/bin/php-cs-fixer check -v
       - run: php vendor/bin/phpunit

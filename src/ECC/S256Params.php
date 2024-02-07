@@ -17,21 +17,21 @@ final class S256Params
      *
      * P = 2^256 - 2^32 - 977
      */
-    private const P = '0xfffffffffffffffffffffffffffffffffffffffffffffffffffffffefffffc2f';
+    private const string P = '0xfffffffffffffffffffffffffffffffffffffffffffffffffffffffefffffc2f';
 
     /**
      * Coefficients of the secp256k1 elliptic curve.
      *
      * y^2 = x^3 + 0x + 7
      */
-    private const A = 0;
-    private const B = 7;
+    private const int A = 0;
+    private const int B = 7;
 
     /**
      * Generator point coordinates.
      */
-    private const Gx = '0x79be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798';
-    private const Gy = '0x483ada7726a3c4655da4fbfc0e1108a8fd17b448a68554199c47d08ffb10d4b8';
+    private const string Gx = '0x79be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798';
+    private const string Gy = '0x483ada7726a3c4655da4fbfc0e1108a8fd17b448a68554199c47d08ffb10d4b8';
 
     /**
      * The order of G over the secp256k1 curve.
@@ -40,7 +40,7 @@ final class S256Params
      * itself (i.e. scalar multiplication n*G) to get to the point at infinity of
      * the secp256k1 curve.
      */
-    private const N = '0xfffffffffffffffffffffffffffffffebaaedce6af48a03bbfd25e8cd0364141';
+    private const string N = '0xfffffffffffffffffffffffffffffffebaaedce6af48a03bbfd25e8cd0364141';
 
     private static \GMP $N;
     private static \GMP $P;

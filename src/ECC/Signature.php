@@ -10,7 +10,7 @@ final readonly class Signature
     public \GMP $s;
 
     // 1 (int marker 02) + 1 (r length) + 1 (padding 00) + 32 bytes + 1 (int marker 02) + 1 (s length) + 1 (padding 00) + 32 bytes
-    private const MAX_DER_LENGTH = 70;
+    private const int MAX_DER_LENGTH = 70;
 
     public function __construct(\GMP $r, \GMP $s)
     {
