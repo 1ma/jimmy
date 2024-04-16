@@ -58,7 +58,7 @@ To further emphasize it the library assumes that it runs on testnet by default i
 Implementing the code related to ECC requires doing math operations on 256-bit integers, that's why the book uses Python.
 
 PHP, like most programming languages, only has 32 or 64-bit integers that match the machine's word size.
-However, it has a native binding to [libgmp](https://www.php.net/manual/en/book.gmp.php) that provides support for
+However, the language has a native binding to [libgmp](https://www.php.net/manual/en/book.gmp.php) that provides support for
 representing and doing math on arbitrarily large integers with bearable (though not adequate) performance, just like Python.
 
 
