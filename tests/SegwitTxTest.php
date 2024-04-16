@@ -45,6 +45,9 @@ final class SegwitTxTest extends TestCase
     {
         self::assertSame('d19e7e6869dae7dfc7575d5ce07a018dbeadde26e6b35cce22bc6f9498b13521', Tx::parse(self::stream(hex2bin(self::P2WPKH_TX)))->id());
         self::assertSame('6f0b0db325ad0935395d30fce685154b4e8206c6878ff16435648cdb5f1d7096', Tx::parse(self::stream(hex2bin(self::P2WSH_TX)))->id());
+
+        self::assertSame('8f16b83ac5aee7c59b8de029872f92586cd0c9f4367d163fb3c73e68a85aedac', Tx::parse(self::stream(hex2bin(self::P2WPKH_TX)))->wid());
+        self::assertSame('ad289144170bc8a740eb9f6e42ad84620f86278991836f37f943a2732b20c2c8', Tx::parse(self::stream(hex2bin(self::P2WSH_TX)))->wid());
     }
 
     public function testP2WPKHValidation(): void

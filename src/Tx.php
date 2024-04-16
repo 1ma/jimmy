@@ -90,6 +90,11 @@ final class Tx
         )));
     }
 
+    public function wid(): string
+    {
+        return bin2hex(strrev(Hashing::hash256($this->serialize())));
+    }
+
     public function isCoinbase(): bool
     {
         return 1                                                                  === \count($this->txIns)
