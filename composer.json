@@ -23,7 +23,15 @@
         "scrutinizer/ocular": "^1.9"
     },
     "scripts": {
-        "lint": "@php vendor/bin/php-cs-fixer fix -v"
+        "lint": "@php vendor/bin/php-cs-fixer fix -v",
+        "node": [
+            "docker compose run --rm starter",
+            "docker compose exec -T knots bitcoin-cli -regtest submitblock $(jq -r .[0] blocks.json)",
+            "docker compose exec -T knots bitcoin-cli -regtest submitblock $(jq -r .[1] blocks.json)",
+            "docker compose exec -T knots bitcoin-cli -regtest submitblock $(jq -r .[2] blocks.json)",
+            "docker compose exec -T knots bitcoin-cli -regtest submitblock $(jq -r .[3] blocks.json)",
+            "docker compose exec -T knots bitcoin-cli -regtest submitblock $(jq -r .[4] blocks.json)"
+        ]
     },
     "config": {
         "sort-packages": true

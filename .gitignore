@@ -1,3 +1,4 @@
 build/
+compose.override.yml
 composer.lock
 vendor/

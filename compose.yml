@@ -1,0 +1,18 @@
+name: jimmy
+
+services:
+  starter:
+    image: dadarek/wait-for-dependencies:latest
+    command: knots:18444
+    depends_on:
+      - knots
+
+  knots:
+    image: 1maa/bitcoin:v26.1.knots20240325
+    command: -regtest -listenonion=0
+    restart: on-failure
+    volumes:
+      - knots_data:/home/bitcoin/.bitcoin
+
+volumes:
+  knots_data:
