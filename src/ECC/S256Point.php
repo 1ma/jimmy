@@ -7,19 +7,89 @@ namespace Bitcoin\ECC;
 use Bitcoin\Encoding;
 use Bitcoin\Hashing;
 
-/**
- * Represents a Point on the secp256k1 elliptic curve.
- *
- * These points are Bitcoin's public keys.
- */
-final readonly class S256Point extends Point
+final readonly class S256Point
 {
+    public ?S256Field $x;
+    public ?S256Field $y;
+
     public function __construct(?S256Field $x, ?S256Field $y)
     {
-        parent::__construct($x, $y, S256Params::A(), S256Params::B());
+        if ((null === $x && null !== $y) || (null === $y && null !== $x)) {
+            throw new \InvalidArgumentException('If one coordinate is null the other must be null too');
+        }
+
+        if (null !== $x && null !== $y && !$y->exp(2)->equals($x->exp(3)->add(S256Params::A()->mul($x))->add(S256Params::B()))) {
+            throw new \InvalidArgumentException("Point ({$x->num},{$y->num}) is not on the a=0 b=7 curve");
+        }
+
+        $this->x = $x;
+        $this->y = $y;
     }
 
-    public static function parse(string $sec): static
+    public static function infinity(): self
+    {
+        return new self(null, null);
+    }
+
+    public function add(self $other): self
+    {
+        if (null === $this->x) {
+            return $other;
+        }
+
+        if (null === $other->x) {
+            return $this;
+        }
+
+        if ($this->x->num == $other->x->num && $this->y->num != $other->y->num) {
+            return self::infinity();
+        }
+
+        if ($this->equals($other) && 0 == $this->y->num) {
+            return self::infinity();
+        }
+
+        if ($this->equals($other)) {
+            $s = $this->x->exp(2)->mul(new S256Field(3))->add(S256Params::A())->div($this->y->mul(new S256Field(2)));
+            $x = $s->exp(2)->sub($this->x->mul(new S256Field(2)));
+            $y = $s->mul($this->x->sub($x))->sub($other->y);
+
+            return new static($x, $y);
+        }
+
+        $s = $other->y->sub($this->y)->div($other->x->sub($this->x));
+        $x = $s->exp(2)->sub($this->x)->sub($other->x);
+        $y = $s->mul($this->x->sub($x))->sub($this->y);
+
+        return new static($x, $y);
+    }
+
+    public function scalarMul(\GMP|int $coefficient): self
+    {
+        // Optimization: reduce the coefficient modulo N before computing the multiplication
+        $c       = $coefficient % S256Params::N();
+        $current = clone $this;
+        $result  = self::infinity();
+
+        while ($c > 0) {
+            if (gmp_testbit($c, 0)) {
+                $result = $result->add($current);
+            }
+
+            $c >>= 1;
+            $current = $current->add($current);
+        }
+
+        return $result;
+    }
+
+    public function equals(self $other): bool
+    {
+        return $this->x->equals($other->x)
+            && $this->y->equals($other->y);
+    }
+
+    public static function parse(string $sec): self
     {
         if (!self::validSecString($sec)) {
             throw new \InvalidArgumentException('Invalid SEC data format');
@@ -68,12 +138,6 @@ final readonly class S256Point extends Point
         $R = S256Params::G()->scalarMul($u)->add($this->scalarMul($v));
 
         return $R->x->num == $sig->r;
-    }
-
-    public function scalarMul(\GMP|int $coefficient): static
-    {
-        // Optimization: reduce the coefficient before computing the multiplication
-        return parent::scalarMul($coefficient % S256Params::N());
     }
 
     public function __toString(): string
