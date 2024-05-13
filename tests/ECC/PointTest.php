@@ -6,15 +6,14 @@ namespace Bitcoin\Tests\ECC;
 
 use Bitcoin\ECC\FieldElement;
 use Bitcoin\ECC\Point;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 final class PointTest extends TestCase
 {
     private const int ORDER = 223;
 
-    /**
-     * @dataProvider validPointDataProvider
-     */
+    #[DataProvider('validPointDataProvider')]
     public function testInstantiation(?FieldElement $x, ?FieldElement $y): void
     {
         self::assertInstanceOf(Point::class, new Point($x, $y, new FieldElement(0, self::ORDER), new FieldElement(7, self::ORDER)));
@@ -30,9 +29,7 @@ final class PointTest extends TestCase
         ];
     }
 
-    /**
-     * @dataProvider invalidPointDataProvider
-     */
+    #[DataProvider('invalidPointDataProvider')]
     public function testInvalidPoints(?FieldElement $x, ?FieldElement $y): void
     {
         $this->expectException(\InvalidArgumentException::class);
@@ -50,9 +47,7 @@ final class PointTest extends TestCase
         ];
     }
 
-    /**
-     * @dataProvider pointAdditionDataProvider
-     */
+    #[DataProvider('pointAdditionDataProvider')]
     public function testPointAddition(string $expectedResult, FieldElement $x1, FieldElement $y1, FieldElement $x2, FieldElement $y2): void
     {
         $a = new FieldElement(0, self::ORDER);
@@ -101,9 +96,7 @@ final class PointTest extends TestCase
         self::assertSame('P(,)_0_7_FE(223)', (string) $p->scalarMul(21));
     }
 
-    /**
-     * @dataProvider groupOrderDataProvider
-     */
+    #[DataProvider('groupOrderDataProvider')]
     public function testGroupOrder(int $expectedResult, Point $p): void
     {
         self::assertEquals(gmp_init($expectedResult), $p->groupOrder());

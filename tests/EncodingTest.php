@@ -6,15 +6,14 @@ namespace Bitcoin\Tests;
 
 use Bitcoin\ECC\S256Params;
 use Bitcoin\Encoding;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 final class EncodingTest extends TestCase
 {
     use StreamingHelperTrait;
 
-    /**
-     * @dataProvider encodingDataProvider
-     */
+    #[DataProvider('encodingDataProvider')]
     public function testEncoding(string $expectedEncoding, string $data): void
     {
         self::assertSame($expectedEncoding, Encoding::base58encode(hex2bin($data)));

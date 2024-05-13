@@ -7,6 +7,7 @@ namespace Bitcoin\Tests;
 use Bitcoin\ECC\PrivateKey;
 use Bitcoin\Encoding;
 use Bitcoin\Tx;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 final class LegacyTxTest extends TestCase
@@ -72,9 +73,7 @@ TXT;
         self::assertSame(self::LARGE_TX, bin2hex($tx->serialize()));
     }
 
-    /**
-     * @dataProvider transactionVerificationProvider
-     */
+    #[DataProvider('transactionVerificationProvider')]
     public function testTransactionVerification(string $txId): void
     {
         self::assertTrue(Tx\Finder::find($txId, testnet: true)->verify());

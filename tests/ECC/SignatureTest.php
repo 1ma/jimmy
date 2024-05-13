@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Bitcoin\Tests\ECC;
 
 use Bitcoin\ECC\Signature;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 final class SignatureTest extends TestCase
@@ -35,9 +36,7 @@ final class SignatureTest extends TestCase
         );
     }
 
-    /**
-     * @dataProvider validDerSignatureProvider
-     */
+    #[DataProvider('validDerSignatureProvider')]
     public function testDerParsing(string $expectedR, string $expectedS, string $hexDer): void
     {
         $s = Signature::parse(hex2bin($hexDer));
