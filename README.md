@@ -45,6 +45,7 @@ To further emphasize it the library assumes that it runs on testnet by default i
 - [ ] [BIP-0084]: Derivation scheme for P2WPKH based accounts
 - [ ] [BIP-0086]: Key Derivation for Single Key P2TR Outputs
 - [ ] [BIP-0173]: Base32 address format for native v0-16 witness outputs
+- [ ] [BIP-0325]: Signet
 - [ ] [BIP-0340]: Schnorr Signatures for secp256k1
 - [ ] [BIP-0341]: Taproot
 - [ ] [BIP-0342]: Validation of Taproot Scripts
@@ -68,6 +69,7 @@ representing and doing math on arbitrarily large integers with bearable (though 
 [BIP-0084]: https://bips.xyz/84
 [BIP-0086]: https://bips.xyz/86
 [BIP-0173]: https://bips.xyz/173
+[BIP-0325]: https://bips.xyz/325
 [BIP-0340]: https://bips.xyz/340
 [BIP-0341]: https://bips.xyz/341
 [BIP-0342]: https://bips.xyz/342
