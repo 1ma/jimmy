@@ -7,6 +7,11 @@ namespace Bitcoin\ECC;
 use Bitcoin\Encoding;
 use Bitcoin\Hashing;
 
+/**
+ * Represents a Point on the secp256k1 elliptic curve.
+ *
+ * These points are Bitcoin's public keys.
+ */
 final readonly class S256Point
 {
     public ?S256Field $x;
