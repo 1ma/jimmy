@@ -76,14 +76,14 @@ final readonly class Encoding
         return $decoded;
     }
 
-    public static function hash160ToPayToPublicKeyHashAddress(string $hash, bool $testnet = true): string
+    public static function hash160ToPayToPublicKeyHashAddress(string $hash, Network $mode = Network::TESTNET): string
     {
-        return self::base58checksum(($testnet ? self::P2PKH_TESTNET_PREFIX : self::P2PKH_MAINNET_PREFIX).$hash);
+        return self::base58checksum((Network::TESTNET === $mode ? self::P2PKH_TESTNET_PREFIX : self::P2PKH_MAINNET_PREFIX).$hash);
     }
 
-    public static function hash160ToPayToScriptKeyHashAddress(string $hash, bool $testnet = true): string
+    public static function hash160ToPayToScriptKeyHashAddress(string $hash, Network $mode = Network::TESTNET): string
     {
-        return self::base58checksum(($testnet ? self::P2SH_TESTNET_PREFIX : self::P2SH_MAINNET_PREFIX).$hash);
+        return self::base58checksum((Network::TESTNET === $mode ? self::P2SH_TESTNET_PREFIX : self::P2SH_MAINNET_PREFIX).$hash);
     }
 
     public static function fromLE(string $payload): \GMP

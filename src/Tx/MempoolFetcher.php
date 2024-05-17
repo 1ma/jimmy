@@ -4,14 +4,16 @@ declare(strict_types=1);
 
 namespace Bitcoin\Tx;
 
+use Bitcoin\Network;
+
 final class MempoolFetcher implements Fetcher
 {
-    private const string MAINNET = 'https://mempool.space';
-    private const string TESTNET = 'https://mempool.space/testnet';
+    private const string MAINNET_ENDPOINT = 'https://mempool.space';
+    private const string TESTNET_ENDPOINT = 'https://mempool.space/testnet';
 
-    public function fetch(string $txId, bool $testnet): mixed
+    public function fetch(string $txId, Network $mode): mixed
     {
-        $httpStream = fopen(($testnet ? self::TESTNET : self::MAINNET)."/api/tx/$txId/raw", 'r');
+        $httpStream = fopen((Network::TESTNET === $mode ? self::TESTNET_ENDPOINT : self::MAINNET_ENDPOINT)."/api/tx/$txId/raw", 'r');
         if (false === $httpStream) {
             return false;
         }

@@ -6,19 +6,17 @@ namespace Bitcoin\Network;
 
 use Bitcoin\Encoding;
 use Bitcoin\Hashing;
+use Bitcoin\Network;
 
 final readonly class Envelope
 {
-    public const string MAINNET_MAGIC = "\xf9\xbe\xb4\xd9";
-    public const string TESTNET_MAGIC = "\x0b\x11\x09\x07";
-
-    public string $magic;
+    public Network $network;
     public string $command;
     public string $payload;
 
-    public function __construct(string $command, string $payload, bool $testnet = true)
+    public function __construct(string $command, string $payload, Network $network = Network::TESTNET)
     {
-        $this->magic   = $testnet ? self::TESTNET_MAGIC : self::MAINNET_MAGIC;
+        $this->network = $network;
         $this->command = $command;
         $this->payload = $payload;
     }
@@ -26,11 +24,11 @@ final readonly class Envelope
     /**
      * @param resource $stream
      */
-    public static function parse($stream, bool $testnet = true): self
+    public static function parse($stream, Network $mode = Network::TESTNET): self
     {
         $magic = fread($stream, 4);
 
-        if (($testnet && self::TESTNET_MAGIC !== $magic) || self::MAINNET_MAGIC !== $magic) {
+        if ($mode->value !== $magic) {
             throw new \InvalidArgumentException('Invalid magic packet: '.$magic);
         }
 
@@ -45,7 +43,7 @@ final readonly class Envelope
             throw new \InvalidArgumentException('Invalid checksum');
         }
 
-        return new self($command, $payload, $testnet);
+        return new self($command, $payload, $mode);
     }
 
     public function serialize(): string
@@ -54,6 +52,6 @@ final readonly class Envelope
         $payloadLength = Encoding::toLE(gmp_init(\strlen($this->payload)), 4);
         $checksum      = substr(Hashing::hash256($this->payload), 0, 4);
 
-        return $this->magic.$command.$payloadLength.$checksum.$this->payload;
+        return $this->network->value.$command.$payloadLength.$checksum.$this->payload;
     }
 }

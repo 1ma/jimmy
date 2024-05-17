@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Bitcoin\Tests\Tx;
 
+use Bitcoin\Network;
 use Bitcoin\Tests\StreamingHelperTrait;
 use Bitcoin\Tx\Fetcher;
 
@@ -31,7 +32,7 @@ final class MockFetcher implements Fetcher
         'f781eac22fd176430c7dbf37b9e55dcb2128089854b7d7c0f43eb61012d610e5' => '02000000013e0b6c0bd8a89de75c3df2418be5b95a2516e9668d95b52be4cd2f0f1697897d000000006a4730440220618f7563d2d10f06e21d0aee04d3e810d8cd587e891a029bdb6498478a64d74502206b95de3817b0f207741cbf38536fc86393b156028a6e41bc0c3176ff10920d0f01210300385d013203dad228be0aab8ed97223155ecc75794e289b830cbe840fdce11ffdffffff01a04c0000000000001976a9140a1573ba38474390a2454e4cf8ddaf0a0b422ca988ac383c2600',
     ];
 
-    public function fetch(string $txId, bool $testnet): mixed
+    public function fetch(string $txId, Network $mode): mixed
     {
         return \array_key_exists($txId, self::TRANSACTION_MAP) ?
             self::stream(hex2bin(self::TRANSACTION_MAP[$txId])) : false;

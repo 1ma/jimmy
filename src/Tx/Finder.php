@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Bitcoin\Tx;
 
+use Bitcoin\Network;
 use Bitcoin\Tx;
 
 final class Finder
@@ -16,7 +17,7 @@ final class Finder
     /**
      * @throws \RuntimeException
      */
-    public static function find(string $txId, bool $testnet = true): Tx
+    public static function find(string $txId, Network $mode = Network::TESTNET): Tx
     {
         if (!isset(self::$fetcher)) {
             self::$fetcher = new MempoolFetcher();
@@ -26,11 +27,11 @@ final class Finder
             return self::$cache[$txId];
         }
 
-        if (false === ($stream = self::$fetcher->fetch($txId, $testnet))) {
+        if (false === ($stream = self::$fetcher->fetch($txId, $mode))) {
             throw new \RuntimeException('Failed to fetch transaction data');
         }
 
-        $tx = Tx::parse($stream, $testnet);
+        $tx = Tx::parse($stream, $mode);
         fclose($stream);
 
         if ($tx->id() !== $txId) {

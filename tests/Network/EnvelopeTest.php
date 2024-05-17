@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Bitcoin\Tests\Network;
 
+use Bitcoin\Network;
 use Bitcoin\Network\Envelope;
 use Bitcoin\Tests\StreamingHelperTrait;
 use PHPUnit\Framework\TestCase;
@@ -16,9 +17,9 @@ final class EnvelopeTest extends TestCase
 
     public function testParsing(): void
     {
-        $envelope = Envelope::parse(self::stream(hex2bin(self::SAMPLE_VERACK_NETWORK_ENVELOPE)), testnet: false);
+        $envelope = Envelope::parse(self::stream(hex2bin(self::SAMPLE_VERACK_NETWORK_ENVELOPE)), Network::MAINNET);
 
-        self::assertSame(Envelope::MAINNET_MAGIC, $envelope->magic);
+        self::assertSame(Network::MAINNET, $envelope->network);
         self::assertSame('verack', $envelope->command);
         self::assertSame('', $envelope->payload);
 

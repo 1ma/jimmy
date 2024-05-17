@@ -6,6 +6,7 @@ namespace Bitcoin\Tests;
 
 use Bitcoin\ECC\PrivateKey;
 use Bitcoin\Hashing;
+use Bitcoin\Network;
 use Bitcoin\Tx;
 use PHPUnit\Framework\TestCase;
 
@@ -95,7 +96,7 @@ final class SegwitTxTest extends TestCase
         $scriptHash   = hash('sha256', substr($p2pk->serialize(), 1), true);
         $txOut1       = new Tx\Output(1000, Tx\Script::payToSegWitV0($scriptHash));
 
-        $tx = new Tx(1, [$txIn], [$txOut0, $txOut1], locktime: 0, testnet: true, segwit: true);
+        $tx = new Tx(1, [$txIn], [$txOut0, $txOut1], locktime: 0, network: Network::TESTNET, segwit: true);
 
         self::assertSame('e9df24a4a712622589a7fa0c0eb3972a5a943b4523a9a3c8ecf81a10126bb6ed', $tx->id());
         self::assertTrue($tx->signInput(0, new PrivateKey(gmp_init('0x704a5511e8127119c22805f2c93789fa87e05b3d69b3df4dc801af10c0c15ced'))));
@@ -116,7 +117,7 @@ final class SegwitTxTest extends TestCase
 
         $txOut = new Tx\Output(0, Tx\Script::opReturn('Behold the mythical P2WSH-P2PK transaction.'));
 
-        $tx = new Tx(1, [$txIn], [$txOut], locktime: 0, testnet: true, segwit: true);
+        $tx = new Tx(1, [$txIn], [$txOut], locktime: 0, network: Network::TESTNET, segwit: true);
 
         self::assertSame('ba51067de0df0ae015ed3e68477683443bdc31639b4b1cec8d4b15a1c561ad84', $tx->id());
         self::assertTrue($tx->signInput(0, new PrivateKey(gmp_init('0xf3661cd21190e88a2d06cd3df27a32798169d23e460f507e51967f681255c20a'))));

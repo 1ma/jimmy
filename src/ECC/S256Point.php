@@ -6,6 +6,7 @@ namespace Bitcoin\ECC;
 
 use Bitcoin\Encoding;
 use Bitcoin\Hashing;
+use Bitcoin\Network;
 
 /**
  * Represents a Point on the secp256k1 elliptic curve.
@@ -117,9 +118,9 @@ final readonly class S256Point
             new self($x, (0 == $beta->num % 2) ? new S256Field(S256Params::P() - $beta->num) : $beta);
     }
 
-    public function address(bool $compressed = true, bool $testnet = true): string
+    public function address(bool $compressed = true, Network $mode = Network::TESTNET): string
     {
-        return Encoding::hash160ToPayToPublicKeyHashAddress(Hashing::hash160($this->sec($compressed)), $testnet);
+        return Encoding::hash160ToPayToPublicKeyHashAddress(Hashing::hash160($this->sec($compressed)), $mode);
     }
 
     public function sec(bool $compressed = true): string

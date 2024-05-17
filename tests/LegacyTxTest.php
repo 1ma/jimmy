@@ -6,6 +6,7 @@ namespace Bitcoin\Tests;
 
 use Bitcoin\ECC\PrivateKey;
 use Bitcoin\Encoding;
+use Bitcoin\Network;
 use Bitcoin\Tx;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
@@ -22,7 +23,7 @@ final class LegacyTxTest extends TestCase
 
     public function testDebugSerialization(): void
     {
-        $tx = new Tx(1, [], [], 0, testnet: true, segwit: false);
+        $tx = new Tx(1, [], [], 0, network: Network::TESTNET, segwit: false);
 
         $expectedSerialization = <<<TXT
 tx: d21633ba23f70118185227be58a63527675641ad37967e2aa461559f577aec43
@@ -76,7 +77,7 @@ TXT;
     #[DataProvider('transactionVerificationProvider')]
     public function testTransactionVerification(string $txId): void
     {
-        self::assertTrue(Tx\Finder::find($txId, testnet: true)->verify());
+        self::assertTrue(Tx\Finder::find($txId, mode: Network::TESTNET)->verify());
     }
 
     public static function transactionVerificationProvider(): array
@@ -108,7 +109,7 @@ tx_outs:
 locktime: 0
 TXT;
 
-        $tx = new Tx(1, [$txIn], [$txOut1, $txOut2, $txOut3], locktime: 0, testnet: true, segwit: false);
+        $tx = new Tx(1, [$txIn], [$txOut1, $txOut2, $txOut3], locktime: 0, network: Network::TESTNET, segwit: false);
 
         self::assertSame($expectedDebugView, (string) $tx);
         self::assertSame(314, $tx->fee());
@@ -140,7 +141,7 @@ tx_outs:
 locktime: 0
 TXT;
 
-        $tx = new Tx(1, [$txIn1, $txIn2], [$txOut], locktime: 0, testnet: true, segwit: false);
+        $tx = new Tx(1, [$txIn1, $txIn2], [$txOut], locktime: 0, network: Network::TESTNET, segwit: false);
 
         self::assertSame($expectedDebugView, (string) $tx);
         self::assertSame(19302, $tx->fee());
@@ -157,7 +158,7 @@ TXT;
 
     public function testP2SHTransactionValidation(): void
     {
-        $p2shTx = Tx::parse(self::stream(hex2bin(self::P2SH_TX)), testnet: false);
+        $p2shTx = Tx::parse(self::stream(hex2bin(self::P2SH_TX)), mode: Network::MAINNET);
 
         self::assertTrue($p2shTx->verify());
     }

@@ -20,7 +20,7 @@ final class Tx
     public array $txOuts;
 
     public readonly int $locktime;
-    public readonly bool $testnet;
+    public readonly Network $network;
     public readonly bool $segwit;
 
     private ?string $hashPrevOuts = null;
@@ -32,20 +32,20 @@ final class Tx
     private const string SEGWIT_MARKER = "\x00";
     private const string SEGWIT_FLAG   = "\x01";
 
-    public function __construct(int $version, array $txIns, array $txOuts, int $locktime, bool $testnet = true, bool $segwit = true)
+    public function __construct(int $version, array $txIns, array $txOuts, int $locktime, Network $network = Network::TESTNET, bool $segwit = true)
     {
         $this->version  = $version;
         $this->txIns    = $txIns;
         $this->txOuts   = $txOuts;
         $this->locktime = $locktime;
-        $this->testnet  = $testnet;
+        $this->network  = $network;
         $this->segwit   = $segwit;
     }
 
     /**
      * @param resource $stream
      */
-    public static function parse($stream, bool $testnet = true): self
+    public static function parse($stream, Network $mode = Network::TESTNET): self
     {
         fread($stream, 4);
 
@@ -54,8 +54,8 @@ final class Tx
         rewind($stream);
 
         return $segwit ?
-            self::parseSegWit($stream, $testnet) :
-            self::parseLegacy($stream, $testnet);
+            self::parseSegWit($stream, $mode) :
+            self::parseLegacy($stream, $mode);
     }
 
     public function serialize(): string
@@ -86,7 +86,7 @@ final class Tx
     public function id(): string
     {
         return bin2hex(strrev(Hashing::hash256(
-            (new self($this->version, $this->txIns, $this->txOuts, $this->locktime, $this->testnet, segwit: false))->serialize()
+            (new self($this->version, $this->txIns, $this->txOuts, $this->locktime, $this->network, segwit: false))->serialize()
         )));
     }
 
@@ -118,7 +118,7 @@ final class Tx
      */
     public function fee(): int
     {
-        $inAmount  = array_reduce($this->txIns, fn (\GMP $subtotal, Input $txIn) => $subtotal + $txIn->prevOutput($this->testnet)->amount, gmp_init(0));
+        $inAmount  = array_reduce($this->txIns, fn (\GMP $subtotal, Input $txIn) => $subtotal + $txIn->prevOutput($this->network)->amount, gmp_init(0));
         $outAmount = array_reduce($this->txOuts, fn (\GMP $subtotal, Output $txOut) => $subtotal + $txOut->amount, gmp_init(0));
 
         return gmp_intval($inAmount - $outAmount);
@@ -131,7 +131,7 @@ final class Tx
         }
 
         if ($this->segwit) {
-            if ($this->txIns[$inputIndex]->prevOutput($this->testnet)->scriptPubKey->isP2WSH()) {
+            if ($this->txIns[$inputIndex]->prevOutput($this->network)->scriptPubKey->isP2WSH()) {
                 $witnessScript = $this->txIns[$inputIndex]->witness[array_key_last($this->txIns[$inputIndex]->witness)];
                 $z             = $this->sigHashBip143($inputIndex, witnessScript: Script::parseAsString(Encoding::encodeVarInt(\strlen($witnessScript)).$witnessScript));
             } else {
@@ -145,7 +145,7 @@ final class Tx
         $sec = $key->pubKey->sec();
 
         if ($this->segwit) {
-            if ($this->txIns[$inputIndex]->prevOutput($this->testnet)->scriptPubKey->isP2WSH()) {
+            if ($this->txIns[$inputIndex]->prevOutput($this->network)->scriptPubKey->isP2WSH()) {
                 array_unshift($this->txIns[$inputIndex]->witness, $sig);
             } else {
                 array_unshift($this->txIns[$inputIndex]->witness, $sec);
@@ -180,7 +180,7 @@ final class Tx
         }
 
         $txIn    = $this->txIns[$inputIndex];
-        $prevOut = $txIn->prevOutput($this->testnet);
+        $prevOut = $txIn->prevOutput($this->network);
 
         if ($prevOut->scriptPubKey->isP2SH()) {
             $redeemScriptCode = $txIn->scriptSig->cmds[array_key_last($txIn->scriptSig->cmds)];
@@ -235,7 +235,7 @@ final class Tx
         foreach ($this->txIns as $i => $txIn) {
             $scriptSig = new Script();
             if ($i === $inputIndex) {
-                $scriptSig = $redeemScript ?? $txIn->prevOutput($this->testnet)->scriptPubKey;
+                $scriptSig = $redeemScript ?? $txIn->prevOutput($this->network)->scriptPubKey;
             }
 
             $tx .= (new Input(
@@ -298,12 +298,12 @@ final class Tx
         } elseif (null !== $redeemScript) {
             $script = Script::payToPubKeyHash($redeemScript->cmds[1]);
         } else {
-            $script = Script::payToPubKeyHash($this->txIns[$inputIndex]->prevOutput($this->testnet)->scriptPubKey->cmds[1]);
+            $script = Script::payToPubKeyHash($this->txIns[$inputIndex]->prevOutput($this->network)->scriptPubKey->cmds[1]);
         }
 
         $tx .= $script->serialize();
 
-        $tx .= Encoding::toLE(gmp_init($this->txIns[$inputIndex]->prevOutput($this->testnet)->amount), 8);
+        $tx .= Encoding::toLE(gmp_init($this->txIns[$inputIndex]->prevOutput($this->network)->amount), 8);
         $tx .= Encoding::toLE(gmp_init($this->txIns[$inputIndex]->seqNum), 4);
 
         $tx .= $this->hashOutputs;
@@ -314,7 +314,7 @@ final class Tx
         return gmp_import(Hashing::hash256($tx));
     }
 
-    private static function parseLegacy($stream, bool $testnet): self
+    private static function parseLegacy($stream, Network $mode): self
     {
         $version = gmp_intval(Encoding::fromLE(fread($stream, 4)));
 
@@ -332,10 +332,10 @@ final class Tx
 
         $locktime = gmp_intval(Encoding::fromLE(fread($stream, 4)));
 
-        return new self($version, $txIns, $txOuts, $locktime, $testnet, segwit: false);
+        return new self($version, $txIns, $txOuts, $locktime, $mode, segwit: false);
     }
 
-    private static function parseSegWit($stream, bool $testnet): self
+    private static function parseSegWit($stream, Network $mode): self
     {
         $version = gmp_intval(Encoding::fromLE(fread($stream, 4)));
 
@@ -369,6 +369,6 @@ final class Tx
 
         $locktime = gmp_intval(Encoding::fromLE(fread($stream, 4)));
 
-        return new self($version, $txIns, $txOuts, $locktime, $testnet, segwit: true);
+        return new self($version, $txIns, $txOuts, $locktime, $mode, segwit: true);
     }
 }

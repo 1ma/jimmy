@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Bitcoin\Tx;
 
 use Bitcoin\Encoding;
+use Bitcoin\Network;
 
 final class Input
 {
@@ -43,9 +44,9 @@ final class Input
     /**
      * @throws \RuntimeException
      */
-    public function prevOutput(bool $testnet = true): Output
+    public function prevOutput(Network $mode = Network::TESTNET): Output
     {
-        return Finder::find($this->prevTxId, $testnet)->txOuts[$this->prevIndex];
+        return Finder::find($this->prevTxId, $mode)->txOuts[$this->prevIndex];
     }
 
     public function serialize(): string

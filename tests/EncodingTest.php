@@ -6,6 +6,7 @@ namespace Bitcoin\Tests;
 
 use Bitcoin\ECC\S256Params;
 use Bitcoin\Encoding;
+use Bitcoin\Network;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
@@ -59,6 +60,6 @@ final class EncodingTest extends TestCase
     public function testP2SHAddressGeneration(): void
     {
         // Based on example from Chapter 8 page 157
-        self::assertSame('3CLoMMyuoDQTPRD3XYZtCvgvkadrAdvdXh', Encoding::hash160ToPayToScriptKeyHashAddress(hex2bin('74d691da1574e6b3c192ecfb52cc8984ee7b6c56'), testnet: false));
+        self::assertSame('3CLoMMyuoDQTPRD3XYZtCvgvkadrAdvdXh', Encoding::hash160ToPayToScriptKeyHashAddress(hex2bin('74d691da1574e6b3c192ecfb52cc8984ee7b6c56'), mode: Network::MAINNET));
     }
 }

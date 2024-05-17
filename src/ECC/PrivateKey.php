@@ -6,6 +6,7 @@ namespace Bitcoin\ECC;
 
 use Bitcoin\Encoding;
 use Bitcoin\Hashing;
+use Bitcoin\Network;
 
 final readonly class PrivateKey
 {
@@ -33,10 +34,10 @@ final readonly class PrivateKey
         return new Signature($r, $s);
     }
 
-    public function wif(bool $compressed = true, bool $testnet = true): string
+    public function wif(bool $compressed = true, Network $mode = Network::TESTNET): string
     {
         return Encoding::base58checksum(
-            ($testnet ? "\xef" : "\x80").str_pad(gmp_export($this->secret), 32, "\x00", \STR_PAD_LEFT).($compressed ? "\x01" : '')
+            (Network::TESTNET === $mode ? "\xef" : "\x80").str_pad(gmp_export($this->secret), 32, "\x00", \STR_PAD_LEFT).($compressed ? "\x01" : '')
         );
     }
 
