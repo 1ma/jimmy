@@ -10,7 +10,7 @@ $finder = PhpCsFixer\Finder::create()
 
 return (new PhpCsFixer\Config())
     ->setFinder($finder)
-    ->setUsingCache(false)
+    ->setParallelConfig(PhpCsFixer\Runner\Parallel\ParallelConfigFactory::detect())
     ->setRiskyAllowed(true)
     ->setRules([
         '@Symfony'               => true,
@@ -18,4 +18,5 @@ return (new PhpCsFixer\Config())
         'array_indentation'      => true,
         'binary_operator_spaces' => ['default' => 'align_single_space_minimal'],
         'declare_strict_types'   => true,
-    ]);
+    ])
+    ->setUsingCache(false);
