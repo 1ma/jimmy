@@ -120,10 +120,10 @@ final readonly class Script
                 $result .= Encoding::toLE(gmp_init($length));
             } elseif ($length < 256) {
                 $result .= Encoding::toLE(gmp_init(OpCodes::OP_PUSHDATA1->value));
-                $result .= Encoding::toLE(gmp_init($length, 1));
+                $result .= Encoding::toLE(gmp_init($length));
             } elseif ($length <= 520) {
                 $result .= Encoding::toLE(gmp_init(OpCodes::OP_PUSHDATA2->value));
-                $result .= Encoding::toLE(gmp_init($length, 2));
+                $result .= Encoding::toLE(gmp_init($length));
             } else {
                 throw new \RuntimeException('cmd too long: '.$cmd);
             }
