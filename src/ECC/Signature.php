@@ -67,6 +67,6 @@ final readonly class Signature
 
     public function __toString(): string
     {
-        return sprintf('Signature(%s,%s)', gmp_strval($this->r, 16), gmp_strval($this->s, 16));
+        return \sprintf('Signature(%s,%s)', gmp_strval($this->r, 16), gmp_strval($this->s, 16));
     }
 }

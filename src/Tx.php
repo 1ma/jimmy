@@ -218,7 +218,7 @@ final class Tx
 
     public function __toString(): string
     {
-        return sprintf(
+        return \sprintf(
             "tx: %s\nversion: %d\ntx_ins:\n%stx_outs:\n%slocktime: %d",
             $this->id(),
             $this->version,
