@@ -84,7 +84,7 @@ final readonly class Interpreter
                 OpCodes::OP_CHECKMULTISIG->value       => OpCodes\OpCheckMultiSig::eval($stack, $z),
                 OpCodes::OP_CHECKMULTISIGVERIFY->value => OpCodes\OpCheckMultiSig::eval($stack, $z) && OpCodes\OpVerify::eval($stack),
 
-                default => false
+                default => false,
             }) {
                 return false;
             }

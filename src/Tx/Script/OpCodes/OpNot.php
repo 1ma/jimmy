@@ -16,7 +16,7 @@ final readonly class OpNot
 
         $stack[] = match (Encoding::decodeStackNum(array_pop($stack))) {
             0       => Encoding::encodeStackNum($zeroBranchValue),
-            default => Encoding::encodeStackNum($defaultBranchValue)
+            default => Encoding::encodeStackNum($defaultBranchValue),
         };
 
         return true;

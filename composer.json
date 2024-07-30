@@ -18,8 +18,8 @@
         "ext-gmp": "*"
     },
     "require-dev": {
-        "friendsofphp/php-cs-fixer": "^3.57",
-        "phpunit/phpunit": "^11.1",
+        "friendsofphp/php-cs-fixer": "^3.64",
+        "phpunit/phpunit": "^11.4",
         "uma/ocular": "^2.0"
     },
     "scripts": {

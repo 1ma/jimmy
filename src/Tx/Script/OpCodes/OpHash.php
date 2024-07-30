@@ -19,7 +19,7 @@ final readonly class OpHash
         $stack[] = match ($algorithm) {
             'hash160' => Hashing::hash160($value),
             'hash256' => Hashing::hash256($value),
-            default   => hash($algorithm, $value, true)
+            default   => hash($algorithm, $value, true),
         };
 
         return true;

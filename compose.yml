@@ -8,7 +8,7 @@ services:
       - knots
 
   knots:
-    image: 1maa/bitcoin:v26.1.knots20240325
+    image: 1maa/bitcoin:v27.1.knots20240801
     command: -regtest -listenonion=0
     restart: on-failure
     volumes:

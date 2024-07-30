@@ -67,7 +67,7 @@ final readonly class S256Field
 
     public function __toString(): string
     {
-        return sprintf(
+        return \sprintf(
             'S256Field(%s)',
             str_pad(gmp_strval($this->num, 16), 64, '0', \STR_PAD_LEFT)
         );
