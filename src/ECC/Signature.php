@@ -12,13 +12,17 @@ final readonly class Signature
     // 1 (int marker 02) + 1 (r length) + 1 (padding 00) + 32 bytes + 1 (int marker 02) + 1 (s length) + 1 (padding 00) + 32 bytes
     private const int MAX_DER_LENGTH = 70;
 
-    public function __construct(\GMP $r, \GMP $s)
+    public function __construct(\GMP $r, \GMP $s, bool $allowLargeS = false)
     {
+        if (!$allowLargeS && $s > S256Params::N() / 2) {
+            throw new \InvalidArgumentException('s is larger than N/2');
+        }
+
         $this->r = $r;
         $this->s = $s;
     }
 
-    public static function parse(string $der): static
+    public static function parse(string $der, bool $allowLargeS = false): static
     {
         $derLen = \strlen($der);
         if ($derLen < 2 || "\x30" !== $der[0]) {
@@ -41,7 +45,7 @@ final readonly class Signature
             throw new \InvalidArgumentException('Invalid DER signature');
         }
 
-        return new self(gmp_import(substr($der, 4, $rLen)), gmp_import(substr($der, $sOffset + 2, $sLen)));
+        return new self(gmp_import(substr($der, 4, $rLen)), gmp_import(substr($der, $sOffset + 2, $sLen)), $allowLargeS);
     }
 
     public function der(): string

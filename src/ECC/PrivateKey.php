@@ -13,7 +13,7 @@ final readonly class PrivateKey
     public \GMP $secret;
     public S256Point $pubKey;
 
-    public function __construct(\GMP $secret)
+    public function __construct(#[\SensitiveParameter] \GMP $secret)
     {
         $this->secret = $secret;
         $this->pubKey = S256Params::G()->scalarMul($this->secret);

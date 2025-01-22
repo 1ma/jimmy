@@ -14,7 +14,8 @@ final class SignatureTest extends TestCase
     {
         $sig = new Signature(
             gmp_init('0x37206a0610995c58074999cb9767b87af4c4978db68c06e8e6e81d282047a7c6'),
-            gmp_init('0x8ca63759c1157ebeaec0d03cecca119fc9a75bf8e6d0fa65c841c8e2738cdaec')
+            gmp_init('0x8ca63759c1157ebeaec0d03cecca119fc9a75bf8e6d0fa65c841c8e2738cdaec'),
+            true
         );
 
         self::assertSame(
@@ -27,7 +28,8 @@ final class SignatureTest extends TestCase
     {
         $sig = new Signature(
             gmp_init('0x37206a0610995c58074999cb9767b87af4c4978db68c06e8e6e81d282047a7c6'),
-            gmp_init('0x8ca63759c1157ebeaec0d03cecca119fc9a75bf8e6d0fa65c841c8e2738cdaec')
+            gmp_init('0x8ca63759c1157ebeaec0d03cecca119fc9a75bf8e6d0fa65c841c8e2738cdaec'),
+            true
         );
 
         self::assertSame(
@@ -39,7 +41,7 @@ final class SignatureTest extends TestCase
     #[DataProvider('validDerSignatureProvider')]
     public function testDerParsing(string $expectedR, string $expectedS, string $hexDer): void
     {
-        $s = Signature::parse(hex2bin($hexDer));
+        $s = Signature::parse(hex2bin($hexDer), true);
         self::assertSame($expectedR, gmp_strval($s->r, 16));
         self::assertSame($expectedS, gmp_strval($s->s, 16));
     }

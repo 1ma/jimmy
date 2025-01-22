@@ -20,7 +20,7 @@ final readonly class OpCheckSig
             $pubKey = S256Point::parse(array_pop($stack));
 
             // sighash byte must be stripped from the DER data
-            $signature = Signature::parse(substr(array_pop($stack), 0, -1));
+            $signature = Signature::parse(substr(array_pop($stack), 0, -1), true);
         } catch (\InvalidArgumentException) {
             return false;
         }
