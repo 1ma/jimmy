@@ -27,7 +27,7 @@ final readonly class PrivateKey
         $kInv = gmp_powm($k, S256Params::N() - 2, S256Params::N());
         $s    = (($z + $r * $this->secret) * $kInv) % S256Params::N();
 
-        if ($s > S256Params::N() / 2) {
+        if ($s > S256Params::Ndiv2()) {
             $s = S256Params::N() - $s;
         }
 

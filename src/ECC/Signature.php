@@ -14,7 +14,7 @@ final readonly class Signature
 
     public function __construct(\GMP $r, \GMP $s, bool $allowLargeS = false)
     {
-        if (!$allowLargeS && $s > S256Params::N() / 2) {
+        if (!$allowLargeS && $s > S256Params::Ndiv2()) {
             throw new \InvalidArgumentException('s is larger than N/2');
         }
 

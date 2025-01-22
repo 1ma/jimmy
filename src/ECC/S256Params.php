@@ -43,6 +43,7 @@ final class S256Params
     private const string N = '0xfffffffffffffffffffffffffffffffebaaedce6af48a03bbfd25e8cd0364141';
 
     private static \GMP $N;
+    private static \GMP $Ndiv2;
     private static \GMP $P;
     private static S256Field $A;
     private static S256Field $B;
@@ -55,6 +56,15 @@ final class S256Params
         }
 
         return self::$N;
+    }
+
+    public static function Ndiv2(): \GMP
+    {
+        if (!isset(self::$Ndiv2)) {
+            self::$Ndiv2 = gmp_div(self::N(), 2);
+        }
+
+        return self::$Ndiv2;
     }
 
     public static function P(): \GMP
