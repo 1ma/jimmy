@@ -15,18 +15,18 @@ final class WycheproofTest extends TestCase
 
     /**
      * Format:
-     *  tcId => [expected exception class, expected exception message]
+     *  tcId => 'expected exception message'
      */
     private const array EXPECTED_EXCEPTIONS = [
-        1 => [\InvalidArgumentException::class, 's is larger than N/2'],
+        1 => 's is larger than N/2',
     ];
 
     #[DataProvider('wycheproofVectorProvider')]
     public function testWycheproofVectors(int $tcId, S256Point $publicKey, string $derSignature, string $rawMessage, bool $result): void
     {
         if (\array_key_exists($tcId, self::EXPECTED_EXCEPTIONS)) {
-            $this->expectException(self::EXPECTED_EXCEPTIONS[$tcId][0]);
-            $this->expectExceptionMessage(self::EXPECTED_EXCEPTIONS[$tcId][1]);
+            $this->expectException(\InvalidArgumentException::class);
+            $this->expectExceptionMessage(self::EXPECTED_EXCEPTIONS[$tcId]);
         }
 
         $signature = Signature::parse($derSignature);
