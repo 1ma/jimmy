@@ -13,18 +13,24 @@ final class WycheproofTest extends TestCase
 {
     private const string ECDSA_BITCOIN_TESTS_PATH = __DIR__.'/../../vendor/c2sp/wycheproof/testvectors_v1/ecdsa_secp256k1_sha256_bitcoin_test.json';
 
-    #[DataProvider('wycheproofVectorProvider')]
-    public function testWycheproofVectors(S256Point $publicKey, string $derSignature, string $rawMessage, bool $result): void
-    {
-        try {
-            $signature = Signature::parse($derSignature);
-        } catch (\InvalidArgumentException $e) {
-            self::assertTrue('s is larger than N/2' === $e->getMessage());
+    /**
+     * Format:
+     *  tcId => [expected exception class, expected exception message]
+     */
+    private const array EXPECTED_EXCEPTIONS = [
+        1 => [\InvalidArgumentException::class, 's is larger than N/2'],
+    ];
 
-            return;
+    #[DataProvider('wycheproofVectorProvider')]
+    public function testWycheproofVectors(int $tcId, S256Point $publicKey, string $derSignature, string $rawMessage, bool $result): void
+    {
+        if (\array_key_exists($tcId, self::EXPECTED_EXCEPTIONS)) {
+            $this->expectException(self::EXPECTED_EXCEPTIONS[$tcId][0]);
+            $this->expectExceptionMessage(self::EXPECTED_EXCEPTIONS[$tcId][1]);
         }
 
-        $z = gmp_import(hash('sha256', $rawMessage, true));
+        $signature = Signature::parse($derSignature);
+        $z         = gmp_import(hash('sha256', $rawMessage, true));
 
         self::assertSame($result, $publicKey->verify($z, $signature));
     }
@@ -41,6 +47,7 @@ final class WycheproofTest extends TestCase
         $data = [];
         for ($i = 0; $i < 2; ++$i) {
             $data["Test #{$tests[$i]->tcId}: {$tests[$i]->comment}"] = [
+                $tests[$i]->tcId,
                 $publicKey,
                 hex2bin($tests[$i]->sig),
                 hex2bin($tests[$i]->msg),
