@@ -45,7 +45,8 @@ To further emphasize it the library assumes that it runs on testnet by default i
 - [ ] [BIP-0084]: Derivation scheme for P2WPKH based accounts
 - [ ] [BIP-0086]: Key Derivation for Single Key P2TR Outputs
 - [ ] [BIP-0173]: Base32 address format for native v0-16 witness outputs
-- [ ] [BIP-0325]: Signet
+- [ ] [BIP-0322]: Generic Signed Message Format
+- [X] [BIP-0325]: Signet
 - [ ] [BIP-0340]: Schnorr Signatures for secp256k1
 - [ ] [BIP-0341]: Taproot
 - [ ] [BIP-0342]: Validation of Taproot Scripts
@@ -62,6 +63,8 @@ PHP, like most programming languages, only has 32 or 64-bit integers that match 
 However, the language has a native binding to [libgmp](https://www.php.net/manual/en/book.gmp.php) that provides support for
 representing and doing math on arbitrarily large integers with bearable (though not adequate) performance, just like Python.
 
+To reiterate, this code is certainly vulnerable to timing side-channel attacks and other problems, do not use it in production.
+
 
 [BIP-0032]: https://bips.xyz/32
 [BIP-0039]: https://bips.xyz/39
@@ -69,6 +72,7 @@ representing and doing math on arbitrarily large integers with bearable (though 
 [BIP-0084]: https://bips.xyz/84
 [BIP-0086]: https://bips.xyz/86
 [BIP-0173]: https://bips.xyz/173
+[BIP-0322]: https://bips.xyz/322
 [BIP-0325]: https://bips.xyz/325
 [BIP-0340]: https://bips.xyz/340
 [BIP-0341]: https://bips.xyz/341

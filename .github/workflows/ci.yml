@@ -6,13 +6,15 @@ jobs:
   run:
     name: Continuous Integration
     runs-on: ubuntu-latest
+    env:
+      PHP_CS_FIXER_IGNORE_ENV: 1
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 2
       - uses: shivammathur/setup-php@v2
         with:
-          php-version: 8.3
+          php-version: 8.4
           coverage: pcov
       - run: composer install
       - run: php vendor/bin/php-cs-fixer check -v
