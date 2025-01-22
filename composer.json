@@ -40,7 +40,7 @@
     "scripts": {
         "lint": "@php vendor/bin/php-cs-fixer fix -v",
         "integration-node": [
-            "docker compose run --rm starter",
+            "docker compose up --wait",
             "jq -r '.blocks[]' tests/test-data.json | xargs -t -I{} docker compose exec -T knots bitcoin-cli -regtest submitblock {}"
         ]
     },
