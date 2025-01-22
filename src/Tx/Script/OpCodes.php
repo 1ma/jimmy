@@ -37,11 +37,12 @@ enum OpCodes: int
     case OP_RETURN       = 0x6A;
     case OP_TOALTSTACK   = 0x6B;
     case OP_FROMALTSTACK = 0x6C;
-    case OP_DROP         = 0x6D;
+    case OP_2DROP        = 0x6D;
     case OP_2DUP         = 0x6E;
     case OP_3DUP         = 0x6F;
 
-    case OP_DUP = 0x76;
+    case OP_DROP = 0x75;
+    case OP_DUP  = 0x76;
 
     case OP_SWAP = 0x7C;
 
@@ -62,4 +63,7 @@ enum OpCodes: int
     case OP_CHECKSIGVERIFY      = 0xAD;
     case OP_CHECKMULTISIG       = 0xAE;
     case OP_CHECKMULTISIGVERIFY = 0xAF;
+
+    case OP_CHECKLOCKTIMEVERIFY = 0xB1;
+    case OP_CHECKSEQUENCEVERIFY = 0xB2;
 }

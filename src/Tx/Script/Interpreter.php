@@ -64,7 +64,7 @@ final readonly class Interpreter
                 OpCodes::OP_VERIFY->value              => OpCodes\OpVerify::eval($stack),
                 OpCodes::OP_TOALTSTACK->value          => OpCodes\OpAltStack::eval($stack, $altstack),
                 OpCodes::OP_FROMALTSTACK->value        => OpCodes\OpAltStack::eval($altstack, $stack),
-                OpCodes::OP_DROP->value                => OpCodes\OpDrop::eval($stack),
+                OpCodes::OP_2DROP->value               => OpCodes\OpDrop::eval($stack),
                 OpCodes::OP_2DUP->value                => OpCodes\Op2Dup::eval($stack),
                 OpCodes::OP_3DUP->value                => OpCodes\Op3Dup::eval($stack),
                 OpCodes::OP_DUP->value                 => OpCodes\OpDup::eval($stack),
