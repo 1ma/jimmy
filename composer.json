@@ -13,11 +13,26 @@
             "Bitcoin\\Tests\\": "tests/"
         }
     },
+    "repositories": [
+        {
+            "type": "package",
+            "package": {
+                "name": "c2sp/wycheproof",
+                "version": "dev-master",
+                "source": {
+                    "url": "https://github.com/C2SP/wycheproof",
+                    "type": "git",
+                    "reference": "master"
+                }
+            }
+        }
+    ],
     "require": {
         "php": "~8.3.0 || ~8.4.0",
         "ext-gmp": "*"
     },
     "require-dev": {
+        "c2sp/wycheproof": "dev-master",
         "friendsofphp/php-cs-fixer": "^3.68",
         "phpunit/phpunit": "^11.5",
         "uma/ocular": "^2.0"
