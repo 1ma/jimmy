@@ -13,20 +13,30 @@ final class WycheproofTest extends TestCase
 {
     private const string ECDSA_BITCOIN_TESTS_PATH = __DIR__.'/../../vendor/c2sp/wycheproof/testvectors_v1/ecdsa_secp256k1_sha256_bitcoin_test.json';
 
-    /**
-     * Format:
-     *  tcId => 'expected exception message'
-     */
-    private const array EXPECTED_EXCEPTIONS = [
-        1 => 's is larger than N/2',
-    ];
+    private const string FLAG_SIGNATURE_MALLEABILITY = 'SignatureMalleabilityBitcoin';
+    private const string FLAG_BER_ENCODING           = 'BerEncodedSignature';
+    private const string FLAG_INVALID_ENCODING       = 'InvalidEncoding';
+    private const string FLAG_MODIFIED_SIGNATURE     = 'ModifiedSignature';
+    private const string FLAG_INVALID_SIGNATURE      = 'InvalidSignature';
+    private const string FLAG_INVALID_TYPES_IN_SIG   = 'InvalidTypesInSignature';
 
-    #[DataProvider('wycheproofVectorProvider')]
-    public function testWycheproofVectors(int $tcId, S256Point $publicKey, string $derSignature, string $rawMessage, bool $result): void
+    #[DataProvider('wycheproofTestVectorProvider')]
+    public function testWycheproofVectors(S256Point $publicKey, string $derSignature, string $rawMessage, array $flags, bool $result): void
     {
-        if (\array_key_exists($tcId, self::EXPECTED_EXCEPTIONS)) {
+        if (\in_array(self::FLAG_SIGNATURE_MALLEABILITY, $flags)) {
             $this->expectException(\InvalidArgumentException::class);
-            $this->expectExceptionMessage(self::EXPECTED_EXCEPTIONS[$tcId]);
+            $this->expectExceptionMessage('s is larger than N/2');
+        }
+
+        if (!empty(array_intersect([
+            self::FLAG_BER_ENCODING,
+            self::FLAG_INVALID_ENCODING,
+            self::FLAG_MODIFIED_SIGNATURE,
+            self::FLAG_INVALID_SIGNATURE,
+            self::FLAG_INVALID_TYPES_IN_SIG,
+        ], $flags))) {
+            $this->expectException(\InvalidArgumentException::class);
+            $this->expectExceptionMessage('Invalid DER signature');
         }
 
         $signature = Signature::parse($derSignature);
@@ -35,26 +45,24 @@ final class WycheproofTest extends TestCase
         self::assertSame($result, $publicKey->verify($z, $signature));
     }
 
-    public static function wycheproofVectorProvider(): array
+    public static function wycheproofTestVectorProvider(): array
     {
         $root = json_decode(file_get_contents(self::ECDSA_BITCOIN_TESTS_PATH));
 
-        $group0 = $root->testGroups[0];
-
-        $publicKey = S256Point::parse(hex2bin($group0->publicKey->uncompressed));
-        $tests     = $group0->tests;
-
-        $data = [];
-        for ($i = 0; $i < 2; ++$i) {
-            $data["Test #{$tests[$i]->tcId}: {$tests[$i]->comment}"] = [
-                $tests[$i]->tcId,
-                $publicKey,
-                hex2bin($tests[$i]->sig),
-                hex2bin($tests[$i]->msg),
-                'valid' === $tests[$i]->result,
-            ];
+        $vector = [];
+        foreach ($root->testGroups as $testGroup) {
+            $publicKey = S256Point::parse(hex2bin($testGroup->publicKey->uncompressed));
+            foreach ($testGroup->tests as $test) {
+                $vector["Test #{$test->tcId}: {$test->comment}"] = [
+                    $publicKey,
+                    hex2bin($test->sig),
+                    hex2bin($test->msg),
+                    $test->flags,
+                    'valid' === $test->result,
+                ];
+            }
         }
 
-        return $data;
+        return $vector;
     }
 }
