@@ -22,30 +22,89 @@ final readonly class Signature
         $this->s = $s;
     }
 
+    /**
+     * Validation code based on the IsValidSignatureEncoding function
+     * defined in BIP-66.
+     */
     public static function parse(string $der, bool $allowLargeS = false): static
     {
         $derLen = \strlen($der);
-        if ($derLen < 2 || "\x30" !== $der[0]) {
+
+        // Minimum and maximum size constraints.
+        if ($derLen < 9 || $derLen > 73) {
             throw new \InvalidArgumentException('Invalid DER signature');
         }
 
-        $dataLen = unpack('C', $der[1])[1];
-        if ($dataLen > self::MAX_DER_LENGTH || \strlen(substr($der, 2, $dataLen)) !== $derLen - 2) {
+        // A signature is of type 0x30 (compound).
+        if ("\x30" != $der[0]) {
             throw new \InvalidArgumentException('Invalid DER signature');
         }
 
-        $rLen = unpack('C', $der[3])[1];
-        if ("\x02" !== $der[2] || (32 !== $rLen && 33 !== $rLen)) {
+        // Make sure the length covers the entire signature.
+        if (unpack('C', $der[1])[1] != $derLen - 2) {
             throw new \InvalidArgumentException('Invalid DER signature');
         }
 
-        $sOffset = 4 + $rLen;
-        $sLen    = unpack('C', $der[$sOffset + 1])[1];
-        if ("\x02" !== $der[$sOffset] || (32 !== $sLen && 33 !== $sLen) || $dataLen !== 4 + $rLen + $sLen) {
+        // Extract the length of the R element.
+        $lenR = unpack('C', $der[3])[1];
+
+        // Make sure the length of the S element is still inside the signature.
+        if (5 + $lenR >= $derLen) {
             throw new \InvalidArgumentException('Invalid DER signature');
         }
 
-        return new self(gmp_import(substr($der, 4, $rLen)), gmp_import(substr($der, $sOffset + 2, $sLen)), $allowLargeS);
+        // Extract the length of the S element.
+        $lenS = unpack('C', $der[5 + $lenR])[1];
+
+        // Verify that the length of the signature matches the sum of the length
+        // of the elements.
+        if ($lenR + $lenS + 6 !== $derLen) {
+            throw new \InvalidArgumentException('Invalid DER signature');
+        }
+
+        // Check whether the R element is an integer.
+        if ("\x02" != $der[2]) {
+            throw new \InvalidArgumentException('Invalid DER signature');
+        }
+
+        // Zero-length integers are not allowed for R.
+        if (0 === $lenR) {
+            throw new \InvalidArgumentException('Invalid DER signature');
+        }
+
+        // Negative numbers are not allowed for R.
+        if (unpack('C', $der[4])[1] & 0x80) {
+            throw new \InvalidArgumentException('Invalid DER signature');
+        }
+
+        // Null bytes at the start of R are not allowed, unless R would
+        // otherwise be interpreted as a negative number.
+        if ($lenR > 1 && "\x00" === $der[4] && !(unpack('C', $der[5])[1] & 0x80)) {
+            throw new \InvalidArgumentException('Invalid DER signature');
+        }
+
+        // Check whether the S element is an integer.
+        if ("\x02" != $der[$lenR + 4]) {
+            throw new \InvalidArgumentException('Invalid DER signature');
+        }
+
+        // Zero-length integers are not allowed for S.
+        if (0 === $lenS) {
+            throw new \InvalidArgumentException('Invalid DER signature');
+        }
+
+        // Negative numbers are not allowed for S.
+        if (unpack('C', $der[$lenR + 6])[1] & 0x80) {
+            throw new \InvalidArgumentException('Invalid DER signature');
+        }
+
+        // Null bytes at the start of S are not allowed, unless S would otherwise be
+        // interpreted as a negative number.
+        if ($lenS > 1 && "\x00" === $der[$lenR + 6] && !(unpack('C', $der[$lenR + 7])[1] & 0x80)) {
+            throw new \InvalidArgumentException('Invalid DER signature');
+        }
+
+        return new self(gmp_import(substr($der, 4, $lenR)), gmp_import(substr($der, 6 + $lenR, $lenS)), $allowLargeS);
     }
 
     public function der(): string
