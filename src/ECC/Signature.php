@@ -31,7 +31,7 @@ final readonly class Signature
         $derLen = \strlen($der);
 
         // Minimum and maximum size constraints.
-        if ($derLen < 9 || $derLen > 73) {
+        if ($derLen < 8 || $derLen > 72) {
             throw new \InvalidArgumentException('Invalid DER signature');
         }
 

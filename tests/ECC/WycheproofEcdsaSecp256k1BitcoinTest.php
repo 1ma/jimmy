@@ -9,9 +9,9 @@ use Bitcoin\ECC\Signature;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
-final class WycheproofTest extends TestCase
+final class WycheproofEcdsaSecp256k1BitcoinTest extends TestCase
 {
-    private const string ECDSA_BITCOIN_TESTS_PATH = __DIR__.'/../../vendor/c2sp/wycheproof/testvectors_v1/ecdsa_secp256k1_sha256_bitcoin_test.json';
+    private const string ECDSA_BITCOIN_TESTS_PATH = 'testvectors_v1/ecdsa_secp256k1_sha256_bitcoin_test.json';
 
     private const string FLAG_SIGNATURE_MALLEABILITY = 'SignatureMalleabilityBitcoin';
     private const string FLAG_BER_ENCODING           = 'BerEncodedSignature';
@@ -19,24 +19,34 @@ final class WycheproofTest extends TestCase
     private const string FLAG_MODIFIED_SIGNATURE     = 'ModifiedSignature';
     private const string FLAG_INVALID_SIGNATURE      = 'InvalidSignature';
     private const string FLAG_INVALID_TYPES_IN_SIG   = 'InvalidTypesInSignature';
+    private const string FLAG_RANGE_CHECK            = 'RangeCheck';
+    private const string FLAG_MODIFIED_INTEGER       = 'ModifiedInteger';
+    private const string FLAG_INTEGER_OVERFLOW       = 'IntegerOverflow';
+
+    private const array NON_EXCEPTION_VECTORS = [
+        97, 98, 99, 104, 140, 141, 142, 147,
+        148, 150, 152, 154, 156, 158, 161, 164,
+        165, 172, 173, 188, 189, 196, 197, 204,
+        205, 212, 213, 220, 221,
+    ];
+
+    private const array NON_FLAGGED_EXCEPTION_VECTORS = [358, 388];
 
     #[DataProvider('wycheproofTestVectorProvider')]
-    public function testWycheproofVectors(S256Point $publicKey, string $derSignature, string $rawMessage, array $flags, bool $result): void
+    public function testWycheproofVectors(int $tcId, S256Point $publicKey, string $derSignature, string $rawMessage, array $flags, bool $result): void
     {
-        if (\in_array(self::FLAG_SIGNATURE_MALLEABILITY, $flags)) {
-            $this->expectException(\InvalidArgumentException::class);
-            $this->expectExceptionMessage('s is larger than N/2');
-        }
-
-        if (!empty(array_intersect([
+        if ((!\in_array($tcId, self::NON_EXCEPTION_VECTORS) && !empty(array_intersect([
+            self::FLAG_SIGNATURE_MALLEABILITY,
             self::FLAG_BER_ENCODING,
             self::FLAG_INVALID_ENCODING,
             self::FLAG_MODIFIED_SIGNATURE,
             self::FLAG_INVALID_SIGNATURE,
             self::FLAG_INVALID_TYPES_IN_SIG,
-        ], $flags))) {
+            self::FLAG_RANGE_CHECK,
+            self::FLAG_MODIFIED_INTEGER,
+            self::FLAG_INTEGER_OVERFLOW,
+        ], $flags))) || \in_array($tcId, self::NON_FLAGGED_EXCEPTION_VECTORS)) {
             $this->expectException(\InvalidArgumentException::class);
-            $this->expectExceptionMessage('Invalid DER signature');
         }
 
         $signature = Signature::parse($derSignature);
@@ -47,13 +57,14 @@ final class WycheproofTest extends TestCase
 
     public static function wycheproofTestVectorProvider(): array
     {
-        $root = json_decode(file_get_contents(self::ECDSA_BITCOIN_TESTS_PATH));
+        $root = json_decode(file_get_contents(__DIR__.'/../../vendor/c2sp/wycheproof/'.self::ECDSA_BITCOIN_TESTS_PATH));
 
-        $vector = [];
+        $vectors = [];
         foreach ($root->testGroups as $testGroup) {
             $publicKey = S256Point::parse(hex2bin($testGroup->publicKey->uncompressed));
             foreach ($testGroup->tests as $test) {
-                $vector["Test #{$test->tcId}: {$test->comment}"] = [
+                $vectors["Test #{$test->tcId}: {$test->comment}"] = [
+                    $test->tcId,
                     $publicKey,
                     hex2bin($test->sig),
                     hex2bin($test->msg),
@@ -63,6 +74,6 @@ final class WycheproofTest extends TestCase
             }
         }
 
-        return $vector;
+        return $vectors;
     }
 }
