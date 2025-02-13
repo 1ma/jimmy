@@ -143,7 +143,7 @@ final readonly class S256Point
 
         $R = S256Params::G()->scalarMul($u)->add($this->scalarMul($v));
 
-        return null !== $R->x && $R->x->num == $sig->r;
+        return null !== $R->x && ($R->x->num % S256Params::N()) == $sig->r;
     }
 
     public function __toString(): string
