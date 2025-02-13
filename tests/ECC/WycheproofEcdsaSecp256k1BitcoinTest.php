@@ -30,10 +30,12 @@ final class WycheproofEcdsaSecp256k1BitcoinTest extends TestCase
         205, 212, 213, 220, 221,
     ];
 
-    private const array NON_FLAGGED_EXCEPTION_VECTORS = [358, 388];
+    private const array NON_FLAGGED_EXCEPTION_VECTORS = [
+        358, 388,
+    ];
 
     #[DataProvider('wycheproofTestVectorProvider')]
-    public function testWycheproofVectors(int $tcId, S256Point $publicKey, string $derSignature, string $rawMessage, array $flags, bool $result): void
+    public function testWycheproofVectors(int $tcId, S256Point $publicKey, string $derSignature, string $rawMessage, array $testFlags, bool $expectedResult): void
     {
         if ((!\in_array($tcId, self::NON_EXCEPTION_VECTORS) && !empty(array_intersect([
             self::FLAG_SIGNATURE_MALLEABILITY,
@@ -45,14 +47,14 @@ final class WycheproofEcdsaSecp256k1BitcoinTest extends TestCase
             self::FLAG_RANGE_CHECK,
             self::FLAG_MODIFIED_INTEGER,
             self::FLAG_INTEGER_OVERFLOW,
-        ], $flags))) || \in_array($tcId, self::NON_FLAGGED_EXCEPTION_VECTORS)) {
+        ], $testFlags))) || \in_array($tcId, self::NON_FLAGGED_EXCEPTION_VECTORS)) {
             $this->expectException(\InvalidArgumentException::class);
         }
 
         $signature = Signature::parse($derSignature);
         $z         = gmp_import(hash('sha256', $rawMessage, true));
 
-        self::assertSame($result, $publicKey->verify($z, $signature));
+        self::assertSame($expectedResult, $publicKey->verify($z, $signature));
     }
 
     public static function wycheproofTestVectorProvider(): array
