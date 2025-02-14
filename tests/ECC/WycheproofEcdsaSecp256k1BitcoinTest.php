@@ -11,7 +11,7 @@ use PHPUnit\Framework\TestCase;
 
 final class WycheproofEcdsaSecp256k1BitcoinTest extends TestCase
 {
-    private const string ECDSA_BITCOIN_TESTS_PATH = 'testvectors_v1/ecdsa_secp256k1_sha256_bitcoin_test.json';
+    private const string ECDSA_BITCOIN_TESTS_PATH = __DIR__.'/../../vendor/c2sp/wycheproof/testvectors_v1/ecdsa_secp256k1_sha256_bitcoin_test.json';
 
     private const string FLAG_SIGNATURE_MALLEABILITY = 'SignatureMalleabilityBitcoin';
     private const string FLAG_BER_ENCODING           = 'BerEncodedSignature';
@@ -59,7 +59,7 @@ final class WycheproofEcdsaSecp256k1BitcoinTest extends TestCase
 
     public static function wycheproofTestVectorProvider(): array
     {
-        $root = json_decode(file_get_contents(__DIR__.'/../../vendor/c2sp/wycheproof/'.self::ECDSA_BITCOIN_TESTS_PATH));
+        $root = json_decode(file_get_contents(self::ECDSA_BITCOIN_TESTS_PATH));
 
         $vectors = [];
         foreach ($root->testGroups as $testGroup) {
