@@ -21,14 +21,19 @@ final readonly class Envelope
         $this->payload = $payload;
     }
 
+    public static function build(Message $message, Network $network = Network::TESTNET): self
+    {
+        return new self($message->command(), $message->serialize(), $network);
+    }
+
     /**
      * @param resource $stream
      */
-    public static function parse($stream, Network $mode = Network::TESTNET): self
+    public static function parse($stream, Network $network = Network::TESTNET): self
     {
         $magic = fread($stream, 4);
 
-        if ($mode->value !== $magic) {
+        if ($network->value !== $magic) {
             throw new \InvalidArgumentException('Invalid magic packet: '.$magic);
         }
 
@@ -37,21 +42,22 @@ final readonly class Envelope
         $payloadLength = gmp_intval(Encoding::fromLE(fread($stream, 4)));
         $checksum      = fread($stream, 4);
 
-        $payload = $payloadLength > 0 ? fread($stream, $payloadLength) : '';
+        $payload = 0 === $payloadLength ? '' : fread($stream, $payloadLength);
 
         if ($checksum !== substr(Hashing::hash256($payload), 0, 4)) {
             throw new \InvalidArgumentException('Invalid checksum');
         }
 
-        return new self($command, $payload, $mode);
+        return new self($command, $payload, $network);
     }
 
     public function serialize(): string
     {
+        $magic         = $this->network->value;
         $command       = str_pad($this->command, 12, "\x00");
         $payloadLength = Encoding::toLE(gmp_init(\strlen($this->payload)), 4);
         $checksum      = substr(Hashing::hash256($this->payload), 0, 4);
 
-        return $this->network->value.$command.$payloadLength.$checksum.$this->payload;
+        return $magic.$command.$payloadLength.$checksum.$this->payload;
     }
 }

@@ -18,6 +18,9 @@ jobs:
           coverage: pcov
       - run: composer install
       - run: php vendor/bin/php-cs-fixer check -v
+      - run: composer integration-node
       - run: php vendor/bin/phpunit
       - if: ${{ always() }}
-        run: php vendor/bin/ocular code-coverage:upload --format=php-clover build/coverage.xml
+        run: |
+          php vendor/bin/ocular code-coverage:upload --format=php-clover build/coverage.xml
+          docker compose down -v
