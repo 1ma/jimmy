@@ -13,6 +13,8 @@ final readonly class Block
     public int $bits;
     public int $nonce;
 
+    private const int TWO_WEEKS = 60 * 60 * 24 * 14;
+
     public function __construct(int $version, string $prevBlock, string $merkleRoot, int $timestamp, int $bits, int $nonce)
     {
         $this->version    = $version;
@@ -86,5 +88,33 @@ final readonly class Block
     public function bip141(): bool
     {
         return 1 === (($this->version >> 1) & 1);
+    }
+
+    public static function targetToBits(\GMP $target): int
+    {
+        $rawBytes  = gmp_export($target, 1, \GMP_MSW_FIRST);
+        $firstByte = unpack('C1', $rawBytes[0])[1];
+        if ($firstByte > 0x7F) {
+            $exponent    = \strlen($rawBytes) + 1;
+            $coefficient = "\x00".substr($rawBytes, 0, 2);
+        } else {
+            $exponent    = \strlen($rawBytes);
+            $coefficient = substr($rawBytes, 0, 3);
+        }
+
+        $littleEndianBits = strrev($coefficient).hex2bin(dechex($exponent));
+
+        return gmp_intval(Encoding::fromLE($littleEndianBits));
+    }
+
+    public static function newTarget(self $firstBlock, self $lastBlock): \GMP
+    {
+        if ($lastBlock->timestamp < $firstBlock->timestamp || $firstBlock->bits !== $lastBlock->bits) {
+            throw new \InvalidArgumentException('Invalid blocks');
+        }
+
+        $timeDifferential = max(self::TWO_WEEKS / 4, min(self::TWO_WEEKS * 4, $lastBlock->timestamp - $firstBlock->timestamp));
+
+        return gmp_div(gmp_mul($lastBlock->target(), $timeDifferential), self::TWO_WEEKS);
     }
 }
