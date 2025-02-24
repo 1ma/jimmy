@@ -8,6 +8,8 @@ services:
       test: netstat -ltn | grep 18443 > /dev/null
       start_interval: 125ms
       start_period: 500ms
+    ports:
+      - "127.0.0.1:18444:18444"
     restart: on-failure
     volumes:
       - knots_data:/home/bitcoin/.bitcoin
