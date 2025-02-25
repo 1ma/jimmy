@@ -45,13 +45,33 @@ final class SimpleNodeTest extends TestCase
             if ('version' === $response->command) {
                 $versionReceived = true;
                 self::assertStringContainsString('Knots', $response->payload);
+                $node->send(new Message\VerAck());
             } elseif ('verack' === $response->command) {
                 $verackReceived = true;
                 self::assertSame('', $response->payload);
             }
         }
 
-        $node->send(new Message\VerAck());
+        $node->close();
+    }
+
+    public function testSimpleNodeHandshake(): void
+    {
+        try {
+            $node = new Network\SimpleNode('127.0.0.1', 18444, false, Network::REGTEST);
+        } catch (\RuntimeException) {
+            self::markTestSkipped('regtest node is unavailable');
+        }
+
+        $node->handshake();
+
+        while ($response = $node->recv()) {
+            if ('ping' === $response->command) {
+                self::assertNotEmpty($response->payload);
+                break;
+            }
+        }
+
         $node->close();
     }
 }

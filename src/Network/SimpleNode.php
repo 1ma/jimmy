@@ -56,6 +56,42 @@ final readonly class SimpleNode
         return $response;
     }
 
+    public function handshake(): void
+    {
+        $this->send(new Message\Version(
+            70016,
+            0,
+            (int) new \DateTimeImmutable()->format('U'),
+            0,
+            '',
+            0,
+            0,
+            '',
+            0,
+            random_int(0, \PHP_INT_MAX),
+            '/Programming Bitcoin in PHP/',
+            0,
+            false
+        ));
+
+        $versionReceived = false;
+        $verAckReceived  = false;
+        while ($response = $this->recv()) {
+            if ('version' === $response->command) {
+                $versionReceived = true;
+                $this->send(new Message\VerAck());
+            }
+
+            if ('verack' === $response->command) {
+                $verAckReceived = true;
+            }
+
+            if ($versionReceived && $verAckReceived) {
+                break;
+            }
+        }
+    }
+
     public function close(): void
     {
         fclose($this->socket);

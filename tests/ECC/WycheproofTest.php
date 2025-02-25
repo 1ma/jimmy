@@ -9,7 +9,7 @@ use Bitcoin\ECC\Signature;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
-final class WycheproofEcdsaSecp256k1BitcoinTest extends TestCase
+final class WycheproofTest extends TestCase
 {
     private const string ECDSA_BITCOIN_TESTS_PATH = __DIR__.'/../../vendor/c2sp/wycheproof/testvectors_v1/ecdsa_secp256k1_sha256_bitcoin_test.json';
 
