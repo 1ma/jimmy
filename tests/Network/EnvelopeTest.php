@@ -16,7 +16,7 @@ final class EnvelopeTest extends TestCase
 
     private const string SAMPLE_VERACK_NETWORK_ENVELOPE = 'f9beb4d976657261636b000000000000000000005df6e0e2';
 
-    public function testParsing(): void
+    public function testEnvelopeParsing(): void
     {
         $envelope = Envelope::parse(self::stream(hex2bin(self::SAMPLE_VERACK_NETWORK_ENVELOPE)), Network::MAINNET);
 
@@ -27,7 +27,7 @@ final class EnvelopeTest extends TestCase
         self::assertSame(self::SAMPLE_VERACK_NETWORK_ENVELOPE, bin2hex($envelope->serialize()));
     }
 
-    public function testTalkToMe(): void
+    public function testNetworkHandshake(): void
     {
         $socket = fsockopen('127.0.0.1', 18444);
 
@@ -53,10 +53,23 @@ final class EnvelopeTest extends TestCase
 
         fwrite($socket, Envelope::build($version, Network::REGTEST)->serialize());
 
-        $response = Envelope::parse($socket, Network::REGTEST);
-        fclose($socket);
+        $versionReceived = false;
+        $verackReceived  = false;
 
-        self::assertSame('version', $response->command);
-        self::assertStringContainsString('Knots', $response->payload);
+        while (!($versionReceived && $verackReceived)) {
+            $response = Envelope::parse($socket, Network::REGTEST);
+
+            if ('version' === $response->command) {
+                $versionReceived = true;
+                self::assertStringContainsString('Knots', $response->payload);
+            } elseif ('verack' === $response->command) {
+                $verackReceived = true;
+                self::assertSame('', $response->payload);
+            }
+        }
+
+        fwrite($socket, Envelope::build(new Message\VerAck(), Network::REGTEST)->serialize());
+
+        fclose($socket);
     }
 }
