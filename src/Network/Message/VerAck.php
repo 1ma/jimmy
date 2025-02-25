@@ -13,6 +13,11 @@ final readonly class VerAck implements Message
         return 'verack';
     }
 
+    public static function parse($stream): self
+    {
+        return new self();
+    }
+
     public function serialize(): string
     {
         return '';

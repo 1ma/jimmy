@@ -56,6 +56,28 @@ final readonly class SimpleNode
         return $response;
     }
 
+    /**
+     * @return Envelope[]
+     */
+    public function waitFor(string ...$commands): array
+    {
+        $responses = [];
+        while ($response = $this->recv()) {
+            foreach ($commands as $command) {
+                if ($command === $response->command) {
+                    $responses[$command] = $response;
+                    break;
+                }
+            }
+
+            if (\count($responses) === \count($commands)) {
+                break;
+            }
+        }
+
+        return $responses;
+    }
+
     public function handshake(): void
     {
         $this->send(new Message\Version(
@@ -74,22 +96,8 @@ final readonly class SimpleNode
             false
         ));
 
-        $versionReceived = false;
-        $verAckReceived  = false;
-        while ($response = $this->recv()) {
-            if ('version' === $response->command) {
-                $versionReceived = true;
-                $this->send(new Message\VerAck());
-            }
-
-            if ('verack' === $response->command) {
-                $verAckReceived = true;
-            }
-
-            if ($versionReceived && $verAckReceived) {
-                break;
-            }
-        }
+        $this->waitFor('version', 'verack');
+        $this->send(new Message\VerAck());
     }
 
     public function close(): void

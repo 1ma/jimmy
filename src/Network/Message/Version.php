@@ -9,7 +9,7 @@ use Bitcoin\Network\Message;
 
 final readonly class Version implements Message
 {
-    public int $versionNumber;
+    public int $protocolVersion;
     public int $connectionServices;
     public int $timestamp;
 
@@ -27,7 +27,7 @@ final readonly class Version implements Message
     public bool $relayFlag;
 
     public function __construct(
-        int $versionNumber,
+        int $protocolVersion,
         int $connectionServices,
         int $timestamp,
         int $remoteServices,
@@ -41,7 +41,7 @@ final readonly class Version implements Message
         int $height,
         bool $relayFlag,
     ) {
-        $this->versionNumber      = $versionNumber;
+        $this->protocolVersion    = $protocolVersion;
         $this->connectionServices = $connectionServices;
         $this->timestamp          = $timestamp;
         $this->remoteServices     = $remoteServices;
@@ -61,9 +61,14 @@ final readonly class Version implements Message
         return 'version';
     }
 
+    public static function parse($stream): self
+    {
+        throw new \LogicException('not implemented');
+    }
+
     public function serialize(): string
     {
-        $versionNumber      = Encoding::toLE(gmp_init($this->versionNumber), 4);
+        $protocolVersion    = Encoding::toLE(gmp_init($this->protocolVersion), 4);
         $connectionServices = Encoding::toLE(gmp_init($this->connectionServices), 8);
         $timestamp          = Encoding::toLE(gmp_init($this->timestamp), 8);
         $remoteServices     = Encoding::toLE(gmp_init($this->remoteServices), 8);
@@ -77,6 +82,6 @@ final readonly class Version implements Message
         $height             = Encoding::toLE(gmp_init($this->height), 4);
         $relayFlag          = $this->relayFlag ? "\x01" : "\x00";
 
-        return $versionNumber.$connectionServices.$timestamp.$remoteServices.$remoteAddress.$remotePort.$localServices.$localAddress.$localPort.$nonce.$userAgent.$height.$relayFlag;
+        return $protocolVersion.$connectionServices.$timestamp.$remoteServices.$remoteAddress.$remotePort.$localServices.$localAddress.$localPort.$nonce.$userAgent.$height.$relayFlag;
     }
 }
