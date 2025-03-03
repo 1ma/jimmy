@@ -30,7 +30,7 @@ final readonly class SimpleNode
         }
 
         if ($this->logging) {
-            fwrite(\STDERR, "Established TCP connection to {$this->address}:{$this->port}\n");
+            fwrite(\STDERR, "Established TCP connection to {$this->address}:{$this->port} ({$this->network->name})\n");
         }
     }
 
@@ -105,7 +105,7 @@ final readonly class SimpleNode
         fclose($this->socket);
 
         if ($this->logging) {
-            fwrite(\STDERR, "Closed TCP connection to {$this->address}:{$this->port}\n");
+            fwrite(\STDERR, "Closed TCP connection to {$this->address}:{$this->port} ({$this->network->name})\n");
         }
     }
 }

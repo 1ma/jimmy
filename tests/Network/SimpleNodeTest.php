@@ -94,6 +94,8 @@ final class SimpleNodeTest extends TestCase
             self::assertSame($block->prevBlock, $prevBlock->id());
             $prevBlock = $block;
         }
+
+        $node->close();
     }
 
     private static function startNode(): Network\SimpleNode
