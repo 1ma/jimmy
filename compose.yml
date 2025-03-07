@@ -2,7 +2,7 @@ name: jimmy
 
 services:
   knots:
-    image: 1maa/bitcoin:v27.1.knots20240801
+    image: 1maa/bitcoin:v28.1.knots20250305
     command: -regtest -listenonion=0 -v2transport=0
     healthcheck:
       test: netstat -ltn | grep 18443 > /dev/null
