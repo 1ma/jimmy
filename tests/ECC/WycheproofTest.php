@@ -49,6 +49,7 @@ final class WycheproofTest extends TestCase
             self::FLAG_INTEGER_OVERFLOW,
         ], $testFlags))) || \in_array($tcId, self::NON_FLAGGED_EXCEPTION_VECTORS)) {
             $this->expectException(\InvalidArgumentException::class);
+            self::assertFalse($expectedResult);
         }
 
         $signature = Signature::parse($derSignature);

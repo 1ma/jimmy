@@ -53,7 +53,7 @@ To further emphasize it the library assumes that it runs on testnet by default i
 - [ ] [BIP-0350]: Bech32m format for v1+ witness addresses
 - [ ] [BIP-0370]: Partially Signed Bitcoin Transaction Format Version 2
 - [ ] [BIP-0371]: Taproot Fields for PSBT
-- [X] [Wycheproof compliance]
+- [X] [Wycheproof ECDSA compliance]
 
 ## How
 
@@ -80,4 +80,4 @@ To reiterate, this code is certainly vulnerable to timing side-channel attacks a
 [BIP-0350]: https://bips.xyz/350
 [BIP-0370]: https://bips.xyz/370
 [BIP-0371]: https://bips.xyz/371
-[Wycheproof compliance]: https://github.com/1ma/jimmy/pull/1
+[Wycheproof ECDSA compliance]: https://github.com/1ma/jimmy/pull/1
