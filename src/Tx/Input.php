@@ -17,7 +17,9 @@ final class Input
     /** @var <int|string>[] */
     public array $witness;
 
-    private const int DEFAULT_SEQUENCE_NUMBER = 0xFFFFFFFF;
+    public const int DISABLE_REPLACE_BY_FEE  = 0xFFFFFFFF;
+    public const int BIP125_REPLACE_BY_FEE   = 0xFFFFFFFD;
+    public const int DEFAULT_SEQUENCE_NUMBER = self::BIP125_REPLACE_BY_FEE;
 
     public function __construct(string $prevTxId, int $prevIndex, ?Script $scriptSig = null, int $seqNum = self::DEFAULT_SEQUENCE_NUMBER, array $witness = [])
     {
