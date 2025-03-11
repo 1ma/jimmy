@@ -86,7 +86,7 @@ final class Tx
     public function id(): string
     {
         return bin2hex(strrev(Hashing::hash256(
-            new self($this->version, $this->txIns, $this->txOuts, $this->locktime, $this->network, segwit: false)->serialize()
+            (new self($this->version, $this->txIns, $this->txOuts, $this->locktime, $this->network, segwit: false))->serialize()
         )));
     }
 
@@ -238,12 +238,12 @@ final class Tx
                 $scriptSig = $redeemScript ?? $txIn->prevOutput($this->network)->scriptPubKey;
             }
 
-            $tx .= new Input(
+            $tx .= (new Input(
                 $txIn->prevTxId,
                 $txIn->prevIndex,
                 $scriptSig,
                 $txIn->seqNum
-            )->serialize();
+            ))->serialize();
         }
 
         $tx .= Encoding::encodeVarInt(\count($this->txOuts));
