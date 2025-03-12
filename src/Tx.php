@@ -318,17 +318,7 @@ final class Tx
     {
         $version = gmp_intval(Encoding::fromLE(fread($stream, 4)));
 
-        $txIns = [];
-        $nIns  = Encoding::decodeVarInt($stream);
-        for ($i = 0; $i < $nIns; ++$i) {
-            $txIns[] = Input::parse($stream);
-        }
-
-        $txOuts = [];
-        $nOuts  = Encoding::decodeVarInt($stream);
-        for ($i = 0; $i < $nOuts; ++$i) {
-            $txOuts[] = Output::parse($stream);
-        }
+        [$txIns, $txOuts] = self::parseInputsAndOputputs($stream);
 
         $locktime = gmp_intval(Encoding::fromLE(fread($stream, 4)));
 
@@ -344,17 +334,7 @@ final class Tx
             throw new \InvalidArgumentException('Not a SegWit transaction');
         }
 
-        $txIns = [];
-        $nIns  = Encoding::decodeVarInt($stream);
-        for ($i = 0; $i < $nIns; ++$i) {
-            $txIns[] = Input::parse($stream);
-        }
-
-        $txOuts = [];
-        $nOuts  = Encoding::decodeVarInt($stream);
-        for ($i = 0; $i < $nOuts; ++$i) {
-            $txOuts[] = Output::parse($stream);
-        }
+        [$txIns, $txOuts] = self::parseInputsAndOputputs($stream);
 
         $witness = [];
         foreach ($txIns as $txIn) {
@@ -370,5 +350,22 @@ final class Tx
         $locktime = gmp_intval(Encoding::fromLE(fread($stream, 4)));
 
         return new self($version, $txIns, $txOuts, $locktime, $mode, segwit: true);
+    }
+
+    private static function parseInputsAndOputputs($stream): array
+    {
+        $txIns = [];
+        $nIns  = Encoding::decodeVarInt($stream);
+        for ($i = 0; $i < $nIns; ++$i) {
+            $txIns[] = Input::parse($stream);
+        }
+
+        $txOuts = [];
+        $nOuts  = Encoding::decodeVarInt($stream);
+        for ($i = 0; $i < $nOuts; ++$i) {
+            $txOuts[] = Output::parse($stream);
+        }
+
+        return [$txIns, $txOuts];
     }
 }
