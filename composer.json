@@ -33,7 +33,7 @@
     },
     "require-dev": {
         "c2sp/wycheproof": "dev-master",
-        "friendsofphp/php-cs-fixer": "^3.70",
+        "friendsofphp/php-cs-fixer": "^3.71",
         "phpunit/phpunit": "^11.5",
         "uma/ocular": "^2.0"
     },

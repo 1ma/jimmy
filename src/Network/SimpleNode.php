@@ -83,7 +83,7 @@ final readonly class SimpleNode
         $this->send(new Message\Version(
             70016,
             0,
-            (int) new \DateTimeImmutable()->format('U'),
+            (int) (new \DateTimeImmutable())->format('U'),
             0,
             '',
             0,

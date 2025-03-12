@@ -91,7 +91,7 @@ TXT;
 
     public function testTransactionCreation(): void
     {
-        $txIn = new Tx\Input('f781eac22fd176430c7dbf37b9e55dcb2128089854b7d7c0f43eb61012d610e5', 0);
+        $txIn = new Tx\Input('f781eac22fd176430c7dbf37b9e55dcb2128089854b7d7c0f43eb61012d610e5', 0, seqNum: Tx\Input::DISABLE_REPLACE_BY_FEE);
 
         $txOut1 = new Tx\Output(14424, Tx\Script::payToPubKeyHash(Encoding::decodeLegacyAddress('n14VanAQTFrZcMV8GqfUQmors2NCUBXCin')));
         $txOut2 = new Tx\Output(4878, Tx\Script::payToPubKeyHash(Encoding::decodeLegacyAddress('mfoZu55yYex1X575MRpHJc8yDDttzvyx3M')));
@@ -125,8 +125,8 @@ TXT;
 
     public function testWhackyTransactionCreation(): void
     {
-        $txIn1 = new Tx\Input('7684d6893890d63a6ee8e14f6400e3168fd1638926350bbee8b79dc733f81159', 0);
-        $txIn2 = new Tx\Input('7684d6893890d63a6ee8e14f6400e3168fd1638926350bbee8b79dc733f81159', 1);
+        $txIn1 = new Tx\Input('7684d6893890d63a6ee8e14f6400e3168fd1638926350bbee8b79dc733f81159', 0, seqNum: Tx\Input::DISABLE_REPLACE_BY_FEE);
+        $txIn2 = new Tx\Input('7684d6893890d63a6ee8e14f6400e3168fd1638926350bbee8b79dc733f81159', 1, seqNum: Tx\Input::DISABLE_REPLACE_BY_FEE);
 
         $txOut = new Tx\Output(0, Tx\Script::opReturn('Tot vostre, fills de puta.'));
 

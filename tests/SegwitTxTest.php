@@ -86,7 +86,7 @@ final class SegwitTxTest extends TestCase
 
     public function testP2WSHTransactionCreation(): void
     {
-        $txIn = new Tx\Input('1f0cf1732193dba6d0ac867aae36bf745cdb69b4a525bb7fc016401937551326', 0);
+        $txIn = new Tx\Input('1f0cf1732193dba6d0ac867aae36bf745cdb69b4a525bb7fc016401937551326', 0, seqNum: Tx\Input::DISABLE_REPLACE_BY_FEE);
 
         $changePubKey = hex2bin('03d684657d57e60eb34dafe9a9f00ab5bb96dfa4c0a1ef7ae056d39c0dbe318350');
         $txOut0       = new Tx\Output(381633, Tx\Script::payToSegWitV0(Hashing::hash160($changePubKey)));
@@ -113,7 +113,7 @@ final class SegwitTxTest extends TestCase
         $revealPubKey = hex2bin('024478db27085089124c76a6d14d2421ea65ba01ddd94b769ebcd5fcc251d81826');
         $p2pk         = Tx\Script::payToPubKey($revealPubKey);
 
-        $txIn = new Tx\Input('e9df24a4a712622589a7fa0c0eb3972a5a943b4523a9a3c8ecf81a10126bb6ed', 1, witness: [substr($p2pk->serialize(), 1)]);
+        $txIn = new Tx\Input('e9df24a4a712622589a7fa0c0eb3972a5a943b4523a9a3c8ecf81a10126bb6ed', 1, null, Tx\Input::DISABLE_REPLACE_BY_FEE, [substr($p2pk->serialize(), 1)]);
 
         $txOut = new Tx\Output(0, Tx\Script::opReturn('Behold the mythical P2WSH-P2PK transaction.'));
 
