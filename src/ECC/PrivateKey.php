@@ -34,6 +34,21 @@ final readonly class PrivateKey
         return new Signature($r, $s);
     }
 
+    public static function fromWIF(string $wif): self
+    {
+        try {
+            $decodedWif = Encoding::base58decode($wif, check: true);
+        } catch (\InvalidArgumentException) {
+            throw new \InvalidArgumentException('Invalid WIF data: '.$wif);
+        }
+
+        if (!\in_array(\strlen($decodedWif), [33, 34]) || !\in_array($decodedWif[0], ["\x80", "\xef"])) {
+            throw new \InvalidArgumentException('Invalid WIF key: '.bin2hex($decodedWif));
+        }
+
+        return new self(gmp_init('0x'.bin2hex(substr($decodedWif, 1, -1))));
+    }
+
     public function wif(bool $compressed = true, Network $mode = Network::TESTNET): string
     {
         return Encoding::base58checksum(
