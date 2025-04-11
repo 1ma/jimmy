@@ -20,4 +20,9 @@ final readonly class Hashing
     {
         return hash_hmac('sha256', $data, $key, true);
     }
+
+    public static function sha512hmac(string $data, string $key): string
+    {
+        return hash_hmac('sha512', $data, $key, true);
+    }
 }
