@@ -25,6 +25,18 @@
                     "reference": "master"
                 }
             }
+        },
+        {
+            "type": "package",
+            "package": {
+                "name": "trezor/bip39",
+                "version": "dev-master",
+                "source": {
+                    "url": "https://github.com/trezor/python-mnemonic",
+                    "type": "git",
+                    "reference": "master"
+                }
+            }
         }
     ],
     "require": {
@@ -35,6 +47,7 @@
         "c2sp/wycheproof": "dev-master",
         "friendsofphp/php-cs-fixer": "^3.75",
         "phpunit/phpunit": "^12.1",
+        "trezor/bip39": "dev-master",
         "uma/ocular": "^2.0"
     },
     "scripts": {
