@@ -10,7 +10,7 @@ use Bitcoin\Hashing;
 
 final readonly class DerivationPath
 {
-    private const string PATH_REGEXP = "#^m(/\d+'?)*$#";
+    private const string PATH_REGEXP = "#^m(/\d+'?)+$#";
 
     private const int HARDENED_OFFSET = 0x80000000;
 
@@ -23,12 +23,12 @@ final readonly class DerivationPath
 
     public static function parse(string $path): self
     {
-        if (!preg_match(self::PATH_REGEXP, $path)) {
-            throw new \InvalidArgumentException('Invalid derivation path: '.$path);
-        }
-
         if ('m' === $path) {
             return new self([]);
+        }
+
+        if (!preg_match(self::PATH_REGEXP, $path)) {
+            throw new \InvalidArgumentException('Invalid derivation path: '.$path);
         }
 
         $levels = [];
@@ -62,7 +62,7 @@ final readonly class DerivationPath
             throw new \InvalidArgumentException('Invalid limit: '.$limit);
         }
 
-        $privateKey = str_pad(gmp_export($masterPrivateKey->secret), 32, "\x00", \STR_PAD_LEFT);
+        $privateKey = $masterPrivateKey;
         $chainCode  = $masterChainCode;
 
         foreach ($this->levels as $level) {
@@ -71,24 +71,27 @@ final readonly class DerivationPath
 
         $keys = [];
         for ($i = $offset; $i < $offset + $limit; ++$i) {
-            $keys[] = new PrivateKey(gmp_import(self::CKDPriv($privateKey, $chainCode, $i)[0]));
+            $keys[] = self::CKDPriv($privateKey, $chainCode, $i)[0];
         }
 
         return $keys;
     }
 
-    private function CKDPriv(string $kParent, string $cParent, int $index): array
+    /**
+     * @return array{PrivateKey, string}
+     */
+    private function CKDPriv(PrivateKey $kParent, string $cParent, int $index): array
     {
         $hmacData = self::hardened($index) ?
             "\x00".$kParent.self::ser32($index) :
-            new PrivateKey(gmp_import($kParent))->pubKey->sec().self::ser32($index);
+            $kParent->pubKey->sec().self::ser32($index);
 
         $I = Hashing::sha512hmac($hmacData, $cParent);
 
-        $kChild = (gmp_import(substr($I, 0, 32)) + gmp_import($kParent)) % S256Params::N();
+        $kChild = new PrivateKey(gmp_div_r(gmp_import(substr($I, 0, 32)) + $kParent->secret, S256Params::N()));
         $cChild = substr($I, 32, 64);
 
-        return [str_pad(gmp_export($kChild), 32, "\x00", \STR_PAD_LEFT), $cChild];
+        return [$kChild, $cChild];
     }
 
     private static function hardened(int $index): bool

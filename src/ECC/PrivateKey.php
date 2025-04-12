@@ -91,4 +91,9 @@ final readonly class PrivateKey
             $v = Hashing::sha256hmac($v, $k);
         }
     }
+
+    public function __toString(): string
+    {
+        return str_pad(gmp_export($this->secret), 32, "\x00", \STR_PAD_LEFT);
+    }
 }
