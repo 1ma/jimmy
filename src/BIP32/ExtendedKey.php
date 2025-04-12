@@ -7,6 +7,7 @@ namespace Bitcoin\BIP32;
 use Bitcoin\ECC\PrivateKey;
 use Bitcoin\ECC\S256Point;
 use Bitcoin\Encoding;
+use Bitcoin\Hashing;
 
 final readonly class ExtendedKey
 {
@@ -25,6 +26,13 @@ final readonly class ExtendedKey
         $this->childNumber       = $childNumber;
         $this->chainCode         = $chainCode;
         $this->key               = $key;
+    }
+
+    public function fingerprint(): string
+    {
+        $pubkey = $this->key instanceof PrivateKey ? $this->key->pubKey : $this->key;
+
+        return bin2hex(substr(Hashing::hash160($pubkey->sec()), 0, 4));
     }
 
     /**
@@ -46,5 +54,17 @@ final readonly class ExtendedKey
         $key         = "\x00" === $material[0] ? new PrivateKey(gmp_import(substr($material, 1))) : S256Point::parse($material);
 
         return new self($version, $depth, $fingerprint, $childNumber, $chainCode, $key);
+    }
+
+    public function __toString(): string
+    {
+        $version     = $this->version->value;
+        $depth       = pack('C', $this->depth);
+        $fingerprint = hex2bin($this->parentFingerprint);
+        $childNumber = pack('N', $this->childNumber);
+        $chainCode   = $this->chainCode;
+        $material    = $this->key instanceof PrivateKey ? "\x00".$this->key : $this->key->sec();
+
+        return Encoding::base58checksum($version.$depth.$fingerprint.$childNumber.$chainCode.$material);
     }
 }

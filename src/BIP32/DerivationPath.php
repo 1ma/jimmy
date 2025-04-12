@@ -46,20 +46,12 @@ final readonly class DerivationPath
     }
 
     /**
-     * @return PrivateKey[]
+     * @return array{PrivateKey, string}
      */
-    public function deriveRange(PrivateKey $masterPrivateKey, string $masterChainCode, int $offset, int $limit): array
+    public function derive(PrivateKey $masterPrivateKey, string $masterChainCode): array
     {
         if (32 !== \strlen($masterChainCode)) {
             throw new \InvalidArgumentException('Invalid chaincode: '.bin2hex($masterChainCode));
-        }
-
-        if ($offset < 0) {
-            throw new \InvalidArgumentException('Invalid offset: '.$offset);
-        }
-
-        if ($limit < 0) {
-            throw new \InvalidArgumentException('Invalid limit: '.$limit);
         }
 
         $privateKey = $masterPrivateKey;
@@ -68,6 +60,24 @@ final readonly class DerivationPath
         foreach ($this->levels as $level) {
             [$privateKey, $chainCode] = self::CKDPriv($privateKey, $chainCode, $level);
         }
+
+        return [$privateKey, $chainCode];
+    }
+
+    /**
+     * @return PrivateKey[]
+     */
+    public function deriveRange(PrivateKey $masterPrivateKey, string $masterChainCode, int $offset, int $limit): array
+    {
+        if ($offset < 0) {
+            throw new \InvalidArgumentException('Invalid offset: '.$offset);
+        }
+
+        if ($limit < 0) {
+            throw new \InvalidArgumentException('Invalid limit: '.$limit);
+        }
+
+        [$privateKey, $chainCode] = self::derive($masterPrivateKey, $masterChainCode);
 
         $keys = [];
         for ($i = $offset; $i < $offset + $limit; ++$i) {
