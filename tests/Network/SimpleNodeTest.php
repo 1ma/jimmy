@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Network;
+namespace Bitcoin\Tests\Network;
 
 use Bitcoin\Block;
 use Bitcoin\Network;

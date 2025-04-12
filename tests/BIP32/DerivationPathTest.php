@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace BIP32;
+namespace Bitcoin\Tests\BIP32;
 
 use Bitcoin\BIP32\DerivationPath;
 use Bitcoin\ECC\PrivateKey;

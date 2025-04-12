@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace BIP39;
+namespace Bitcoin\Tests\BIP39;
 
 use Bitcoin\BIP39\Seed;
 use PHPUnit\Framework\TestCase;
