@@ -245,4 +245,14 @@ final class S256PointTest extends TestCase
         self::assertSame('1PMycacnJaSqwwJqjawXBErnLsZ7RkXUAs', $pubkey->address(compressed: true, mode: Network::MAINNET));
         self::assertSame(Hashing::hash160($sec), Encoding::decodeLegacyAddress('1PMycacnJaSqwwJqjawXBErnLsZ7RkXUAs'));
     }
+
+    public function testInvalidAddressDecoding(): void
+    {
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage('Unexpected data length');
+
+        $garbage    = "\x00".random_bytes(22);
+        $badAddress = Encoding::base58checksum($garbage);
+        Encoding::decodeLegacyAddress($badAddress);
+    }
 }

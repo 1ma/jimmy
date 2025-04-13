@@ -22,7 +22,7 @@ final readonly class Encoding
             ++$nullBytes;
         }
 
-        $encoded = gmp_strval(gmp_import($data), 58);
+        $encoded = $nullBytes === \strlen($data) ? '' : gmp_strval(gmp_import($data), 58);
 
         return str_repeat('1', $nullBytes).strtr($encoded, self::GMP_BASE58_ALPHABET, self::BTC_BASE58_ALPHABET);
     }
@@ -36,7 +36,7 @@ final readonly class Encoding
     {
         $data = self::base58decode($address, check: true);
         if (21 !== \strlen($data)) {
-            throw new \InvalidArgumentException('unexpected data length');
+            throw new \InvalidArgumentException('Unexpected data length');
         }
 
         // Ignore address version, just return the payload (hash160 of the public key)
@@ -67,7 +67,7 @@ final readonly class Encoding
             $payload  = substr($decoded, 0, -4);
 
             if (substr(Hashing::hash256($payload), 0, 4) !== $checksum) {
-                throw new \InvalidArgumentException('invalid checksum');
+                throw new \InvalidArgumentException('Invalid checksum');
             }
 
             $decoded = $payload;
