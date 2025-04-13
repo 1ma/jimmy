@@ -6,6 +6,9 @@ namespace Bitcoin\Tx;
 
 use Bitcoin\Network;
 
+/**
+ * @codeCoverageIgnore
+ */
 final class MempoolFetcher implements Fetcher
 {
     private const string MAINNET_ENDPOINT = 'https://mempool.space';

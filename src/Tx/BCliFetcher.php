@@ -6,6 +6,9 @@ namespace Bitcoin\Tx;
 
 use Bitcoin\Network;
 
+/**
+ * @codeCoverageIgnore
+ */
 final class BCliFetcher implements Fetcher
 {
     public function fetch(string $txId, Network $mode): mixed
