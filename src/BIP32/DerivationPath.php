@@ -83,12 +83,8 @@ final readonly class DerivationPath
             throw new \InvalidArgumentException('Invalid chaincode: '.bin2hex($chainCode));
         }
 
-        if ($offset < 0) {
-            throw new \InvalidArgumentException('Invalid offset: '.$offset);
-        }
-
-        if ($limit < 0) {
-            throw new \InvalidArgumentException('Invalid limit: '.$limit);
+        if ($offset < 0 || $limit < 0) {
+            throw new \InvalidArgumentException('Invalid limit or offset: '.$offset.' '.$limit);
         }
 
         $keys = [];
@@ -104,11 +100,9 @@ final readonly class DerivationPath
      */
     private static function CKDPriv(PrivateKey $kParent, string $cParent, int $index): array
     {
-        $hmacData = self::hardened($index) ?
-            "\x00".$kParent.self::ser32($index) :
-            $kParent->pubKey->sec().self::ser32($index);
+        $hmacDataPrefix = self::hardened($index) ? "\x00".$kParent : $kParent->pubKey->sec();
 
-        $I = Hashing::sha512hmac($hmacData, $cParent);
+        $I = Hashing::sha512hmac($hmacDataPrefix.self::ser32($index), $cParent);
 
         $kChild = new PrivateKey(gmp_div_r(gmp_import(substr($I, 0, 32)) + $kParent->secret, S256Params::N()));
         $cChild = substr($I, 32, 64);

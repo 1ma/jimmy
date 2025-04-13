@@ -15,6 +15,10 @@ final readonly class PrivateKey
 
     public function __construct(#[\SensitiveParameter] \GMP $secret)
     {
+        if ($secret < 1 || $secret >= S256Params::N()) {
+            throw new \InvalidArgumentException('A valid private key must be in the [1,N) range');
+        }
+
         $this->secret = $secret;
         $this->pubKey = S256Params::G()->scalarMul($this->secret);
     }
