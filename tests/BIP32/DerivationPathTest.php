@@ -27,11 +27,12 @@ final class DerivationPathTest extends TestCase
 
     public function testKnownTestCaseFromB4OS(): void
     {
-        $path       = DerivationPath::parse("m/84'/1'/0'/0");
-        $privateKey = new PrivateKey(gmp_init('0xcf0bad7aef2270b46b5ce749d0db811356a688ba05bd2cf22850be43c3202a87'));
-        $chainCode  = hex2bin('58cf12642d390624ee21b444e18296abd8433a794d789f83f29f6381d3d8041c');
+        $path             = DerivationPath::parse("m/84'/1'/0'/0");
+        $masterPrivateKey = new PrivateKey(gmp_init('0xcf0bad7aef2270b46b5ce749d0db811356a688ba05bd2cf22850be43c3202a87'));
+        $masterChainCode  = hex2bin('58cf12642d390624ee21b444e18296abd8433a794d789f83f29f6381d3d8041c');
 
-        [$firstKey] = $path->deriveRange($privateKey, $chainCode, 0, 1);
+        [$privateKey, $chainCode] = $path->derive($masterPrivateKey, $masterChainCode);
+        [$firstKey]               = DerivationPath::range($privateKey, $chainCode, 0, 1);
 
         self::assertSame(hex2bin('10b5395fc646a9fef6fc0071dac51a8cd3f57f6a89efa2e5700dddfb9e81ad0f'), gmp_export($firstKey->secret));
     }

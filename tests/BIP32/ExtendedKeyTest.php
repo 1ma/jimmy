@@ -8,6 +8,7 @@ use Bitcoin\BIP32\DerivationPath;
 use Bitcoin\BIP32\ExtendedKey;
 use Bitcoin\BIP32\Version;
 use Bitcoin\ECC\PrivateKey;
+use Bitcoin\Hashing;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
@@ -51,8 +52,7 @@ final class ExtendedKeyTest extends TestCase
         string $expectedXPub,
         string $expectedFingerprint,
     ): void {
-        $seed            = hex2bin($seed);
-        $I               = hash_hmac('sha512', $seed, 'Bitcoin seed', true);
+        $I               = Hashing::sha512hmac(hex2bin($seed), 'Bitcoin seed');
         $masterKey       = new PrivateKey(gmp_import(substr($I, 0, 32)));
         $masterChainCode = substr($I, 32, 32);
 

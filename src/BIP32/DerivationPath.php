@@ -67,8 +67,12 @@ final readonly class DerivationPath
     /**
      * @return PrivateKey[]
      */
-    public function deriveRange(PrivateKey $masterPrivateKey, string $masterChainCode, int $offset, int $limit): array
+    public static function range(PrivateKey $privateKey, string $chainCode, int $offset, int $limit): array
     {
+        if (32 !== \strlen($chainCode)) {
+            throw new \InvalidArgumentException('Invalid chaincode: '.bin2hex($chainCode));
+        }
+
         if ($offset < 0) {
             throw new \InvalidArgumentException('Invalid offset: '.$offset);
         }
@@ -76,8 +80,6 @@ final readonly class DerivationPath
         if ($limit < 0) {
             throw new \InvalidArgumentException('Invalid limit: '.$limit);
         }
-
-        [$privateKey, $chainCode] = self::derive($masterPrivateKey, $masterChainCode);
 
         $keys = [];
         for ($i = $offset; $i < $offset + $limit; ++$i) {
@@ -90,7 +92,7 @@ final readonly class DerivationPath
     /**
      * @return array{PrivateKey, string}
      */
-    private function CKDPriv(PrivateKey $kParent, string $cParent, int $index): array
+    private static function CKDPriv(PrivateKey $kParent, string $cParent, int $index): array
     {
         $hmacData = self::hardened($index) ?
             "\x00".$kParent.self::ser32($index) :
