@@ -45,6 +45,16 @@ final readonly class DerivationPath
         return new self($levels);
     }
 
+    public function depth(): int
+    {
+        return \count($this->levels);
+    }
+
+    public function childNumber(): int
+    {
+        return empty($this->levels) ? 0 : $this->levels[array_key_last($this->levels)];
+    }
+
     /**
      * @return array{PrivateKey, string}
      */
