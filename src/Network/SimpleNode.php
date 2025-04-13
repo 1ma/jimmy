@@ -26,7 +26,7 @@ final readonly class SimpleNode
         $this->socket = @fsockopen($this->address, $this->port);
 
         if (false === $this->socket) {
-            throw new \RuntimeException("could not establish a TCP connection to {$this->address}:{$this->port}");
+            throw new \RuntimeException("Could not establish a TCP connection to {$this->address}:{$this->port}");
         }
 
         if ($this->logging) {

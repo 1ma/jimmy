@@ -98,12 +98,20 @@ final class SimpleNodeTest extends TestCase
         $node->close();
     }
 
+    public function testInvalidNodeAddress(): void
+    {
+        $this->expectException(\RuntimeException::class);
+        $this->expectExceptionMessage('Could not establish a TCP connection to 127.0.0.1:18333');
+
+        new Network\SimpleNode('127.0.0.1', 18333, false, Network::REGTEST);
+    }
+
     private static function startNode(): Network\SimpleNode
     {
         try {
-            return new Network\SimpleNode('127.0.0.1', 18444, false, Network::REGTEST);
+            return new Network\SimpleNode('127.0.0.1', 18444, (bool) getenv('NODE_DEBUGLOG'), Network::REGTEST);
         } catch (\RuntimeException) {
-            self::markTestSkipped('regtest node is unavailable');
+            self::markTestSkipped('Regtest node is unavailable');
         }
     }
 }

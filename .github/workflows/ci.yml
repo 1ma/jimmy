@@ -8,6 +8,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       PHP_CS_FIXER_IGNORE_ENV: 1
+      NODE_DEBUGLOG: 1
     strategy:
       fail-fast: false
       matrix:
