@@ -5,14 +5,10 @@ declare(strict_types=1);
 namespace Bitcoin\BIP32;
 
 use Bitcoin\ECC\PrivateKey;
-use Bitcoin\ECC\S256Params;
-use Bitcoin\Hashing;
 
 final readonly class DerivationPath
 {
     private const string PATH_REGEXP = "#^m(/\d+'?)+$#";
-
-    private const int HARDENED_OFFSET = 0x80000000;
 
     public array $levels;
 
@@ -36,7 +32,7 @@ final readonly class DerivationPath
             $offset = 0;
             if ("'" === $value[-1]) {
                 $value  = substr($value, 0, -1);
-                $offset = self::HARDENED_OFFSET;
+                $offset = CKDFunctions::HARDENED_OFFSET;
             }
 
             $levels[] = (int) $value + $offset;
@@ -68,7 +64,7 @@ final readonly class DerivationPath
         $chainCode  = $masterChainCode;
 
         foreach ($this->levels as $level) {
-            [$privateKey, $chainCode] = self::CKDPriv($privateKey, $chainCode, $level);
+            [$privateKey, $chainCode] = CKDFunctions::CKDPriv($privateKey, $chainCode, $level);
         }
 
         return [$privateKey, $chainCode];
@@ -89,38 +85,9 @@ final readonly class DerivationPath
 
         $keys = [];
         for ($i = $offset; $i < $offset + $limit; ++$i) {
-            $keys[] = self::CKDPriv($privateKey, $chainCode, $i)[0];
+            $keys[] = CKDFunctions::CKDPriv($privateKey, $chainCode, $i)[0];
         }
 
         return $keys;
-    }
-
-    /**
-     * @return array{PrivateKey, string}
-     */
-    private static function CKDPriv(PrivateKey $kParent, string $cParent, int $index): array
-    {
-        $hmacDataPrefix = self::hardened($index) ? "\x00".$kParent->ser256() : $kParent->pubKey->sec();
-
-        $I = Hashing::sha512hmac($hmacDataPrefix.self::ser32($index), $cParent);
-
-        $kChild = new PrivateKey(gmp_div_r(gmp_import(substr($I, 0, 32)) + $kParent->secret, S256Params::N()));
-        $cChild = substr($I, 32, 64);
-
-        return [$kChild, $cChild];
-    }
-
-    private static function hardened(int $index): bool
-    {
-        return $index >= self::HARDENED_OFFSET;
-    }
-
-    private static function ser32(int $index): string
-    {
-        if ($index >= 4294967296) { // 2^32
-            throw new \InvalidArgumentException('Index too large for ser32 serialization: '.$index);
-        }
-
-        return pack('N', $index);
     }
 }

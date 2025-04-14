@@ -22,7 +22,7 @@ final class ExtendedKeyTest extends TestCase
     {
         $tprv = ExtendedKey::parse('tprv8ZgxMBicQKsPeGzpnH2ttAuasJdFYddkhaxBADnFLMzfNwafbZQYdd4ar4knzAfqzYJWHDEwHaqHY3qDXqhFBB4ymsLfXsMPYYuRVXGWwSG');
 
-        self::assertSame(Version::TESTNET_PRIVATE_KEY, $tprv->version);
+        self::assertSame(Version::TESTNET_TPRV, $tprv->version);
         self::assertSame(0, $tprv->depth);
         self::assertSame('00000000', $tprv->parentFingerprint);
         self::assertSame(0, $tprv->childNumber);
@@ -32,7 +32,7 @@ final class ExtendedKeyTest extends TestCase
 
         $tpub = ExtendedKey::parse('tpubDDLahZuFszwU6P4hEiJJ5tWaSrCvFoH2CBCuC5uCPyNaNnVMYZqTLH78pygnw4JajScUM3NoesTQ2FWhKFD4ii5F6rV8vwWgTmFWHjY9KAx');
 
-        self::assertSame(Version::TESTNET_PUBLIC_KEY, $tpub->version);
+        self::assertSame(Version::TESTNET_TPUB, $tpub->version);
         self::assertSame(3, $tpub->depth);
         self::assertSame('b2b42ad1', $tpub->parentFingerprint);
         self::assertSame(0x80000000, $tpub->childNumber);
@@ -57,11 +57,11 @@ final class ExtendedKeyTest extends TestCase
         $path                     = DerivationPath::parse($path);
         [$privateKey, $chainCode] = $path->derive($masterKey, $masterChainCode);
 
-        $xprv = new ExtendedKey(Version::MAINNET_PRIVATE_KEY, $path->depth(), $parentFingerprint, $path->childNumber(), $chainCode, $privateKey);
+        $xprv = new ExtendedKey(Version::MAINNET_XPRV, $path->depth(), $parentFingerprint, $path->childNumber(), $chainCode, $privateKey);
         self::assertSame($expectedXPrv, (string) $xprv);
         self::assertSame($expectedFingerprint, $xprv->fingerprint());
 
-        $xpub = new ExtendedKey(Version::MAINNET_PUBLIC_KEY, $path->depth(), $parentFingerprint, $path->childNumber(), $chainCode, $privateKey->pubKey);
+        $xpub = new ExtendedKey(Version::MAINNET_XPUB, $path->depth(), $parentFingerprint, $path->childNumber(), $chainCode, $privateKey->pubKey);
         self::assertSame($expectedXPub, (string) $xpub);
         self::assertSame($xprv->fingerprint(), $xpub->fingerprint());
     }

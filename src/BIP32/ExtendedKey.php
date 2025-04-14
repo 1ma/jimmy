@@ -20,6 +20,22 @@ final readonly class ExtendedKey
 
     public function __construct(Version $version, int $depth, string $parentFingerprint, int $childNumber, string $chainCode, PrivateKey|S256Point $key)
     {
+        if (0 === $depth && '00000000' !== $parentFingerprint) {
+            throw new \InvalidArgumentException('An extended key of depth 0 cannot have a parent fingerprint');
+        }
+
+        if (0 === $depth && 0 !== $childNumber) {
+            throw new \InvalidArgumentException('An extended key of depth 0 cannot have a child number other than 0');
+        }
+
+        if (\in_array($version, [Version::MAINNET_XPUB, Version::TESTNET_TPUB]) && $key instanceof PrivateKey) {
+            throw new \InvalidArgumentException('This is supposed to be an xpub, found a private key in it');
+        }
+
+        if (\in_array($version, [Version::MAINNET_XPRV, Version::TESTNET_TPRV]) && $key instanceof S256Point) {
+            throw new \InvalidArgumentException('This is supposed to be an xprv, found a public key in it');
+        }
+
         $this->version           = $version;
         $this->depth             = $depth;
         $this->parentFingerprint = $parentFingerprint;
@@ -48,28 +64,10 @@ final readonly class ExtendedKey
 
         $depth       = unpack('C', substr($data, 4, 1))[1];
         $fingerprint = bin2hex(substr($data, 5, 4));
-
-        if (0 === $depth && '00000000' !== $fingerprint) {
-            throw new \InvalidArgumentException('An extended key of depth 0 cannot have a parent fingerprint');
-        }
-
         $childNumber = unpack('N', substr($data, 9, 4))[1];
-
-        if (0 === $depth && 0 !== $childNumber) {
-            throw new \InvalidArgumentException('An extended key of depth 0 cannot have a child number other than 0');
-        }
-
-        $chainCode = substr($data, 13, 32);
-        $material  = substr($data, 45, 33);
-        $key       = "\x00" === $material[0] ? new PrivateKey(gmp_import(substr($material, 1))) : S256Point::parse($material);
-
-        if (\in_array($version, [Version::MAINNET_PUBLIC_KEY, Version::TESTNET_PUBLIC_KEY]) && $key instanceof PrivateKey) {
-            throw new \InvalidArgumentException('This is supposed to be an xpub, found a private key in it');
-        }
-
-        if (\in_array($version, [Version::MAINNET_PRIVATE_KEY, Version::TESTNET_PRIVATE_KEY]) && $key instanceof S256Point) {
-            throw new \InvalidArgumentException('This is supposed to be an xpriv, found a public key in it');
-        }
+        $chainCode   = substr($data, 13, 32);
+        $material    = substr($data, 45, 33);
+        $key         = "\x00" === $material[0] ? new PrivateKey(gmp_import(substr($material, 1))) : S256Point::parse($material);
 
         return new self($version, $depth, $fingerprint, $childNumber, $chainCode, $key);
     }
