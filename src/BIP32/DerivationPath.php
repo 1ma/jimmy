@@ -100,7 +100,7 @@ final readonly class DerivationPath
      */
     private static function CKDPriv(PrivateKey $kParent, string $cParent, int $index): array
     {
-        $hmacDataPrefix = self::hardened($index) ? "\x00".$kParent : $kParent->pubKey->sec();
+        $hmacDataPrefix = self::hardened($index) ? "\x00".$kParent->ser256() : $kParent->pubKey->sec();
 
         $I = Hashing::sha512hmac($hmacDataPrefix.self::ser32($index), $cParent);
 

@@ -96,7 +96,7 @@ final readonly class PrivateKey
         }
     }
 
-    public function __toString(): string
+    public function ser256(): string
     {
         return str_pad(gmp_export($this->secret), 32, "\x00", \STR_PAD_LEFT);
     }

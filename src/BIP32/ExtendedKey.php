@@ -81,7 +81,7 @@ final readonly class ExtendedKey
         $fingerprint = hex2bin($this->parentFingerprint);
         $childNumber = pack('N', $this->childNumber);
         $chainCode   = $this->chainCode;
-        $material    = $this->key instanceof PrivateKey ? "\x00".$this->key : $this->key->sec();
+        $material    = $this->key instanceof PrivateKey ? "\x00".$this->key->ser256() : $this->key->sec();
 
         return Encoding::base58checksum($version.$depth.$fingerprint.$childNumber.$chainCode.$material);
     }
