@@ -11,6 +11,8 @@ use Bitcoin\Hashing;
 
 final readonly class ExtendedKey
 {
+    public const string MASTER_FINGERPRINT = '00000000';
+
     public Version $version;
     public int $depth;
     public string $parentFingerprint;
@@ -20,7 +22,7 @@ final readonly class ExtendedKey
 
     public function __construct(Version $version, int $depth, string $parentFingerprint, int $childNumber, string $chainCode, PrivateKey|S256Point $key)
     {
-        if (0 === $depth && '00000000' !== $parentFingerprint) {
+        if (0 === $depth && self::MASTER_FINGERPRINT !== $parentFingerprint) {
             throw new \InvalidArgumentException('An extended key of depth 0 cannot have a parent fingerprint');
         }
 
@@ -49,6 +51,23 @@ final readonly class ExtendedKey
         $pubkey = $this->key instanceof PrivateKey ? $this->key->pubKey : $this->key;
 
         return bin2hex(substr(Hashing::hash160($pubkey->sec()), 0, 4));
+    }
+
+    public function xpub(): self
+    {
+        if ($this->key instanceof S256Point) {
+            return $this;
+        }
+
+        return new self(
+            Version::MAINNET_XPRV === $this->version ?
+                Version::MAINNET_XPUB : Version::TESTNET_TPUB,
+            $this->depth,
+            $this->parentFingerprint,
+            $this->childNumber,
+            $this->chainCode,
+            $this->key->pubKey
+        );
     }
 
     /**

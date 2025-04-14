@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Bitcoin\BIP32;
 
 use Bitcoin\ECC\PrivateKey;
+use Bitcoin\ECC\S256Point;
 
 final readonly class DerivationPath
 {
@@ -41,51 +42,44 @@ final readonly class DerivationPath
         return new self($levels);
     }
 
-    public function depth(): int
+    public function derive(ExtendedKey $masterKey): ExtendedKey
     {
-        return \count($this->levels);
-    }
-
-    public function childNumber(): int
-    {
-        return empty($this->levels) ? 0 : $this->levels[array_key_last($this->levels)];
-    }
-
-    /**
-     * @return array{PrivateKey, string}
-     */
-    public function derive(PrivateKey $masterPrivateKey, string $masterChainCode): array
-    {
-        if (32 !== \strlen($masterChainCode)) {
-            throw new \InvalidArgumentException('Invalid chaincode: '.bin2hex($masterChainCode));
-        }
-
-        $privateKey = $masterPrivateKey;
-        $chainCode  = $masterChainCode;
+        $key         = $masterKey->key;
+        $chainCode   = $masterKey->chainCode;
+        $extendedKey = $masterKey;
 
         foreach ($this->levels as $level) {
-            [$privateKey, $chainCode] = CKDFunctions::CKDPriv($privateKey, $chainCode, $level);
+            [$key, $chainCode] = $key instanceof PrivateKey ?
+                CKDFunctions::CKDPriv($key, $chainCode, $level) :
+                CKDFunctions::CKDPub($key, $chainCode, $level);
+
+            $extendedKey = new ExtendedKey(
+                $extendedKey->version,
+                $extendedKey->depth + 1,
+                $extendedKey->fingerprint(),
+                $level,
+                $chainCode,
+                $key
+            );
         }
 
-        return [$privateKey, $chainCode];
+        return $extendedKey;
     }
 
     /**
-     * @return PrivateKey[]
+     * @return array<PrivateKey|S256Point>
      */
-    public static function range(PrivateKey $privateKey, string $chainCode, int $offset, int $limit): array
+    public static function range(ExtendedKey $extendedKey, int $offset, int $limit): array
     {
-        if (32 !== \strlen($chainCode)) {
-            throw new \InvalidArgumentException('Invalid chaincode: '.bin2hex($chainCode));
-        }
-
         if ($offset < 0 || $limit < 0) {
             throw new \InvalidArgumentException('Invalid limit or offset: '.$offset.' '.$limit);
         }
 
         $keys = [];
         for ($i = $offset; $i < $offset + $limit; ++$i) {
-            $keys[] = CKDFunctions::CKDPriv($privateKey, $chainCode, $i)[0];
+            $keys[] = $extendedKey->key instanceof PrivateKey ?
+                CKDFunctions::CKDPriv($extendedKey->key, $extendedKey->chainCode, $i)[0] :
+                CKDFunctions::CKDPub($extendedKey->key, $extendedKey->chainCode, $i)[0];
         }
 
         return $keys;

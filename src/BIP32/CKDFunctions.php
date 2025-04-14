@@ -52,16 +52,6 @@ class CKDFunctions
         return [$kChild, $cChild];
     }
 
-    /**
-     * @see https://bips.xyz/32#private-parent-key--public-child-key
-     *
-     * @return array{S256Point, string}
-     */
-    public static function N(PrivateKey $kParent, string $cParent): array
-    {
-        return [$kParent->pubKey, $cParent];
-    }
-
     private static function hardened(int $index): bool
     {
         return $index >= self::HARDENED_OFFSET;
