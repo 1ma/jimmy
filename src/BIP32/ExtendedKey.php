@@ -13,6 +13,8 @@ final readonly class ExtendedKey
 {
     public const string MASTER_FINGERPRINT = '00000000';
 
+    private const string MASTER_HMAC_KEY = 'Bitcoin seed';
+
     public Version $version;
     public int $depth;
     public string $parentFingerprint;
@@ -67,6 +69,22 @@ final readonly class ExtendedKey
             $this->childNumber,
             $this->chainCode,
             $this->key->pubKey
+        );
+    }
+
+    public static function create(string $seed, bool $mainnet = false): self
+    {
+        $I                = Hashing::sha512hmac($seed, self::MASTER_HMAC_KEY);
+        $masterPrivateKey = new PrivateKey(gmp_import(substr($I, 0, 32)));
+        $masterChainCode  = substr($I, 32, 32);
+
+        return new self(
+            $mainnet ? Version::MAINNET_XPRV : Version::TESTNET_TPRV,
+            0,
+            self::MASTER_FINGERPRINT,
+            0,
+            $masterChainCode,
+            $masterPrivateKey
         );
     }
 

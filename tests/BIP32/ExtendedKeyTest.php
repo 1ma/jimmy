@@ -7,8 +7,6 @@ namespace Bitcoin\Tests\BIP32;
 use Bitcoin\BIP32\DerivationPath;
 use Bitcoin\BIP32\ExtendedKey;
 use Bitcoin\BIP32\Version;
-use Bitcoin\ECC\PrivateKey;
-use Bitcoin\Hashing;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
@@ -59,11 +57,7 @@ final class ExtendedKeyTest extends TestCase
         string $expectedXPub,
         string $expectedFingerprint,
     ): void {
-        $I             = Hashing::sha512hmac(hex2bin($seed), 'Bitcoin seed');
-        $rootKey       = new PrivateKey(gmp_import(substr($I, 0, 32)));
-        $rootChainCode = substr($I, 32, 32);
-
-        $masterXPrv  = new ExtendedKey(Version::MAINNET_XPRV, 0, ExtendedKey::MASTER_FINGERPRINT, 0, $rootChainCode, $rootKey);
+        $masterXPrv  = ExtendedKey::create(hex2bin($seed), mainnet: true);
         $derivedXPrv = DerivationPath::parse($path)->derive($masterXPrv);
 
         self::assertSame($expectedXPrv, (string) $derivedXPrv);
