@@ -74,17 +74,15 @@ final readonly class ExtendedKey
 
     public static function create(string $seed, bool $mainnet = false): self
     {
-        $I                = Hashing::sha512hmac($seed, self::MASTER_HMAC_KEY);
-        $masterPrivateKey = new PrivateKey(gmp_import(substr($I, 0, 32)));
-        $masterChainCode  = substr($I, 32, 32);
+        $I = Hashing::sha512hmac($seed, self::MASTER_HMAC_KEY);
 
         return new self(
             $mainnet ? Version::MAINNET_XPRV : Version::TESTNET_TPRV,
             0,
             self::MASTER_FINGERPRINT,
             0,
-            $masterChainCode,
-            $masterPrivateKey
+            substr($I, 32, 32),
+            new PrivateKey(gmp_import(substr($I, 0, 32)))
         );
     }
 

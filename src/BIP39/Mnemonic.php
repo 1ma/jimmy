@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Bitcoin\BIP39;
 
-final readonly class Seed
+final readonly class Mnemonic
 {
     public const array WORDLIST = [
         'abandon', 'ability', 'able', 'about', 'above', 'absent', 'absorb', 'abstract', 'absurd', 'abuse', 'access', 'accident', 'account', 'accuse', 'achieve', 'acid',

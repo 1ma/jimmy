@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Bitcoin\Tests\BIP39;
 
-use Bitcoin\BIP39\Seed;
+use Bitcoin\BIP39\Mnemonic;
 use PHPUnit\Framework\TestCase;
 
 final class SeedTest extends TestCase
@@ -13,12 +13,12 @@ final class SeedTest extends TestCase
 
     public function testWordlistIsCorrect(): void
     {
-        self::assertCount(2048, Seed::WORDLIST);
+        self::assertCount(2048, Mnemonic::WORDLIST);
 
         $referenceList = file(self::REFERENCE_WORDLIST_PATH, \FILE_IGNORE_NEW_LINES);
 
         foreach ($referenceList as $index => $word) {
-            self::assertSame($word, Seed::WORDLIST[$index]);
+            self::assertSame($word, Mnemonic::WORDLIST[$index]);
         }
     }
 }
