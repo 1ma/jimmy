@@ -54,7 +54,7 @@ final readonly class OpCheckMultiSig
 
                 $match = false;
                 foreach ($pubKeys as $key => $pubkey) {
-                    if ($match = $pubkey->verify($z, $sig)) {
+                    if ($match = $pubkey->ecdsa($z, $sig)) {
                         unset($pubKeys[$key]);
                         break;
                     }

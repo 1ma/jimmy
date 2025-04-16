@@ -141,7 +141,7 @@ final class Tx
             $z = $this->sigHash($inputIndex);
         }
 
-        $sig = $key->sign($z)->der()."\x01"; // SIGHASH_ALL byte
+        $sig = $key->ecdsa($z)->der()."\x01"; // SIGHASH_ALL byte
         $sec = $key->pubKey->sec();
 
         if ($this->segwit) {

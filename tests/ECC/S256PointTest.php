@@ -134,7 +134,7 @@ final class S256PointTest extends TestCase
 
         $z = gmp_init('0xec208baa0fc1c19f708a9ca96fdeff3ac3f230bb4a7ba4aede4942ad003c0f60');
 
-        self::assertTrue($pubkey->verify($z, $sig));
+        self::assertTrue($pubkey->ecdsa($z, $sig));
     }
 
     public function testCreateSignature(): void
@@ -143,14 +143,14 @@ final class S256PointTest extends TestCase
 
         $z      = gmp_import(Hashing::hash256('Programming Bitcoin!'));
         $pvtKey = new PrivateKey(gmp_init(12345));
-        $sig    = $pvtKey->sign($z);
+        $sig    = $pvtKey->ecdsa($z);
 
         self::assertSame(
             'Signature(8eeacac05e4c29e793b5287ed044637132ce9ead7fded533e7441d87a8dc9c23,36674f81f10c7fb347c1224bd546813ea24ada6f642c02f2248516e3aa8cb303)',
             (string) $sig
         );
 
-        self::assertTrue($pvtKey->pubKey->verify($z, $sig));
+        self::assertTrue($pvtKey->pubKey->ecdsa($z, $sig));
     }
 
     public function testInvalidSecData(): void

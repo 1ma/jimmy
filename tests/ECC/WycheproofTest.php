@@ -55,7 +55,7 @@ final class WycheproofTest extends TestCase
         $signature = Signature::parse($derSignature);
         $z         = gmp_import(hash('sha256', $rawMessage, true));
 
-        self::assertSame($expectedResult, $publicKey->verify($z, $signature));
+        self::assertSame($expectedResult, $publicKey->ecdsa($z, $signature));
     }
 
     public static function wycheproofTestVectorProvider(): array
