@@ -123,10 +123,10 @@ final readonly class S256Point
         if ($compressed) {
             $prefix = 0 == $this->y->num % 2 ? "\x02" : "\x03";
 
-            return $prefix.str_pad(gmp_export($this->x->num), 32, "\x00", \STR_PAD_LEFT);
+            return $prefix.Encoding::serN($this->x->num, 32);
         }
 
-        return "\x04".str_pad(gmp_export($this->x->num), 32, "\x00", \STR_PAD_LEFT).str_pad(gmp_export($this->y->num), 32, "\x00", \STR_PAD_LEFT);
+        return "\x04".Encoding::serN($this->x->num, 32).Encoding::serN($this->y->num, 32);
     }
 
     public function verify(\GMP $z, Signature $sig): bool

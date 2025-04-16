@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Bitcoin\ECC;
 
+use Bitcoin\Encoding;
+
 final readonly class Signature
 {
     public \GMP $r;
@@ -107,6 +109,14 @@ final readonly class Signature
         $sBytes = "\x02".pack('C', $sLen).$sBytes;
 
         return "\x30".pack('C', 2 + $rLen + 2 + $sLen).$rBytes.$sBytes;
+    }
+
+    /**
+     * BIP-340 fixed length encoding of the signature.
+     */
+    public function bip340(): string
+    {
+        return Encoding::serN($this->r, 32).Encoding::serN($this->s, 32);
     }
 
     public function __toString(): string
