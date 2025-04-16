@@ -17,6 +17,18 @@
         {
             "type": "package",
             "package": {
+                "name": "bitcoin/bips",
+                "version": "dev-master",
+                "source": {
+                    "url": "https://github.com/bitcoin/bips",
+                    "type": "git",
+                    "reference": "master"
+                }
+            }
+        },
+        {
+            "type": "package",
+            "package": {
                 "name": "c2sp/wycheproof",
                 "version": "dev-master",
                 "source": {
@@ -44,6 +56,7 @@
         "ext-gmp": "*"
     },
     "require-dev": {
+        "bitcoin/bips": "dev-master",
         "c2sp/wycheproof": "dev-master",
         "friendsofphp/php-cs-fixer": "^3.75",
         "phpunit/phpunit": "^12.1",
