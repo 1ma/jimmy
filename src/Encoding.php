@@ -99,6 +99,11 @@ final readonly class Encoding
         return str_pad($le, $padding, "\x00");
     }
 
+    public static function serN(\GMP $number, int $padding): string
+    {
+        return str_pad(gmp_export($number), $padding, "\x00", \STR_PAD_LEFT);
+    }
+
     public static function encodeVarInt(int $i): string
     {
         if ($i < 0xFD) {

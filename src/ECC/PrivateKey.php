@@ -56,7 +56,7 @@ final readonly class PrivateKey
     public function wif(bool $compressed = true, Network $mode = Network::TESTNET): string
     {
         return Encoding::base58checksum(
-            (Network::TESTNET === $mode ? "\xef" : "\x80").str_pad(gmp_export($this->secret), 32, "\x00", \STR_PAD_LEFT).($compressed ? "\x01" : '')
+            (Network::TESTNET === $mode ? "\xef" : "\x80").Encoding::serN($this->secret, 32).($compressed ? "\x01" : '')
         );
     }
 
@@ -72,8 +72,8 @@ final readonly class PrivateKey
             $z -= S256Params::N();
         }
 
-        $zBytes = str_pad(gmp_export($z), 32, "\x00", \STR_PAD_LEFT);
-        $eBytes = str_pad(gmp_export($this->secret), 32, "\x00", \STR_PAD_LEFT);
+        $zBytes = Encoding::serN($z, 32);
+        $eBytes = Encoding::serN($this->secret, 32);
 
         $k = str_repeat("\x00", 32);
         $v = str_repeat("\x01", 32);
@@ -98,6 +98,6 @@ final readonly class PrivateKey
 
     public function ser256(): string
     {
-        return str_pad(gmp_export($this->secret), 32, "\x00", \STR_PAD_LEFT);
+        return Encoding::serN($this->secret, 32);
     }
 }
