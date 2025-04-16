@@ -37,13 +37,18 @@ final readonly class S256Point
         return new self(null, null);
     }
 
+    public function atInfinity(): bool
+    {
+        return null === $this->x;
+    }
+
     public function add(self $other): self
     {
-        if (null === $this->x) {
+        if ($this->atInfinity()) {
             return $other;
         }
 
-        if (null === $other->x) {
+        if ($other->atInfinity()) {
             return $this;
         }
 
@@ -51,23 +56,13 @@ final readonly class S256Point
             return self::infinity();
         }
 
-        if ($this->equals($other) && 0 == $this->y->num) {
-            return self::infinity();
-        }
+        $lam = $this->equals($other) ?
+            new S256Field(3)->mul($this->x->exp(2))->mul(new S256Field(2)->mul($this->y)->exp(S256Params::P() - 2)) :
+            $other->y->sub($this->y)->mul($other->x->sub($this->x)->exp(S256Params::P() - 2));
 
-        if ($this->equals($other)) {
-            $s = $this->x->exp(2)->mul(new S256Field(3))->add(S256Params::A())->div($this->y->mul(new S256Field(2)));
-            $x = $s->exp(2)->sub($this->x->mul(new S256Field(2)));
-            $y = $s->mul($this->x->sub($x))->sub($other->y);
+        $x3 = $lam->mul($lam)->sub($this->x)->sub($other->x);
 
-            return new static($x, $y);
-        }
-
-        $s = $other->y->sub($this->y)->div($other->x->sub($this->x));
-        $x = $s->exp(2)->sub($this->x)->sub($other->x);
-        $y = $s->mul($this->x->sub($x))->sub($this->y);
-
-        return new static($x, $y);
+        return new self($x3, $this->x->sub($x3)->mul($lam)->sub($this->y));
     }
 
     public function scalarMul(\GMP|int $coefficient): self

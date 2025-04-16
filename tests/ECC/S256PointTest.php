@@ -16,6 +16,14 @@ use PHPUnit\Framework\TestCase;
 
 final class S256PointTest extends TestCase
 {
+    public function testNoSingleNullCoordinate(): void
+    {
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage('If one coordinate is null the other must be null too');
+
+        new S256Point(null, new S256Field(1));
+    }
+
     public function testSecp256k1FundamentalProperties(): void
     {
         // Check that G is a point on the secp256k1 curve
