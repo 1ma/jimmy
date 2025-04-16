@@ -23,7 +23,10 @@ final readonly class PrivateKey
         $this->pubKey = S256Params::G()->scalarMul($this->secret);
     }
 
-    public function sign(\GMP $z): Signature
+    /**
+     * Sign a message using traditional ECDSA.
+     */
+    public function ecdsa(\GMP $z): Signature
     {
         $k = $this->computeRFC6979KParam($z);
 
@@ -36,6 +39,14 @@ final readonly class PrivateKey
         }
 
         return new Signature($r, $s);
+    }
+
+    /**
+     * Sign a message using BIP-340 Schnorr.
+     */
+    public function schnorr(\GMP $z, ?string $auxRand = null): Signature
+    {
+        return new Signature(gmp_init(1), gmp_init(1));
     }
 
     public static function fromWIF(string $wif): self

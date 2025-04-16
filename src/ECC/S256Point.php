@@ -129,7 +129,10 @@ final readonly class S256Point
         return "\x04".Encoding::serN($this->x->num, 32).Encoding::serN($this->y->num, 32);
     }
 
-    public function verify(\GMP $z, Signature $sig): bool
+    /**
+     * Verify a signature according to traditional ECDSA.
+     */
+    public function ecdsa(\GMP $z, Signature $sig): bool
     {
         $sInv = gmp_powm($sig->s, S256Params::N() - 2, S256Params::N());
 
@@ -139,6 +142,14 @@ final readonly class S256Point
         $R = S256Params::G()->scalarMul($u)->add($this->scalarMul($v));
 
         return null !== $R->x && ($R->x->num % S256Params::N()) == $sig->r;
+    }
+
+    /**
+     * Verify a signature according to BIP-340 Schnorr.
+     */
+    public function schnorr(\GMP $z, Signature $sig): bool
+    {
+        return false;
     }
 
     public function __toString(): string
