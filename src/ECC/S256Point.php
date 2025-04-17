@@ -95,6 +95,18 @@ final readonly class S256Point
             && $this->y->equals($other->y);
     }
 
+    public static function liftX(\GMP $x): self
+    {
+        $ySq = gmp_div_r(gmp_powm($x, 3, S256Params::P()) + 7, S256Params::P());
+        $y   = gmp_powm($ySq, gmp_div_q(S256Params::P() + 1, 4), S256Params::P());
+
+        if (gmp_powm($y, 2, S256Params::P()) != $ySq) {
+            return self::infinity();
+        }
+
+        return new self(new S256Field($x), new S256Field(0 == $y % 2 ? $y : S256Params::P() - $y));
+    }
+
     public static function parse(string $sec): self
     {
         if (!self::validSecString($sec)) {
@@ -152,9 +164,25 @@ final readonly class S256Point
     /**
      * Verify a signature according to BIP-340 Schnorr.
      */
-    public function schnorr(\GMP $z, Signature $sig): bool
+    public function schnorr(string $msg, Signature $sig): bool
     {
-        return false;
+        $P = $this;
+        $r = $sig->r;
+        $s = $sig->s;
+
+        if ($P->atInfinity() || $r >= S256Params::P() || $s >= S256Params::N()) {
+            return false;
+        }
+
+        $e = gmp_import(Hashing::taggedHash('BIP0340/challenge', Encoding::serN($r, 32).Encoding::serN($this->x->num, 32).$msg)) % S256Params::N();
+
+        $R = S256Params::G()->scalarMul($s)->add($P->scalarMul(S256Params::N() - $e));
+
+        if ($R->atInfinity() || !$R->hasEvenY() || $R->x->num != $r) {
+            return false;
+        }
+
+        return true;
     }
 
     public function __toString(): string

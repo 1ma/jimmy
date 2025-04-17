@@ -50,7 +50,7 @@ To further emphasize it the library assumes that it runs on testnet by default i
 - [ ] [BIP-0173]: Base32 address format for native v0-16 witness outputs
 - [ ] [BIP-0322]: Generic Signed Message Format
 - [X] [BIP-0325]: Signet
-- [ ] [BIP-0340]: Schnorr Signatures for secp256k1
+- [X] [BIP-0340]: Schnorr Signatures for secp256k1
 - [ ] [BIP-0341]: Taproot
 - [ ] [BIP-0342]: Validation of Taproot Scripts
 - [ ] [BIP-0350]: Bech32m format for v1+ witness addresses

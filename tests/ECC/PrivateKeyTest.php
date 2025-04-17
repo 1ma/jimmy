@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace Bitcoin\Tests\ECC;
 
 use Bitcoin\ECC\PrivateKey;
+use Bitcoin\ECC\S256Point;
+use Bitcoin\ECC\Signature;
 use Bitcoin\Encoding;
 use Bitcoin\Network;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -34,15 +36,32 @@ final class PrivateKeyTest extends TestCase
 
     #[DataProvider('bip340TestVectorProvider')]
     public function testSchnorrSignatures(
+        int $testNumber,
         string $privateKey,
         string $publicKey,
         string $auxRand,
         string $message,
         string $expectedSignature,
-        bool $expectedValidation,
+        bool $expectedVerification,
     ): void {
+        if (14 === $testNumber) {
+            // The public key of test 14 is not valid, as it exceeds the secp256k1 field size
+            $this->expectException(\InvalidArgumentException::class);
+            self::assertFalse($expectedVerification);
+        }
+
+        $point = S256Point::liftX(gmp_import($publicKey));
+
+        $signature = new Signature(
+            gmp_import(substr($expectedSignature, 0, 32)),
+            gmp_import(substr($expectedSignature, 32, 32)),
+            true
+        );
+
+        self::assertSame($expectedVerification, $point->schnorr($message, $signature));
+
         if (empty($privateKey)) {
-            self::markTestSkipped('missing private key (TODO)');
+            return;
         }
 
         $key = new PrivateKey(gmp_import($privateKey));
@@ -67,6 +86,7 @@ final class PrivateKeyTest extends TestCase
             }
 
             $vectors[$description] = [
+                (int) $row['index'],
                 hex2bin($row['secret key']),
                 hex2bin($row['public key']),
                 hex2bin($row['aux_rand']),
@@ -75,6 +95,16 @@ final class PrivateKeyTest extends TestCase
                 'TRUE' === $row['verification result'],
             ];
         }
+
+        $vectors['Test #100: Sample Nostr event signature'] = [
+            100,
+            '',
+            hex2bin('07adfda9c5adc80881bb2a5220f6e3181e0c043b90fa115c4f183464022968e6'),
+            '',
+            hex2bin('d677b5efa1484e3461884d6ba01e78b7ced36ccfc4b5b873c0b4142ea574938f'),
+            hex2bin('49352dbe20322a9cc40433537a147805e2541846c006a3e06d9f90faadb89c83ee6da24807fb9eddc6ed9a1d3c15cd5438df07ec6149d6bf48fe1312c9593567'),
+            true,
+        ];
 
         fclose($f);
 
