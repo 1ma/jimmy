@@ -21,6 +21,10 @@ final readonly class PrivateKey
 
         $this->secret = $secret;
         $this->pubKey = S256Params::G()->scalarMul($this->secret);
+
+        if ($this->pubKey->atInfinity()) {
+            throw new \InvalidArgumentException('Invalid public key (point at infinity)');
+        }
     }
 
     /**
@@ -44,9 +48,36 @@ final readonly class PrivateKey
     /**
      * Sign a message using BIP-340 Schnorr.
      */
-    public function schnorr(\GMP $z, ?string $auxRand = null): Signature
+    public function schnorr(string $msg, ?string $auxRand = null): Signature
     {
-        return new Signature(gmp_init(1), gmp_init(1));
+        // Compute aux_rand from RFC6979 when no external randomness is provided
+        $auxRand = $auxRand ?? $this->computeRFC6979KParam(gmp_import($msg));
+        if (32 !== \strlen($auxRand)) {
+            throw new \InvalidArgumentException('auxRand must be exactly 32 bytes long');
+        }
+
+        $d0 = $this->secret;
+        $P  = $this->pubKey;
+
+        $d = $P->hasEvenY() ? $d0 : S256Params::N() - $d0;
+
+        $t = Encoding::serN($d, 32) ^ Hashing::taggedHash('BIP0340/aux', $auxRand);
+
+        $k0 = gmp_import(Hashing::taggedHash('BIP0340/nonce', $t.Encoding::serN($P->x->num, 32).$msg)) % S256Params::N();
+        if (0 == $k0) {
+            throw new \InvalidArgumentException('Failure. This happens only with negligible probability. Sipa dixit.');
+        }
+
+        $R = S256Params::G()->scalarMul($k0);
+        if ($R->atInfinity()) {
+            throw new \InvalidArgumentException('Failure. This should not happen either');
+        }
+
+        $k = $R->hasEvenY() ? $k0 : S256Params::N() - $k0;
+
+        $e = gmp_import(Hashing::taggedHash('BIP0340/challenge', Encoding::serN($R->x->num, 32).Encoding::serN($P->x->num, 32).$msg)) % S256Params::N();
+
+        return new Signature($R->x->num, gmp_div_r($k + ($e * $d), S256Params::N()), true);
     }
 
     public static function fromWIF(string $wif): self

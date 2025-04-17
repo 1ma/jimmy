@@ -25,4 +25,11 @@ final readonly class Hashing
     {
         return hash_hmac('sha512', $data, $key, true);
     }
+
+    public static function taggedHash(string $tag, string $data): string
+    {
+        $tag = hash('sha256', $tag, true);
+
+        return hash('sha256', $tag.$tag.$data, true);
+    }
 }
