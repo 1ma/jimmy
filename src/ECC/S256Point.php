@@ -42,6 +42,11 @@ final readonly class S256Point
         return null === $this->x;
     }
 
+    public function hasEvenY(): bool
+    {
+        return 0 == $this->y->num % 2;
+    }
+
     public function add(self $other): self
     {
         if ($this->atInfinity()) {

@@ -5,11 +5,15 @@ declare(strict_types=1);
 namespace Bitcoin\Tests\ECC;
 
 use Bitcoin\ECC\PrivateKey;
+use Bitcoin\Encoding;
 use Bitcoin\Network;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 final class PrivateKeyTest extends TestCase
 {
+    private const string BIP340_TEST_VECTOR_PATH = __DIR__.'/../../vendor/bitcoin/bips/bip-0340/test-vectors.csv';
+
     public function testWifSerialization(): void
     {
         $s1 = new PrivateKey(gmp_init(5003));
@@ -26,5 +30,54 @@ final class PrivateKeyTest extends TestCase
         self::assertEquals(gmp_init(5003), PrivateKey::fromWIF('cMahea7zqjxrtgAbB7LSGbcQUr1uX1ojuat9jZodMN8rFTv2sfUK')->secret);
         self::assertEquals(gmp_init(2021 ** 5), PrivateKey::fromWIF('91avARGdfge8E4tZfYLoxeJ5sGBdNJQH4kvjpWAxgzczjbCwxic')->secret);
         self::assertEquals(gmp_init(0x54321DEADBEEF), PrivateKey::fromWIF('KwDiBf89QgGbjEhKnhXJuH7LrciVrZi3qYjgiuQJv1h8Ytr2S53a')->secret);
+    }
+
+    #[DataProvider('bip340TestVectorProvider')]
+    public function testSchnorrSignatures(
+        string $privateKey,
+        string $publicKey,
+        string $auxRand,
+        string $message,
+        string $expectedSignature,
+        bool $expectedValidation,
+    ): void {
+        if (empty($privateKey)) {
+            self::markTestSkipped('missing private key (TODO)');
+        }
+
+        $key = new PrivateKey(gmp_import($privateKey));
+
+        self::assertSame($publicKey, Encoding::serN($key->pubKey->x->num, 32));
+
+        self::assertSame($expectedSignature, $key->schnorr($message, $auxRand)->bip340());
+    }
+
+    public static function bip340TestVectorProvider(): array
+    {
+        $f      = fopen(self::BIP340_TEST_VECTOR_PATH, 'r');
+        $header = fgetcsv($f);
+
+        $vectors = [];
+        while (false !== $row = fgetcsv($f)) {
+            $row = array_combine($header, $row);
+
+            $description = "Test #{$row['index']}";
+            if (!empty($row['comment'])) {
+                $description .= ': '.$row['comment'];
+            }
+
+            $vectors[$description] = [
+                hex2bin($row['secret key']),
+                hex2bin($row['public key']),
+                hex2bin($row['aux_rand']),
+                hex2bin($row['message']),
+                hex2bin($row['signature']),
+                'TRUE' === $row['verification result'],
+            ];
+        }
+
+        fclose($f);
+
+        return $vectors;
     }
 }
