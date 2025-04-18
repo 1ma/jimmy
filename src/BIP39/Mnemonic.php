@@ -136,4 +136,52 @@ final readonly class Mnemonic
         'winter', 'wire', 'wisdom', 'wise', 'wish', 'witness', 'wolf', 'woman', 'wonder', 'wood', 'wool', 'word', 'work', 'world', 'worry', 'worth',
         'wrap', 'wreck', 'wrestle', 'wrist', 'write', 'wrong', 'yard', 'year', 'yellow', 'you', 'young', 'youth', 'zebra', 'zero', 'zone', 'zoo',
     ];
+
+    private const array HEX_TABLE = [
+        '0000' => '0', '0001' => '1', '0010' => '2', '0011' => '3',
+        '0100' => '4', '0101' => '5', '0110' => '6', '0111' => '7',
+        '1000' => '8', '1001' => '9', '1010' => 'a', '1011' => 'b',
+        '1100' => 'c', '1101' => 'd', '1110' => 'e', '1111' => 'f',
+    ];
+
+    /**
+     * @param array<string> $words
+     */
+    public static function decode(array $words): string
+    {
+        // TODO: implement 15, 18, 21 and 24 length seed decoding
+        if (12 !== \count($words)) {
+            throw new \InvalidArgumentException('Only 12 word seeds are supported');
+        }
+
+        $bits = '';
+        foreach ($words as $word) {
+            if (false === $position = array_search($word, self::WORDLIST)) {
+                throw new \InvalidArgumentException('Unknown word: '.$word);
+            }
+
+            $bits .= str_pad(decbin($position), 11, '0', \STR_PAD_LEFT);
+        }
+
+        $hex = self::toHex($bits);
+
+        $seed = hex2bin(substr($hex, 0, 32));
+        $chk  = substr($hex, 32, 1);
+
+        if (hash('sha256', $seed)[0] !== $chk) {
+            throw new \InvalidArgumentException('Invalid BIP-39 checksum');
+        }
+
+        return $seed;
+    }
+
+    private static function toHex(string $bits): string
+    {
+        $hex = '';
+        for ($i = 0; $i < \strlen($bits); $i += 4) {
+            $hex .= self::HEX_TABLE[substr($bits, $i, 4)];
+        }
+
+        return $hex;
+    }
 }

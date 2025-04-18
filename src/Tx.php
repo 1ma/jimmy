@@ -238,12 +238,12 @@ final class Tx
                 $scriptSig = $redeemScript ?? $txIn->prevOutput($this->network)->scriptPubKey;
             }
 
-            $tx .= (new Input(
+            $tx .= new Input(
                 $txIn->prevTxId,
                 $txIn->prevIndex,
                 $scriptSig,
                 $txIn->seqNum
-            ))->serialize();
+            )->serialize();
         }
 
         $tx .= Encoding::encodeVarInt(\count($this->txOuts));

@@ -14,6 +14,8 @@ final readonly class ExtendedKey
     public const string MASTER_FINGERPRINT = '00000000';
 
     private const string MASTER_HMAC_KEY = 'Bitcoin seed';
+    private const int MASTER_DEPTH       = 0;
+    private const int MASTER_CHILD       = 0;
 
     public Version $version;
     public int $depth;
@@ -78,9 +80,9 @@ final readonly class ExtendedKey
 
         return new self(
             $mainnet ? Version::MAINNET_XPRV : Version::TESTNET_TPRV,
-            0,
+            self::MASTER_DEPTH,
             self::MASTER_FINGERPRINT,
-            0,
+            self::MASTER_CHILD,
             substr($I, 32, 32),
             new PrivateKey(gmp_import(substr($I, 0, 32)))
         );
