@@ -144,14 +144,18 @@ final readonly class Mnemonic
         '1100' => 'c', '1101' => 'd', '1110' => 'e', '1111' => 'f',
     ];
 
+    private const int PBKDF_ROUNDS = 2048;
+
+    private const string PASSPHRASE_PREFIX = 'mnemonic';
+
     /**
      * @param array<string> $words
      */
-    public static function decode(array $words): string
+    public static function decode(array $words, string $passphrase = ''): string
     {
-        // TODO: implement 15, 18, 21 and 24 length seed decoding
-        if (12 !== \count($words)) {
-            throw new \InvalidArgumentException('Only 12 word seeds are supported');
+        $count = \count($words);
+        if (!\in_array(\count($words), [12, 15, 18, 21, 24], true)) {
+            throw new \InvalidArgumentException('Unsupported mnemonic length: '.$count);
         }
 
         $bits = '';
@@ -163,25 +167,40 @@ final readonly class Mnemonic
             $bits .= str_pad(decbin($position), 11, '0', \STR_PAD_LEFT);
         }
 
-        $hex = self::toHex($bits);
+        $cs       = $count / 3;
+        $ent      = self::toRaw(substr($bits, 0, \strlen($bits) - $cs));
+        $checksum = substr(self::toBits(hash('sha256', $ent)), 0, $cs);
 
-        $seed = hex2bin(substr($hex, 0, 32));
-        $chk  = substr($hex, 32, 1);
-
-        if (hash('sha256', $seed)[0] !== $chk) {
+        if (substr($bits, -$cs) !== $checksum) {
             throw new \InvalidArgumentException('Invalid BIP-39 checksum');
         }
 
-        return $seed;
+        return hash_pbkdf2(
+            'sha512',
+            implode(' ', $words),
+            self::PASSPHRASE_PREFIX.$passphrase,
+            self::PBKDF_ROUNDS,
+            binary: true
+        );
     }
 
-    private static function toHex(string $bits): string
+    private static function toRaw(string $bits): string
     {
         $hex = '';
         for ($i = 0; $i < \strlen($bits); $i += 4) {
             $hex .= self::HEX_TABLE[substr($bits, $i, 4)];
         }
 
-        return $hex;
+        return hex2bin($hex);
+    }
+
+    private static function toBits(string $hex): string
+    {
+        $bits = '';
+        for ($i = 0; $i < \strlen($hex); ++$i) {
+            $bits .= array_search($hex[$i], self::HEX_TABLE, true);
+        }
+
+        return $bits;
     }
 }
