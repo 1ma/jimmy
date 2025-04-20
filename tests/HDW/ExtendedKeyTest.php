@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-namespace Bitcoin\Tests\BIP32;
+namespace Bitcoin\Tests\HDW;
 
-use Bitcoin\BIP32\DerivationPath;
-use Bitcoin\BIP32\ExtendedKey;
-use Bitcoin\BIP32\Version;
 use Bitcoin\ECC\S256Params;
 use Bitcoin\Hashing;
+use Bitcoin\HDW\DerivationPath;
+use Bitcoin\HDW\ExtendedKey;
+use Bitcoin\HDW\Version;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Bitcoin\BIP32;
+namespace Bitcoin\HDW;
 
 use Bitcoin\ECC\PrivateKey;
 use Bitcoin\ECC\S256Point;

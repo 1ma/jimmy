@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Bitcoin\BIP39;
+namespace Bitcoin\HDW;
 
 final readonly class Mnemonic
 {

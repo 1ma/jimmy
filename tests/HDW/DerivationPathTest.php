@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace Bitcoin\Tests\BIP32;
+namespace Bitcoin\Tests\HDW;
 
-use Bitcoin\BIP32\DerivationPath;
-use Bitcoin\BIP32\ExtendedKey;
+use Bitcoin\HDW\DerivationPath;
+use Bitcoin\HDW\ExtendedKey;
 use PHPUnit\Framework\TestCase;
 
 final class DerivationPathTest extends TestCase

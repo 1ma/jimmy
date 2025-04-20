@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace BIP32;
+namespace Bitcoin\Tests\HDW;
 
-use Bitcoin\BIP32\CKDFunctions;
-use Bitcoin\BIP32\ExtendedKey;
+use Bitcoin\HDW\CKDFunctions;
+use Bitcoin\HDW\ExtendedKey;
 use PHPUnit\Framework\TestCase;
 
 final class CKDFunctionsTest extends TestCase

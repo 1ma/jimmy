@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace Bitcoin\Tests\BIP39;
+namespace Bitcoin\Tests\HDW;
 
-use Bitcoin\BIP32\ExtendedKey;
-use Bitcoin\BIP39\Mnemonic;
+use Bitcoin\HDW\ExtendedKey;
+use Bitcoin\HDW\Mnemonic;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
