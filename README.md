@@ -3,13 +3,24 @@
 [![CI](https://github.com/1ma/jimmy/actions/workflows/ci.yml/badge.svg)](https://github.com/1ma/jimmy/actions/workflows/ci.yml)
 [![Coverage](https://scrutinizer-ci.com/g/1ma/jimmy/badges/coverage.png?b=master)](https://scrutinizer-ci.com/g/1ma/jimmy/?branch=master)
 
-Jimmy Song's [Programming Bitcoin](https://github.com/jimmysong/programmingbitcoin/) code implemented in PHP.
+This is 1ma's unfinished Bitcoin Cathedral of Doom.
+
+<div align="center">
+  <img alt="cathedral of doom" src="https://i.imgur.com/fbPVNfG.png">
+</div>
+
+
+## Installation
 
 ```shell
 composer require uma/jimmy:dev-master
 ```
 
+
 ## Disclaimer
+
+This project started as a PHP implementation of Jimmy Song's [Programming Bitcoin](https://github.com/jimmysong/programmingbitcoin/) library.
+However, since completing the book the library has kept evolving and turned into a sprawling testbed where I implement any other aspects of Bitcoin I find interesting.
 
 This is toy grade code meant to learn concepts, not to be used in real projects that reach production.
 

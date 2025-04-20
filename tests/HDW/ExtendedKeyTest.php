@@ -61,15 +61,15 @@ final class ExtendedKeyTest extends TestCase
         self::assertSame($masterPrivateKey, gmp_export($masterXprv->key->secret));
 
         $masterXpub = $masterXprv->xpub();
-        self:self::assertSame($masterPublicKey, $masterXpub->key->sec());
+        self::assertSame($masterPublicKey, $masterXpub->key->sec());
 
         $path      = DerivationPath::parse('m/1337');
         $childXPrv = $path->derive($masterXprv);
         $childXPub = $path->derive($masterXpub);
 
         [$firstPrivateKey] = DerivationPath::range($childXPrv, 0, 1);
-
-        self::assertSame(DerivationPath::range($childXPub, 0, 1)[0]->sec(), $firstPrivateKey->pubKey->sec());
+        [$firstPublicKey]  = DerivationPath::range($childXPub, 0, 1);
+        self::assertSame($firstPublicKey->sec(), $firstPrivateKey->pubKey->sec());
 
         // At this point I know private key m/1337/0 and xpub m/1337
         // I should be able to recover private key m/1337 just from that
@@ -77,9 +77,9 @@ final class ExtendedKeyTest extends TestCase
         $parentSecret = ($firstPrivateKey->secret - $tweak) % S256Params::N();
 
         // m/1337 private key recovered
-        self::assertSame(gmp_export($parentSecret), gmp_export($childXPrv->key->secret));
+        self::assertSame(gmp_export($childXPrv->key->secret), gmp_export($parentSecret));
 
-        // Now let's recover the master private key from the private we just recovered
+        // Now let's recover the master private key from the private key we just recovered
         $tweak        = gmp_import(substr(Hashing::sha512hmac($masterXpub->key->sec().pack('N', 1337), $masterXpub->chainCode), 0, 32));
         $masterSecret = ($parentSecret - $tweak) % S256Params::N();
 
