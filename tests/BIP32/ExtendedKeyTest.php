@@ -7,6 +7,8 @@ namespace Bitcoin\Tests\BIP32;
 use Bitcoin\BIP32\DerivationPath;
 use Bitcoin\BIP32\ExtendedKey;
 use Bitcoin\BIP32\Version;
+use Bitcoin\ECC\S256Params;
+use Bitcoin\Hashing;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
@@ -47,6 +49,42 @@ final class ExtendedKeyTest extends TestCase
 
         $tpub = ExtendedKey::parse('tpubDDLahZuFszwU6P4hEiJJ5tWaSrCvFoH2CBCuC5uCPyNaNnVMYZqTLH78pygnw4JajScUM3NoesTQ2FWhKFD4ii5F6rV8vwWgTmFWHjY9KAx');
         self::assertSame((string) $tpub, (string) $tpub->xpub());
+    }
+
+    public function testMasterPrivateKeyRecoveryFromUnhardenedChildPrivateKey(): void
+    {
+        $seed             = '00000000000000000000000000000000';
+        $masterPrivateKey = hex2bin('c2321d1882fdf47714036f5dd8049b0ff6c1010539a2bd21cb45b658a1ba3872');
+        $masterPublicKey  = hex2bin('033ecd74acb606a5bb7f5fdb1537b36995cc0eb1efa59ca209a974e980837a0c3a');
+
+        $masterXprv = ExtendedKey::create($seed, mainnet: true);
+        self::assertSame($masterPrivateKey, gmp_export($masterXprv->key->secret));
+
+        $masterXpub = $masterXprv->xpub();
+        self:self::assertSame($masterPublicKey, $masterXpub->key->sec());
+
+        $path      = DerivationPath::parse('m/1337');
+        $childXPrv = $path->derive($masterXprv);
+        $childXPub = $path->derive($masterXpub);
+
+        [$firstPrivateKey] = DerivationPath::range($childXPrv, 0, 1);
+
+        self::assertSame(DerivationPath::range($childXPub, 0, 1)[0]->sec(), $firstPrivateKey->pubKey->sec());
+
+        // At this point I know private key m/1337/0 and xpub m/1337
+        // I should be able to recover private key m/1337 just from that
+        $tweak        = gmp_import(substr(Hashing::sha512hmac($childXPub->key->sec().pack('N', 0), $childXPub->chainCode), 0, 32));
+        $parentSecret = ($firstPrivateKey->secret - $tweak) % S256Params::N();
+
+        // m/1337 private key recovered
+        self::assertSame(gmp_export($parentSecret), gmp_export($childXPrv->key->secret));
+
+        // Now let's recover the master private key from the private we just recovered
+        $tweak        = gmp_import(substr(Hashing::sha512hmac($masterXpub->key->sec().pack('N', 1337), $masterXpub->chainCode), 0, 32));
+        $masterSecret = ($parentSecret - $tweak) % S256Params::N();
+
+        // m private key recovered
+        self::assertSame($masterPrivateKey, gmp_export($masterSecret));
     }
 
     #[DataProvider('Bip32ValidTestVectorsProvider')]

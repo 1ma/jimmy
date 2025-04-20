@@ -28,7 +28,7 @@ class CKDFunctions
         $I = Hashing::sha512hmac($hmacDataPrefix.self::ser32($index), $cParent);
 
         $kChild = new PrivateKey(gmp_div_r(gmp_import(substr($I, 0, 32)) + $kParent->secret, S256Params::N()));
-        $cChild = substr($I, 32, 64);
+        $cChild = substr($I, 32, 32);
 
         return [$kChild, $cChild];
     }
@@ -47,7 +47,7 @@ class CKDFunctions
         $I = Hashing::sha512hmac($KParent->sec().self::ser32($index), $cParent);
 
         $kChild = new PrivateKey(gmp_import(substr($I, 0, 32)))->pubKey->add($KParent);
-        $cChild = substr($I, 32, 64);
+        $cChild = substr($I, 32, 32);
 
         return [$kChild, $cChild];
     }
