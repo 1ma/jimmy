@@ -251,7 +251,7 @@ final class S256PointTest extends TestCase
         $pubkey = S256Point::parse($sec);
 
         self::assertSame('1PMycacnJaSqwwJqjawXBErnLsZ7RkXUAs', $pubkey->address(compressed: true, mode: Network::MAINNET));
-        self::assertSame(Hashing::hash160($sec), Encoding::decodeLegacyAddress('1PMycacnJaSqwwJqjawXBErnLsZ7RkXUAs'));
+        self::assertSame(Hashing::hash160($sec), Encoding::decodeAddress('1PMycacnJaSqwwJqjawXBErnLsZ7RkXUAs'));
     }
 
     public function testInvalidAddressDecoding(): void
@@ -261,6 +261,6 @@ final class S256PointTest extends TestCase
 
         $garbage    = "\x00".random_bytes(22);
         $badAddress = Encoding::base58checksum($garbage);
-        Encoding::decodeLegacyAddress($badAddress);
+        Encoding::decodeAddress($badAddress);
     }
 }

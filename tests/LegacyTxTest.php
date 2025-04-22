@@ -93,8 +93,8 @@ TXT;
     {
         $txIn = new Tx\Input('f781eac22fd176430c7dbf37b9e55dcb2128089854b7d7c0f43eb61012d610e5', 0, seqNum: Tx\Input::DISABLE_REPLACE_BY_FEE);
 
-        $txOut1 = new Tx\Output(14424, Tx\Script::payToPubKeyHash(Encoding::decodeLegacyAddress('n14VanAQTFrZcMV8GqfUQmors2NCUBXCin')));
-        $txOut2 = new Tx\Output(4878, Tx\Script::payToPubKeyHash(Encoding::decodeLegacyAddress('mfoZu55yYex1X575MRpHJc8yDDttzvyx3M')));
+        $txOut1 = new Tx\Output(14424, Tx\Script::payToPubKeyHash(Encoding::decodeAddress('n14VanAQTFrZcMV8GqfUQmors2NCUBXCin')));
+        $txOut2 = new Tx\Output(4878, Tx\Script::payToPubKeyHash(Encoding::decodeAddress('mfoZu55yYex1X575MRpHJc8yDDttzvyx3M')));
         $txOut3 = new Tx\Output(0, Tx\Script::opReturn('Aquesta transacció ha estat construïda amb PHP, sang i llàgrimes.'));
 
         $expectedDebugView = <<<TXT
