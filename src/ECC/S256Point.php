@@ -140,6 +140,11 @@ final readonly class S256Point
         return Encoding::hash160ToPayToPublicKeyHashAddress(Hashing::hash160($this->sec($compressed)), $mode);
     }
 
+    public function bech32(Network $mode = Network::TESTNET): string
+    {
+        return 'bc1qwakawaka';
+    }
+
     public function sec(bool $compressed = true): string
     {
         if ($compressed) {

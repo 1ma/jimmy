@@ -32,8 +32,12 @@ final readonly class Encoding
         return self::base58encode($data.substr(Hashing::hash256($data), 0, 4));
     }
 
-    public static function decodeLegacyAddress(string $address): string
+    public static function decodeAddress(string $address): string
     {
+        if (in_array(substr($address, 0, 3), ['bc1', 'tb1'], true)) {
+            return ''; // Bech32 decoding
+        }
+
         $data = self::base58decode($address, check: true);
         if (21 !== \strlen($data)) {
             throw new \InvalidArgumentException('Unexpected data length');
