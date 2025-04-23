@@ -9,9 +9,6 @@ final readonly class Encoding
     private const string BTC_BASE58_ALPHABET = '123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz';
     private const string GMP_BASE58_ALPHABET = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuv';
 
-    private const string P2PKH_MAINNET_PREFIX = "\x00";
-    private const string P2PKH_TESTNET_PREFIX = "\x6f";
-
     private const string P2SH_MAINNET_PREFIX = "\x05";
     private const string P2SH_TESTNET_PREFIX = "\xc4";
 
@@ -34,7 +31,7 @@ final readonly class Encoding
 
     public static function decodeAddress(string $address): string
     {
-        if (in_array(substr($address, 0, 3), ['bc1', 'tb1'], true)) {
+        if (\in_array(substr($address, 0, 3), ['bc1', 'tb1'], true)) {
             return ''; // Bech32 decoding
         }
 
@@ -78,11 +75,6 @@ final readonly class Encoding
         }
 
         return $decoded;
-    }
-
-    public static function hash160ToPayToPublicKeyHashAddress(string $hash, Network $mode = Network::TESTNET): string
-    {
-        return self::base58checksum((Network::TESTNET === $mode ? self::P2PKH_TESTNET_PREFIX : self::P2PKH_MAINNET_PREFIX).$hash);
     }
 
     public static function hash160ToPayToScriptKeyHashAddress(string $hash, Network $mode = Network::TESTNET): string

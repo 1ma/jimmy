@@ -18,6 +18,9 @@ final readonly class S256Point
     public ?S256Field $x;
     public ?S256Field $y;
 
+    private const string P2PKH_MAINNET_PREFIX = "\x00";
+    private const string P2PKH_TESTNET_PREFIX = "\x6f";
+
     public function __construct(?S256Field $x, ?S256Field $y)
     {
         if ((null === $x && null !== $y) || (null === $y && null !== $x)) {
@@ -137,7 +140,7 @@ final readonly class S256Point
 
     public function address(bool $compressed = true, Network $mode = Network::TESTNET): string
     {
-        return Encoding::hash160ToPayToPublicKeyHashAddress(Hashing::hash160($this->sec($compressed)), $mode);
+        return self::hash160ToPayToPublicKeyHashAddress(Hashing::hash160($this->sec($compressed)), $mode);
     }
 
     public function bech32(Network $mode = Network::TESTNET): string
@@ -212,5 +215,10 @@ final readonly class S256Point
     {
         return (33 === \strlen($data) && ("\x02" === $data[0] || "\x03" === $data[0]))
             || (65 === \strlen($data) && "\x04" === $data[0]);
+    }
+
+    private static function hash160ToPayToPublicKeyHashAddress(string $hash, Network $mode = Network::TESTNET): string
+    {
+        return Encoding::base58checksum((Network::TESTNET === $mode ? self::P2PKH_TESTNET_PREFIX : self::P2PKH_MAINNET_PREFIX).$hash);
     }
 }
