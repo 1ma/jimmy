@@ -45,10 +45,10 @@ final class ExtendedKeyTest extends TestCase
     {
         $tprv = ExtendedKey::parse('tprv8ZgxMBicQKsPeGzpnH2ttAuasJdFYddkhaxBADnFLMzfNwafbZQYdd4ar4knzAfqzYJWHDEwHaqHY3qDXqhFBB4ymsLfXsMPYYuRVXGWwSG');
 
-        self::assertSame('tpubD6NzVbkrYhZ4Xk2cfvhVHaZhSL9BhxpfGtYxSjpYkdo4DRqSDxE8p7gT2Db5hShoXGwwwEHVkvgTdBBP9eR5SRZLxjauXztNVaG2wi9AGzT', (string) $tprv->xpub());
+        self::assertSame('tpubD6NzVbkrYhZ4Xk2cfvhVHaZhSL9BhxpfGtYxSjpYkdo4DRqSDxE8p7gT2Db5hShoXGwwwEHVkvgTdBBP9eR5SRZLxjauXztNVaG2wi9AGzT', $tprv->xpub()->serialize());
 
         $tpub = ExtendedKey::parse('tpubDDLahZuFszwU6P4hEiJJ5tWaSrCvFoH2CBCuC5uCPyNaNnVMYZqTLH78pygnw4JajScUM3NoesTQ2FWhKFD4ii5F6rV8vwWgTmFWHjY9KAx');
-        self::assertSame((string) $tpub, (string) $tpub->xpub());
+        self::assertSame($tpub->serialize(), $tpub->xpub()->serialize());
     }
 
     public function testMasterPrivateKeyRecoveryFromUnhardenedChildPrivateKey(): void
@@ -98,10 +98,10 @@ final class ExtendedKeyTest extends TestCase
         $masterXPrv  = ExtendedKey::create(hex2bin($seed), mainnet: true);
         $derivedXPrv = DerivationPath::parse($path)->derive($masterXPrv);
 
-        self::assertSame($expectedXPrv, (string) $derivedXPrv);
+        self::assertSame($expectedXPrv, $derivedXPrv->serialize());
         self::assertSame($expectedFingerprint, $derivedXPrv->fingerprint());
 
-        self::assertSame($expectedXPub, (string) $derivedXPrv->xpub());
+        self::assertSame($expectedXPub, $derivedXPrv->xpub()->serialize());
         self::assertSame($derivedXPrv->fingerprint(), $derivedXPrv->xpub()->fingerprint());
     }
 

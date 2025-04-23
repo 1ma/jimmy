@@ -109,7 +109,7 @@ final readonly class ExtendedKey
         return new self($version, $depth, $fingerprint, $childNumber, $chainCode, $key);
     }
 
-    public function __toString(): string
+    public function serialize(): string
     {
         $version     = $this->version->value;
         $depth       = pack('C', $this->depth);
