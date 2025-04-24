@@ -69,6 +69,7 @@
     },
     "require-dev": {
         "bitcoin/bips": "dev-master",
+        "bitwasp/bech32": "^0.0.1",
         "c2sp/wycheproof": "dev-master",
         "friendsofphp/php-cs-fixer": "^3.75",
         "phpunit/phpunit": "^12.1",
