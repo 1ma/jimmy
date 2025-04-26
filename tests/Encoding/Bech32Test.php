@@ -12,6 +12,13 @@ final class Bech32Test extends TestCase
 {
     private const string TEST_VECTOR_EXTRACTOR = 'python3 '.__DIR__.'/../bech32_sipatronic_extractor.py';
 
+    public function testConvertBits(): void
+    {
+        self::assertSame([0, 0], Bech32::convertBits([0], 8, 5, true));
+        self::assertSame([0, 4], Bech32::convertBits([1], 8, 5, true));
+        self::assertSame([0, 4, 0, 16], Bech32::convertBits([1, 1], 8, 5, true));
+    }
+
     #[DataProvider('validAddressProvider')]
     public function testValidAddress(string $address, string $program): void
     {
@@ -25,13 +32,6 @@ final class Bech32Test extends TestCase
         return json_decode(shell_exec(self::TEST_VECTOR_EXTRACTOR))->VALID_ADDRESS;
     }
 
-    public function testConvertBits(): void
-    {
-        self::assertSame([0, 0], Bech32::convertBits([0], 8, 5, true));
-        self::assertSame([0, 4], Bech32::convertBits([1], 8, 5, true));
-        self::assertSame([0, 4, 0, 16], Bech32::convertBits([1, 1], 8, 5, true));
-    }
-
     /**
      * @param int[] $program
      */
@@ -42,5 +42,41 @@ final class Bech32Test extends TestCase
         }
 
         return pack('C*', ...array_merge([$version, \count($program)], $program));
+    }
+
+    #[DataProvider('validBech32Provider')]
+    public function testValidBech32Strings(string $data): void
+    {
+        [$hrp, $decoded, $spec] = Bech32::decode($data);
+
+        self::assertSame(strtolower($data), Bech32::encode($decoded, $hrp, $spec));
+    }
+
+    public static function validBech32Provider(): array
+    {
+        $allTests = json_decode(shell_exec(self::TEST_VECTOR_EXTRACTOR));
+
+        return array_map(
+            static fn (string $v): array => [$v],
+            array_merge($allTests->VALID_BECH32, $allTests->VALID_BECH32M)
+        );
+    }
+
+    #[DataProvider('invalidBech32Provider')]
+    public function testInvalidBech32Strings(string $data): void
+    {
+        self::expectException(\InvalidArgumentException::class);
+
+        Bech32::decode($data);
+    }
+
+    public static function invalidBech32Provider(): array
+    {
+        $allTests = json_decode(shell_exec(self::TEST_VECTOR_EXTRACTOR));
+
+        return array_map(
+            static fn (string $v): array => [$v],
+            array_merge($allTests->INVALID_BECH32, $allTests->INVALID_BECH32M)
+        );
     }
 }

@@ -100,6 +100,9 @@ final readonly class Bech32
         }
 
         $spec = self::verifyChecksum($hrp, $data);
+        if (!\in_array($spec, [self::BECH32_CONST, self::BECH32M_CONST], true)) {
+            throw new \InvalidArgumentException();
+        }
 
         return [$hrp, \array_slice($data, 0, -6), $spec];
     }
