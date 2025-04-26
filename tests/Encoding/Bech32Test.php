@@ -12,19 +12,14 @@ final class Bech32Test extends TestCase
 {
     private const string TEST_VECTOR_EXTRACTOR = 'python3 '.__DIR__.'/../bech32_sipatronic_extractor.py';
 
-    public function testConvertBits(): void
-    {
-        self::assertSame([0, 0], Bech32::convertBits([0], 8, 5, true));
-        self::assertSame([0, 4], Bech32::convertBits([1], 8, 5, true));
-        self::assertSame([0, 4, 0, 16], Bech32::convertBits([1, 1], 8, 5, true));
-    }
-
     #[DataProvider('validAddressProvider')]
     public function testValidAddress(string $address, string $program): void
     {
         [$version, $decodedProgram] = Bech32::segwitDecode($address, strtolower(substr($address, 0, 2)));
 
         self::assertSame(hex2bin($program), self::segwitScriptPubKey($version, $decodedProgram));
+
+        self::assertSame(strtolower($address), Bech32::segwitEncode($version, $decodedProgram, strtolower(substr($address, 0, 2))));
     }
 
     public static function validAddressProvider(): array
@@ -106,5 +101,18 @@ final class Bech32Test extends TestCase
             static fn (string $v): array => [$v],
             array_merge($allTests->INVALID_BECH32, $allTests->INVALID_BECH32M)
         );
+    }
+
+    #[DataProvider('invalidAddressEncodingProvider')]
+    public function testInvalidAddressEncoding(string $hrp, int $version, int $length): void
+    {
+        $this->expectException(\InvalidArgumentException::class);
+
+        Bech32::segwitEncode($version, array_fill(0, $length, 0), $hrp);
+    }
+
+    public static function invalidAddressEncodingProvider(): array
+    {
+        return json_decode(shell_exec(self::TEST_VECTOR_EXTRACTOR))->INVALID_ADDRESS_ENC;
     }
 }
