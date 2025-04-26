@@ -54,7 +54,7 @@ final readonly class Bech32
             throw new \InvalidArgumentException();
         }
 
-        if (0 === $data[0] && !\in_array($spec, [self::BECH32_CONST, self::BECH32M_CONST], true)) {
+        if ((0 === $data[0] && self::BECH32_CONST !== $spec) || (0 !== $data[0] && self::BECH32M_CONST !== $spec)) {
             throw new \InvalidArgumentException();
         }
 

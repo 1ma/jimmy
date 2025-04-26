@@ -44,6 +44,34 @@ final class Bech32Test extends TestCase
         return pack('C*', ...array_merge([$version, \count($program)], $program));
     }
 
+    #[DataProvider('invalidAddressProvider')]
+    public function testInvalidAddress(string $invalidAddress): void
+    {
+        $exceptions = 0;
+
+        try {
+            Bech32::segwitDecode($invalidAddress, Bech32::TESTNET_HRP);
+        } catch (\InvalidArgumentException) {
+            ++$exceptions;
+        }
+
+        try {
+            Bech32::segwitDecode($invalidAddress, Bech32::MAINNET_HRP);
+        } catch (\InvalidArgumentException) {
+            ++$exceptions;
+        }
+
+        self::assertSame(2, $exceptions);
+    }
+
+    public static function invalidAddressProvider(): array
+    {
+        return array_map(
+            static fn (string $v): array => [$v],
+            json_decode(shell_exec(self::TEST_VECTOR_EXTRACTOR))->INVALID_ADDRESS
+        );
+    }
+
     #[DataProvider('validBech32Provider')]
     public function testValidBech32Strings(string $data): void
     {
