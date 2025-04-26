@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace Bitcoin\Encoding;
 
-use Bitcoin\Tx\Script;
-
 final readonly class Bech32
 {
     public const string MAINNET_HRP = 'bc';
@@ -17,18 +15,19 @@ final readonly class Bech32
     private const int BECH32_CONST  = 1;
     private const int BECH32M_CONST = 0x2BC830A3;
 
-    public static function segwitEncode(Script $script, string $hrp = self::TESTNET_HRP): string
+    /**
+     * @param int[] $program
+     */
+    public static function segwitEncode(int $version, array $program, string $hrp = self::TESTNET_HRP): string
     {
-        if (!$script->isP2WPKH() && !$script->isP2WSH()) {
-            throw new \InvalidArgumentException('Only P2WPKH and P2WSH scripts allowed');
-        }
+        $spec = 0 === $version ? self::BECH32_CONST : self::BECH32M_CONST;
 
-        $version  = $script->cmds[0];
-        $unpacked = array_values(unpack('C*', $script->cmds[1]));
+        $address = self::encode(array_merge([$version], self::convertBits($program, 8, 5, true)), $hrp, $spec);
 
-        $script = array_merge([$version], self::convertBits($unpacked, 8, 5, true));
+        // Will throw an exception if $address is invalid
+        self::segwitDecode($address, $hrp);
 
-        return self::encode($script, $hrp, self::BECH32_CONST);
+        return $address;
     }
 
     /**
@@ -110,7 +109,7 @@ final readonly class Bech32
     /**
      * Based on Pieter Wuille's convertbits function at segwit_addr.py.
      */
-    public static function convertBits(array $data, int $fromBits, int $toBits, bool $pad = true): array
+    private static function convertBits(array $data, int $fromBits, int $toBits, bool $pad = true): array
     {
         $acc    = 0;
         $bits   = 0;
