@@ -151,10 +151,10 @@ final readonly class Mnemonic
     /**
      * @param array<string> $words
      */
-    public static function decode(array $words, string $passphrase = ''): string
+    public static function decodeEntropy(array $words): string
     {
         $count = \count($words);
-        if (!\in_array(\count($words), [12, 15, 18, 21, 24], true)) {
+        if (!\in_array($count, [12, 15, 18, 21, 24], true)) {
             throw new \InvalidArgumentException('Unsupported mnemonic length: '.$count);
         }
 
@@ -174,6 +174,17 @@ final readonly class Mnemonic
         if (substr($bits, -$cs) !== $checksum) {
             throw new \InvalidArgumentException('Invalid BIP-39 checksum');
         }
+
+        return $ent;
+    }
+
+    /**
+     * @param array<string> $words
+     */
+    public static function deriveSeed(array $words, string $passphrase = ''): string
+    {
+        // Validate checksum
+        self::decodeEntropy($words);
 
         return hash_pbkdf2(
             'sha512',

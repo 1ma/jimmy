@@ -26,9 +26,12 @@ final class MnemonicTest extends TestCase
     }
 
     #[DataProvider('trezorEnglishVectorsProvider')]
-    public function testTrezorVectors(string $entropy, string $words, string $seed, string $xprv): void
+    public function testTrezorVectors(string $entropy, string $mnemonic, string $seed, string $xprv): void
     {
-        self::assertSame(hex2bin($seed), Mnemonic::decode(explode(' ', $words), 'TREZOR'));
+        $words = explode(' ', $mnemonic);
+
+        self::assertSame(hex2bin($entropy), Mnemonic::decodeEntropy($words));
+        self::assertSame(hex2bin($seed), Mnemonic::deriveSeed($words, 'TREZOR'));
         self::assertSame($xprv, ExtendedKey::create(hex2bin($seed), mainnet: true)->serialize());
     }
 
