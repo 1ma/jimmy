@@ -27,6 +27,11 @@ final readonly class PrivateKey
         }
     }
 
+    public function tweak(\GMP $t): self
+    {
+        return new self(gmp_div_r($this->secret + $t, S256Params::N()));
+    }
+
     /**
      * Sign a message using traditional ECDSA.
      */

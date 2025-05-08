@@ -34,6 +34,14 @@ final class PrivateKeyTest extends TestCase
         self::assertEquals(gmp_init(0x54321DEADBEEF), PrivateKey::fromWIF('KwDiBf89QgGbjEhKnhXJuH7LrciVrZi3qYjgiuQJv1h8Ytr2S53a')->secret);
     }
 
+    public function testKeyTweaking(): void
+    {
+        $t   = gmp_init('0xC90FDAA22168C234C4C6628B80DC1CD129024E088A67CC74020BBEA63B14E5C9');
+        $prv = new PrivateKey(gmp_init('0xB7E151628AED2A6ABF7158809CF4F3C762E7160F38B4DA56A784D9045190CFEF'));
+
+        self::assertEquals($prv->tweak($t)->pubKey, $prv->pubKey->tweak($t));
+    }
+
     #[DataProvider('bip340TestVectorProvider')]
     public function testSchnorrSignatures(
         int $testNumber,

@@ -47,6 +47,11 @@ final readonly class S256Point
         return 0 == $this->y->num % 2;
     }
 
+    public function tweak(\GMP $t): self
+    {
+        return $this->add(S256Params::G()->scalarMul($t));
+    }
+
     public function add(self $other): self
     {
         if ($this->atInfinity()) {
