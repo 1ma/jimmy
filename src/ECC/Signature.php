@@ -116,7 +116,7 @@ final readonly class Signature
      */
     public function bip340(): string
     {
-        return Encoding::serN($this->r, 32).Encoding::serN($this->s, 32);
+        return Encoding\Endian::toBE($this->r, 32).Encoding\Endian::toBE($this->s, 32);
     }
 
     public function __toString(): string

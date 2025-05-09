@@ -31,23 +31,23 @@ final readonly class Block
     public static function parse($stream): self
     {
         return new self(
-            version: gmp_intval(Encoding::fromLE(fread($stream, 4))),
+            version: gmp_intval(Encoding\Endian::fromLE(fread($stream, 4))),
             prevBlock: bin2hex(strrev(fread($stream, 32))),
             merkleRoot: bin2hex(strrev(fread($stream, 32))),
-            timestamp: gmp_intval(Encoding::fromLE(fread($stream, 4))),
-            bits: gmp_intval(Encoding::fromLE(fread($stream, 4))),
-            nonce: gmp_intval(Encoding::fromLE(fread($stream, 4)))
+            timestamp: gmp_intval(Encoding\Endian::fromLE(fread($stream, 4))),
+            bits: gmp_intval(Encoding\Endian::fromLE(fread($stream, 4))),
+            nonce: gmp_intval(Encoding\Endian::fromLE(fread($stream, 4)))
         );
     }
 
     public function serialize(): string
     {
-        $version    = Encoding::toLE(gmp_init($this->version), 4);
+        $version    = Encoding\Endian::toLE(gmp_init($this->version), 4);
         $prevBlock  = strrev(hex2bin($this->prevBlock));
         $merkleRoot = strrev(hex2bin($this->merkleRoot));
-        $timestamp  = Encoding::toLE(gmp_init($this->timestamp), 4);
-        $bits       = Encoding::toLE(gmp_init($this->bits), 4);
-        $nonce      = Encoding::toLE(gmp_init($this->nonce), 4);
+        $timestamp  = Encoding\Endian::toLE(gmp_init($this->timestamp), 4);
+        $bits       = Encoding\Endian::toLE(gmp_init($this->bits), 4);
+        $nonce      = Encoding\Endian::toLE(gmp_init($this->nonce), 4);
 
         return $version.$prevBlock.$merkleRoot.$timestamp.$bits.$nonce;
     }
@@ -72,7 +72,7 @@ final readonly class Block
 
     public function checkPOW(): bool
     {
-        return Encoding::fromLE(Hashing::hash256($this->serialize())) < $this->target();
+        return Encoding\Endian::fromLE(Hashing::hash256($this->serialize())) < $this->target();
     }
 
     public function bip9(): bool
@@ -104,7 +104,7 @@ final readonly class Block
 
         $littleEndianBits = strrev($coefficient).hex2bin(dechex($exponent));
 
-        return gmp_intval(Encoding::fromLE($littleEndianBits));
+        return gmp_intval(Encoding\Endian::fromLE($littleEndianBits));
     }
 
     public static function newTarget(self $firstBlock, self $lastBlock): \GMP

@@ -251,18 +251,18 @@ final class S256PointTest extends TestCase
         $pubkey = S256Point::parse($sec);
 
         self::assertSame('1PMycacnJaSqwwJqjawXBErnLsZ7RkXUAs', $pubkey->address(compressed: true, mode: Network::MAINNET));
-        self::assertSame(Hashing::hash160($sec), Encoding::decodeAddress('1PMycacnJaSqwwJqjawXBErnLsZ7RkXUAs'));
+        self::assertSame(Hashing::hash160($sec), Encoding\Address::decode('1PMycacnJaSqwwJqjawXBErnLsZ7RkXUAs'));
 
         // Bech32 test
         self::assertSame(
             hex2bin('751e76e8199196d454941c45d1b3a323f1433bd6'),
-            Encoding::decodeAddress('bc1qw508d6qejxtdg4y5r3zarvary0c5xw7kv8f3t4')
+            Encoding\Address::decode('bc1qw508d6qejxtdg4y5r3zarvary0c5xw7kv8f3t4')
         );
 
         // Bech32M test
         self::assertSame(
             hex2bin('79be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798'),
-            Encoding::decodeAddress('bc1p0xlxvlhemja6c4dqv22uapctqupfhlxm9h8z3k2e72q4k9hcz7vqzk5jj0')
+            Encoding\Address::decode('bc1p0xlxvlhemja6c4dqv22uapctqupfhlxm9h8z3k2e72q4k9hcz7vqzk5jj0')
         );
     }
 
@@ -272,7 +272,7 @@ final class S256PointTest extends TestCase
         $this->expectExceptionMessage('Unexpected data length');
 
         $garbage    = "\x00".random_bytes(22);
-        $badAddress = Encoding::base58checksum($garbage);
-        Encoding::decodeAddress($badAddress);
+        $badAddress = Encoding\Base58::checksum($garbage);
+        Encoding\Address::decode($badAddress);
     }
 }

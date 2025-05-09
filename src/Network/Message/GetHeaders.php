@@ -34,8 +34,8 @@ final readonly class GetHeaders implements Message
 
     public function serialize(): string
     {
-        $protocolVersion = Encoding::toLE(gmp_init($this->protocolVersion), 4);
-        $numHahes        = Encoding::encodeVarInt($this->numHashes);
+        $protocolVersion = Encoding\Endian::toLE(gmp_init($this->protocolVersion), 4);
+        $numHahes        = Encoding\VarInt::encode($this->numHashes);
         $startingBlock   = strrev(hex2bin($this->startingBlock));
         $endingBlock     = strrev(hex2bin($this->endingBlock));
 

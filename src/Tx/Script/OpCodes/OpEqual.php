@@ -14,7 +14,7 @@ final readonly class OpEqual
             return false;
         }
 
-        $stack[] = Encoding::encodeStackNum(array_pop($stack) === array_pop($stack) ? 1 : 0);
+        $stack[] = Encoding\StackNum::encode(array_pop($stack) === array_pop($stack) ? 1 : 0);
 
         return true;
     }

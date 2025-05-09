@@ -14,9 +14,9 @@ final readonly class OpNot
             return false;
         }
 
-        $stack[] = match (Encoding::decodeStackNum(array_pop($stack))) {
-            0       => Encoding::encodeStackNum($zeroBranchValue),
-            default => Encoding::encodeStackNum($defaultBranchValue),
+        $stack[] = match (Encoding\StackNum::decode(array_pop($stack))) {
+            0       => Encoding\StackNum::encode($zeroBranchValue),
+            default => Encoding\StackNum::encode($defaultBranchValue),
         };
 
         return true;

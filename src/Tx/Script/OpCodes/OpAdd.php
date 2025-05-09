@@ -14,8 +14,8 @@ final readonly class OpAdd
             return false;
         }
 
-        $stack[] = Encoding::encodeStackNum(
-            Encoding::decodeStackNum(array_pop($stack)) + Encoding::decodeStackNum(array_pop($stack))
+        $stack[] = Encoding\StackNum::encode(
+            Encoding\StackNum::decode(array_pop($stack)) + Encoding\StackNum::decode(array_pop($stack))
         );
 
         return true;

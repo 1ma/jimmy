@@ -60,22 +60,22 @@ final class Tx
 
     public function serialize(): string
     {
-        $version  = Encoding::toLE(gmp_init($this->version), 4);
+        $version  = Encoding\Endian::toLE(gmp_init($this->version), 4);
         $markers  = $this->segwit ? self::SEGWIT_MARKER.self::SEGWIT_FLAG : '';
-        $nTxIns   = Encoding::encodeVarInt(\count($this->txIns));
+        $nTxIns   = Encoding\VarInt::encode(\count($this->txIns));
         $txIns    = array_reduce($this->txIns, fn (string $txIns, Input $txIn): string => $txIns.$txIn->serialize(), '');
-        $nTxOuts  = Encoding::encodeVarInt(\count($this->txOuts));
+        $nTxOuts  = Encoding\VarInt::encode(\count($this->txOuts));
         $txOuts   = array_reduce($this->txOuts, fn (string $txOuts, Output $txOut): string => $txOuts.$txOut->serialize(), '');
-        $locktime = Encoding::toLE(gmp_init($this->locktime), 4);
+        $locktime = Encoding\Endian::toLE(gmp_init($this->locktime), 4);
 
         $witness = '';
         if ($this->segwit) {
             foreach ($this->txIns as $txIn) {
-                $witness .= Encoding::encodeVarInt(\count($txIn->witness));
+                $witness .= Encoding\VarInt::encode(\count($txIn->witness));
                 foreach ($txIn->witness as $element) {
                     $witness .= \is_int($element) ?
-                        Encoding::toLE(gmp_init($element)) :
-                        Encoding::encodeVarInt(\strlen($element)).$element;
+                        Encoding\Endian::toLE(gmp_init($element)) :
+                        Encoding\VarInt::encode(\strlen($element)).$element;
                 }
             }
         }
@@ -110,7 +110,7 @@ final class Tx
 
         // BIP-34 forces miners to record the block height as the first element of
         // the coinbase ScriptSig to prevent duplicated Tx IDs.
-        return gmp_intval(Encoding::fromLE($this->txIns[0]->scriptSig->cmds[0]));
+        return gmp_intval(Encoding\Endian::fromLE($this->txIns[0]->scriptSig->cmds[0]));
     }
 
     /**
@@ -133,7 +133,7 @@ final class Tx
         if ($this->segwit) {
             if ($this->txIns[$inputIndex]->prevOutput($this->network)->scriptPubKey->isP2WSH()) {
                 $witnessScript = $this->txIns[$inputIndex]->witness[array_key_last($this->txIns[$inputIndex]->witness)];
-                $z             = $this->sigHashBip143($inputIndex, witnessScript: Script::parseAsString(Encoding::encodeVarInt(\strlen($witnessScript)).$witnessScript));
+                $z             = $this->sigHashBip143($inputIndex, witnessScript: Script::parseAsString(Encoding\VarInt::encode(\strlen($witnessScript)).$witnessScript));
             } else {
                 $z = $this->sigHashBip143($inputIndex);
             }
@@ -184,14 +184,14 @@ final class Tx
 
         if ($prevOut->scriptPubKey->isP2SH()) {
             $redeemScriptCode = $txIn->scriptSig->cmds[array_key_last($txIn->scriptSig->cmds)];
-            $redeemScript     = Script::parseAsString(Encoding::encodeVarInt(\strlen($redeemScriptCode)).$redeemScriptCode);
+            $redeemScript     = Script::parseAsString(Encoding\VarInt::encode(\strlen($redeemScriptCode)).$redeemScriptCode);
 
             if ($redeemScript->isP2WPKH()) {
                 $z       = $this->sigHashBip143($inputIndex, redeemScript: $redeemScript);
                 $witness = $txIn->witness;
             } elseif ($redeemScript->isP2WSH()) {
                 $command       = $txIn->witness[array_key_last($txIn->witness)];
-                $witnessScript = Script::parseAsString(Encoding::encodeVarInt(\strlen($command)).$command);
+                $witnessScript = Script::parseAsString(Encoding\VarInt::encode(\strlen($command)).$command);
 
                 $z       = $this->sigHashBip143($inputIndex, witnessScript: $witnessScript);
                 $witness = $txIn->witness;
@@ -204,7 +204,7 @@ final class Tx
             $witness = $txIn->witness;
         } elseif ($prevOut->scriptPubKey->isP2WSH()) {
             $command       = $txIn->witness[array_key_last($txIn->witness)];
-            $witnessScript = Script::parseAsString(Encoding::encodeVarInt(\strlen($command)).$command);
+            $witnessScript = Script::parseAsString(Encoding\VarInt::encode(\strlen($command)).$command);
 
             $z       = $this->sigHashBip143($inputIndex, witnessScript: $witnessScript);
             $witness = $txIn->witness;
@@ -230,8 +230,8 @@ final class Tx
 
     private function sigHash(int $inputIndex, ?Script $redeemScript = null): \GMP
     {
-        $tx = Encoding::toLE(gmp_init($this->version), 4);
-        $tx .= Encoding::encodeVarInt(\count($this->txIns));
+        $tx = Encoding\Endian::toLE(gmp_init($this->version), 4);
+        $tx .= Encoding\VarInt::encode(\count($this->txIns));
         foreach ($this->txIns as $i => $txIn) {
             $scriptSig = new Script();
             if ($i === $inputIndex) {
@@ -246,13 +246,13 @@ final class Tx
             )->serialize();
         }
 
-        $tx .= Encoding::encodeVarInt(\count($this->txOuts));
+        $tx .= Encoding\VarInt::encode(\count($this->txOuts));
         foreach ($this->txOuts as $txOut) {
             $tx .= $txOut->serialize();
         }
 
-        $tx .= Encoding::toLE(gmp_init($this->locktime), 4);
-        $tx .= Encoding::toLE(gmp_init(self::SIGHASH_ALL), 4);
+        $tx .= Encoding\Endian::toLE(gmp_init($this->locktime), 4);
+        $tx .= Encoding\Endian::toLE(gmp_init(self::SIGHASH_ALL), 4);
 
         return gmp_import(Hashing::hash256($tx));
     }
@@ -264,8 +264,8 @@ final class Tx
             $allSequence = '';
 
             foreach ($this->txIns as $txIn) {
-                $allPrevOuts .= strrev(hex2bin($txIn->prevTxId)).Encoding::toLE(gmp_init($txIn->prevIndex), 4);
-                $allSequence .= Encoding::toLE(gmp_init($txIn->seqNum), 4);
+                $allPrevOuts .= strrev(hex2bin($txIn->prevTxId)).Encoding\Endian::toLE(gmp_init($txIn->prevIndex), 4);
+                $allSequence .= Encoding\Endian::toLE(gmp_init($txIn->seqNum), 4);
             }
 
             $this->hashPrevOuts = Hashing::hash256($allPrevOuts);
@@ -287,11 +287,11 @@ final class Tx
     {
         $this->initBip143Hashes();
 
-        $tx = Encoding::toLE(gmp_init($this->version), 4);
+        $tx = Encoding\Endian::toLE(gmp_init($this->version), 4);
         $tx .= $this->hashPrevOuts;
         $tx .= $this->hashSequence;
         $tx .= strrev(hex2bin($this->txIns[$inputIndex]->prevTxId));
-        $tx .= Encoding::toLE(gmp_init($this->txIns[$inputIndex]->prevIndex), 4);
+        $tx .= Encoding\Endian::toLE(gmp_init($this->txIns[$inputIndex]->prevIndex), 4);
 
         if (null !== $witnessScript) {
             $script = $witnessScript;
@@ -303,31 +303,31 @@ final class Tx
 
         $tx .= $script->serialize();
 
-        $tx .= Encoding::toLE(gmp_init($this->txIns[$inputIndex]->prevOutput($this->network)->amount), 8);
-        $tx .= Encoding::toLE(gmp_init($this->txIns[$inputIndex]->seqNum), 4);
+        $tx .= Encoding\Endian::toLE(gmp_init($this->txIns[$inputIndex]->prevOutput($this->network)->amount), 8);
+        $tx .= Encoding\Endian::toLE(gmp_init($this->txIns[$inputIndex]->seqNum), 4);
 
         $tx .= $this->hashOutputs;
 
-        $tx .= Encoding::toLE(gmp_init($this->locktime), 4);
-        $tx .= Encoding::toLE(gmp_init(self::SIGHASH_ALL), 4);
+        $tx .= Encoding\Endian::toLE(gmp_init($this->locktime), 4);
+        $tx .= Encoding\Endian::toLE(gmp_init(self::SIGHASH_ALL), 4);
 
         return gmp_import(Hashing::hash256($tx));
     }
 
     private static function parseLegacy($stream, Network $mode): self
     {
-        $version = gmp_intval(Encoding::fromLE(fread($stream, 4)));
+        $version = gmp_intval(Encoding\Endian::fromLE(fread($stream, 4)));
 
         [$txIns, $txOuts] = self::parseInputsAndOputputs($stream);
 
-        $locktime = gmp_intval(Encoding::fromLE(fread($stream, 4)));
+        $locktime = gmp_intval(Encoding\Endian::fromLE(fread($stream, 4)));
 
         return new self($version, $txIns, $txOuts, $locktime, $mode, segwit: false);
     }
 
     private static function parseSegWit($stream, Network $mode): self
     {
-        $version = gmp_intval(Encoding::fromLE(fread($stream, 4)));
+        $version = gmp_intval(Encoding\Endian::fromLE(fread($stream, 4)));
 
         $marker = fread($stream, 2);
         if (self::SEGWIT_MARKER.self::SEGWIT_FLAG !== $marker) {
@@ -338,16 +338,16 @@ final class Tx
 
         $witness = [];
         foreach ($txIns as $txIn) {
-            $nWitness = Encoding::decodeVarInt($stream);
+            $nWitness = Encoding\VarInt::decode($stream);
             for ($i = 0; $i < $nWitness; ++$i) {
-                $itemLength = Encoding::decodeVarInt($stream);
+                $itemLength = Encoding\VarInt::decode($stream);
                 $witness[]  = 0 === $itemLength ? 0 : fread($stream, $itemLength);
             }
 
             $txIn->witness = $witness;
         }
 
-        $locktime = gmp_intval(Encoding::fromLE(fread($stream, 4)));
+        $locktime = gmp_intval(Encoding\Endian::fromLE(fread($stream, 4)));
 
         return new self($version, $txIns, $txOuts, $locktime, $mode, segwit: true);
     }
@@ -355,13 +355,13 @@ final class Tx
     private static function parseInputsAndOputputs($stream): array
     {
         $txIns = [];
-        $nIns  = Encoding::decodeVarInt($stream);
+        $nIns  = Encoding\VarInt::decode($stream);
         for ($i = 0; $i < $nIns; ++$i) {
             $txIns[] = Input::parse($stream);
         }
 
         $txOuts = [];
-        $nOuts  = Encoding::decodeVarInt($stream);
+        $nOuts  = Encoding\VarInt::decode($stream);
         for ($i = 0; $i < $nOuts; ++$i) {
             $txOuts[] = Output::parse($stream);
         }

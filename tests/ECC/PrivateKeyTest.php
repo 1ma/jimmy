@@ -74,7 +74,7 @@ final class PrivateKeyTest extends TestCase
 
         $key = new PrivateKey(gmp_import($privateKey));
 
-        self::assertSame($publicKey, Encoding::serN($key->pubKey->x->num, 32));
+        self::assertSame($publicKey, Encoding\Endian::toBE($key->pubKey->x->num, 32));
 
         self::assertSame($expectedSignature, $key->schnorr($message, $auxRand)->bip340());
     }
