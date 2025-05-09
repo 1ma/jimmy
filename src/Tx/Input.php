@@ -36,9 +36,9 @@ final class Input
     public static function parse($stream): self
     {
         $prevTxId  = bin2hex(strrev(fread($stream, 32)));
-        $prevIndex = gmp_intval(Encoding::fromLE(fread($stream, 4)));
+        $prevIndex = gmp_intval(Encoding\Endian::fromLE(fread($stream, 4)));
         $scriptSig = Script::parse($stream);
-        $seqNum    = gmp_intval(Encoding::fromLE(fread($stream, 4)));
+        $seqNum    = gmp_intval(Encoding\Endian::fromLE(fread($stream, 4)));
 
         return new self($prevTxId, $prevIndex, $scriptSig, $seqNum);
     }
@@ -54,9 +54,9 @@ final class Input
     public function serialize(): string
     {
         $prevTxId  = strrev(hex2bin($this->prevTxId));
-        $prevIndex = Encoding::toLE(gmp_init($this->prevIndex), 4);
+        $prevIndex = Encoding\Endian::toLE(gmp_init($this->prevIndex), 4);
         $scriptSig = $this->scriptSig->serialize();
-        $seqNum    = Encoding::toLE(gmp_init($this->seqNum), 4);
+        $seqNum    = Encoding\Endian::toLE(gmp_init($this->seqNum), 4);
 
         return $prevTxId.$prevIndex.$scriptSig.$seqNum;
     }

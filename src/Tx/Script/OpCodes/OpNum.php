@@ -10,7 +10,7 @@ final readonly class OpNum
 {
     public static function eval(array &$stack, int $num): bool
     {
-        $stack[] = Encoding::encodeStackNum($num);
+        $stack[] = Encoding\StackNum::encode($num);
 
         return true;
     }

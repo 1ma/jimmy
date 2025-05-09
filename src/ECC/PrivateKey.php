@@ -66,9 +66,9 @@ final readonly class PrivateKey
 
         $d = $P->hasEvenY() ? $d0 : S256Params::N() - $d0;
 
-        $t = Encoding::serN($d, 32) ^ Hashing::taggedHash('BIP0340/aux', $auxRand);
+        $t = Encoding\Endian::toBE($d, 32) ^ Hashing::taggedHash('BIP0340/aux', $auxRand);
 
-        $k0 = gmp_import(Hashing::taggedHash('BIP0340/nonce', $t.Encoding::serN($P->x->num, 32).$msg)) % S256Params::N();
+        $k0 = gmp_import(Hashing::taggedHash('BIP0340/nonce', $t.Encoding\Endian::toBE($P->x->num, 32).$msg)) % S256Params::N();
         if (0 == $k0) {
             throw new \InvalidArgumentException('Failure. This happens only with negligible probability. Sipa dixit.');
         }
@@ -80,7 +80,7 @@ final readonly class PrivateKey
 
         $k = $R->hasEvenY() ? $k0 : S256Params::N() - $k0;
 
-        $e = gmp_import(Hashing::taggedHash('BIP0340/challenge', Encoding::serN($R->x->num, 32).Encoding::serN($P->x->num, 32).$msg)) % S256Params::N();
+        $e = gmp_import(Hashing::taggedHash('BIP0340/challenge', Encoding\Endian::toBE($R->x->num, 32).Encoding\Endian::toBE($P->x->num, 32).$msg)) % S256Params::N();
 
         return new Signature($R->x->num, gmp_div_r($k + ($e * $d), S256Params::N()), true);
     }
@@ -88,7 +88,7 @@ final readonly class PrivateKey
     public static function fromWIF(string $wif): self
     {
         try {
-            $decodedWif = Encoding::base58decode($wif, check: true);
+            $decodedWif = Encoding\Base58::decode($wif, check: true);
         } catch (\InvalidArgumentException) {
             throw new \InvalidArgumentException('Invalid WIF data: '.$wif);
         }
@@ -102,8 +102,8 @@ final readonly class PrivateKey
 
     public function wif(bool $compressed = true, Network $mode = Network::TESTNET): string
     {
-        return Encoding::base58checksum(
-            (Network::TESTNET === $mode ? "\xef" : "\x80").Encoding::serN($this->secret, 32).($compressed ? "\x01" : '')
+        return Encoding\Base58::checksum(
+            (Network::TESTNET === $mode ? "\xef" : "\x80").Encoding\Endian::toBE($this->secret, 32).($compressed ? "\x01" : '')
         );
     }
 
@@ -119,8 +119,8 @@ final readonly class PrivateKey
             $z -= S256Params::N();
         }
 
-        $zBytes = Encoding::serN($z, 32);
-        $eBytes = Encoding::serN($this->secret, 32);
+        $zBytes = Encoding\Endian::toBE($z, 32);
+        $eBytes = Encoding\Endian::toBE($this->secret, 32);
 
         $k = str_repeat("\x00", 32);
         $v = str_repeat("\x01", 32);
@@ -145,6 +145,6 @@ final readonly class PrivateKey
 
     public function ser256(): string
     {
-        return Encoding::serN($this->secret, 32);
+        return Encoding\Endian::toBE($this->secret, 32);
     }
 }

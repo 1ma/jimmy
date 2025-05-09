@@ -68,18 +68,18 @@ final readonly class Version implements Message
 
     public function serialize(): string
     {
-        $protocolVersion    = Encoding::toLE(gmp_init($this->protocolVersion), 4);
-        $connectionServices = Encoding::toLE(gmp_init($this->connectionServices), 8);
-        $timestamp          = Encoding::toLE(gmp_init($this->timestamp), 8);
-        $remoteServices     = Encoding::toLE(gmp_init($this->remoteServices), 8);
+        $protocolVersion    = Encoding\Endian::toLE(gmp_init($this->protocolVersion), 4);
+        $connectionServices = Encoding\Endian::toLE(gmp_init($this->connectionServices), 8);
+        $timestamp          = Encoding\Endian::toLE(gmp_init($this->timestamp), 8);
+        $remoteServices     = Encoding\Endian::toLE(gmp_init($this->remoteServices), 8);
         $remoteAddress      = str_pad($this->remoteAddress, 16, "\x00");
-        $remotePort         = Encoding::toLE(gmp_init($this->remotePort), 2);
-        $localServices      = Encoding::toLE(gmp_init($this->localServices), 8);
+        $remotePort         = Encoding\Endian::toLE(gmp_init($this->remotePort), 2);
+        $localServices      = Encoding\Endian::toLE(gmp_init($this->localServices), 8);
         $localAddress       = str_pad($this->localAddress, 16, "\x00");
-        $localPort          = Encoding::toLE(gmp_init($this->localPort), 2);
-        $nonce              = Encoding::toLE(gmp_init($this->nonce), 8);
-        $userAgent          = Encoding::encodeVarInt(\strlen($this->userAgent)).$this->userAgent;
-        $height             = Encoding::toLE(gmp_init($this->height), 4);
+        $localPort          = Encoding\Endian::toLE(gmp_init($this->localPort), 2);
+        $nonce              = Encoding\Endian::toLE(gmp_init($this->nonce), 8);
+        $userAgent          = Encoding\VarInt::encode(\strlen($this->userAgent)).$this->userAgent;
+        $height             = Encoding\Endian::toLE(gmp_init($this->height), 4);
         $relayFlag          = $this->relayFlag ? "\x01" : "\x00";
 
         return $protocolVersion.$connectionServices.$timestamp.$remoteServices.$remoteAddress.$remotePort.$localServices.$localAddress.$localPort.$nonce.$userAgent.$height.$relayFlag;

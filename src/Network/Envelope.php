@@ -39,7 +39,7 @@ final readonly class Envelope
 
         $command = trim(fread($stream, 12));
 
-        $payloadLength = gmp_intval(Encoding::fromLE(fread($stream, 4)));
+        $payloadLength = gmp_intval(Encoding\Endian::fromLE(fread($stream, 4)));
         $checksum      = fread($stream, 4);
 
         $payload = 0 === $payloadLength ? '' : fread($stream, $payloadLength);
@@ -55,7 +55,7 @@ final readonly class Envelope
     {
         $magic         = $this->network->value;
         $command       = str_pad($this->command, 12, "\x00");
-        $payloadLength = Encoding::toLE(gmp_init(\strlen($this->payload)), 4);
+        $payloadLength = Encoding\Endian::toLE(gmp_init(\strlen($this->payload)), 4);
         $checksum      = substr(Hashing::hash256($this->payload), 0, 4);
 
         return $magic.$command.$payloadLength.$checksum.$this->payload;

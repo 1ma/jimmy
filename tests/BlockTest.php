@@ -45,7 +45,7 @@ final class BlockTest extends TestCase
     public function testValidBlockProofOfWork(): void
     {
         $block = Block::parse(self::stream(hex2bin(self::BLOCK_HEADER)));
-        $proof = Encoding::fromLE(Hashing::hash256(hex2bin(self::BLOCK_HEADER)));
+        $proof = Encoding\Endian::fromLE(Hashing::hash256(hex2bin(self::BLOCK_HEADER)));
 
         self::assertTrue($proof < $block->target());
 

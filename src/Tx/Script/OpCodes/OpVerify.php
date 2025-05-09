@@ -10,6 +10,6 @@ final readonly class OpVerify
 {
     public static function eval(array &$stack): bool
     {
-        return !empty($stack) && Encoding::encodeStackNum(0) !== array_pop($stack);
+        return !empty($stack) && Encoding\StackNum::encode(0) !== array_pop($stack);
     }
 }

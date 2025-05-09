@@ -41,7 +41,7 @@ final readonly class Interpreter
                     }
 
                     $cmds = array_merge($cmds, \array_slice($witness, 0, -1));
-                    $cmds = array_merge($cmds, Script::parseAsString(Encoding::encodeVarInt(\strlen($witnessScript)).$witnessScript)->cmds);
+                    $cmds = array_merge($cmds, Script::parseAsString(Encoding\VarInt::encode(\strlen($witnessScript)).$witnessScript)->cmds);
 
                     array_pop($stack); // OP_O
                 }
@@ -128,7 +128,7 @@ final readonly class Interpreter
         // Parse RedeemScript (it's still $cmd from before we entered the BIP-16 branch)
         // and assign it to the command list (it's empty at this point).
         try {
-            $cmds = Script::parseAsString(Encoding::encodeVarInt(\strlen($script)).$script)->cmds;
+            $cmds = Script::parseAsString(Encoding\VarInt::encode(\strlen($script)).$script)->cmds;
         } catch (\InvalidArgumentException) {
             // Invalid script that cannot be correctly parsed.
             return false;
@@ -140,7 +140,7 @@ final readonly class Interpreter
     private static function payToWitnessPubKeyHashSequence(array $stack): bool
     {
         return 2         === \count($stack)
-            && $stack[0] === Encoding::encodeStackNum(0)
+            && $stack[0] === Encoding\StackNum::encode(0)
             && \is_string($stack[1])
             && 20 === \strlen($stack[1]);
     }
@@ -148,7 +148,7 @@ final readonly class Interpreter
     private static function payToWitnessScriptHashSequence(array $stack): bool
     {
         return 2         === \count($stack)
-            && $stack[0] === Encoding::encodeStackNum(0)
+            && $stack[0] === Encoding\StackNum::encode(0)
             && \is_string($stack[1])
             && 32 === \strlen($stack[1]);
     }

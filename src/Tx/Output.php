@@ -22,7 +22,7 @@ final readonly class Output
      */
     public static function parse($stream)
     {
-        $amount       = gmp_intval(Encoding::fromLE(fread($stream, 8)));
+        $amount       = gmp_intval(Encoding\Endian::fromLE(fread($stream, 8)));
         $scriptPubKey = Script::parse($stream);
 
         return new self($amount, $scriptPubKey);
@@ -30,7 +30,7 @@ final readonly class Output
 
     public function serialize(): string
     {
-        $amount       = Encoding::toLE(gmp_init($this->amount), 8);
+        $amount       = Encoding\Endian::toLE(gmp_init($this->amount), 8);
         $scriptPubKey = $this->scriptPubKey->serialize();
 
         return $amount.$scriptPubKey;

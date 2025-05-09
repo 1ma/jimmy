@@ -148,10 +148,10 @@ final readonly class S256Point
         if ($compressed) {
             $prefix = 0 == $this->y->num % 2 ? "\x02" : "\x03";
 
-            return $prefix.Encoding::serN($this->x->num, 32);
+            return $prefix.Encoding\Endian::toBE($this->x->num, 32);
         }
 
-        return "\x04".Encoding::serN($this->x->num, 32).Encoding::serN($this->y->num, 32);
+        return "\x04".Encoding\Endian::toBE($this->x->num, 32).Encoding\Endian::toBE($this->y->num, 32);
     }
 
     /**
@@ -182,7 +182,7 @@ final readonly class S256Point
             return false;
         }
 
-        $e = gmp_import(Hashing::taggedHash('BIP0340/challenge', Encoding::serN($r, 32).Encoding::serN($this->x->num, 32).$msg)) % S256Params::N();
+        $e = gmp_import(Hashing::taggedHash('BIP0340/challenge', Encoding\Endian::toBE($r, 32).Encoding\Endian::toBE($this->x->num, 32).$msg)) % S256Params::N();
 
         $R = S256Params::G()->scalarMul($s)->add($P->scalarMul(S256Params::N() - $e));
 
@@ -214,6 +214,6 @@ final readonly class S256Point
 
     private static function hash160ToPayToPublicKeyHashAddress(string $hash, Network $mode = Network::TESTNET): string
     {
-        return Encoding::base58checksum((Network::TESTNET === $mode ? self::P2PKH_TESTNET_PREFIX : self::P2PKH_MAINNET_PREFIX).$hash);
+        return Encoding\Base58::checksum((Network::TESTNET === $mode ? self::P2PKH_TESTNET_PREFIX : self::P2PKH_MAINNET_PREFIX).$hash);
     }
 }

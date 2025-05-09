@@ -28,10 +28,10 @@ final readonly class Headers implements Message
     public static function parse($stream): self
     {
         $blocks  = [];
-        $headers = Encoding::decodeVarInt($stream);
+        $headers = Encoding\VarInt::decode($stream);
         for ($i = 0; $i < $headers; ++$i) {
             $blocks[] = Block::parse($stream);
-            if (0 !== $numTxs = Encoding::decodeVarInt($stream)) {
+            if (0 !== $numTxs = Encoding\VarInt::decode($stream)) {
                 throw new \RuntimeException("Unexpected number of txs in 'headers' message: $numTxs");
             }
         }

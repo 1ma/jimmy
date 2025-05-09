@@ -77,21 +77,21 @@ final readonly class Script
     {
         $count  = 0;
         $cmds   = [];
-        $length = Encoding::decodeVarInt($stream);
+        $length = Encoding\VarInt::decode($stream);
 
         while ($count < $length) {
             $current = fread($stream, 1);
             ++$count;
-            $decodedCurrent = gmp_intval(Encoding::fromLE($current));
+            $decodedCurrent = gmp_intval(Encoding\Endian::fromLE($current));
             if (0x01 <= $decodedCurrent && $decodedCurrent <= 0x4B) {
                 $cmds[] = fread($stream, $decodedCurrent);
                 $count += $decodedCurrent;
             } elseif (OpCodes::OP_PUSHDATA1->value === $decodedCurrent) {
-                $dataLength = gmp_intval(Encoding::fromLE(fread($stream, 1)));
+                $dataLength = gmp_intval(Encoding\Endian::fromLE(fread($stream, 1)));
                 $cmds[]     = fread($stream, $dataLength);
                 $count += $dataLength + 1;
             } elseif (OpCodes::OP_PUSHDATA2->value === $decodedCurrent) {
-                $dataLength = gmp_intval(Encoding::fromLE(fread($stream, 2)));
+                $dataLength = gmp_intval(Encoding\Endian::fromLE(fread($stream, 2)));
                 $cmds[]     = fread($stream, $dataLength);
                 $count += $dataLength + 2;
             } else {
@@ -111,19 +111,19 @@ final readonly class Script
         $result = '';
         foreach ($this->cmds as $cmd) {
             if (\is_int($cmd)) {
-                $result .= Encoding::toLE(gmp_init($cmd));
+                $result .= Encoding\Endian::toLE(gmp_init($cmd));
                 continue;
             }
 
             $length = \strlen($cmd);
             if ($length <= 75) {
-                $result .= Encoding::toLE(gmp_init($length));
+                $result .= Encoding\Endian::toLE(gmp_init($length));
             } elseif ($length < 256) {
-                $result .= Encoding::toLE(gmp_init(OpCodes::OP_PUSHDATA1->value));
-                $result .= Encoding::toLE(gmp_init($length));
+                $result .= Encoding\Endian::toLE(gmp_init(OpCodes::OP_PUSHDATA1->value));
+                $result .= Encoding\Endian::toLE(gmp_init($length));
             } elseif ($length <= 520) {
-                $result .= Encoding::toLE(gmp_init(OpCodes::OP_PUSHDATA2->value));
-                $result .= Encoding::toLE(gmp_init($length));
+                $result .= Encoding\Endian::toLE(gmp_init(OpCodes::OP_PUSHDATA2->value));
+                $result .= Encoding\Endian::toLE(gmp_init($length));
             } else {
                 throw new \RuntimeException('cmd too long: '.$cmd);
             }
@@ -131,7 +131,7 @@ final readonly class Script
             $result .= $cmd;
         }
 
-        return Encoding::encodeVarInt(\strlen($result)).$result;
+        return Encoding\VarInt::encode(\strlen($result)).$result;
     }
 
     public function combine(self $other): self

@@ -93,7 +93,7 @@ final readonly class ExtendedKey
      */
     public static function parse(string $base58): self
     {
-        $data = Encoding::base58decode($base58, true);
+        $data = Encoding\Base58::decode($base58, true);
 
         if (null === $version = Version::tryFrom(substr($data, 0, 4))) {
             throw new \InvalidArgumentException('Unknown extended key version:'.bin2hex(substr($data, 0, 4)));
@@ -118,6 +118,6 @@ final readonly class ExtendedKey
         $chainCode   = $this->chainCode;
         $material    = $this->key instanceof PrivateKey ? "\x00".$this->key->ser256() : $this->key->sec();
 
-        return Encoding::base58checksum($version.$depth.$fingerprint.$childNumber.$chainCode.$material);
+        return Encoding\Base58::checksum($version.$depth.$fingerprint.$childNumber.$chainCode.$material);
     }
 }

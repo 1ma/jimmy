@@ -16,7 +16,7 @@ final readonly class OpCheckMultiSig
             return false;
         }
 
-        $n = Encoding::decodeStackNum(array_pop($stack));
+        $n = Encoding\StackNum::decode(array_pop($stack));
         if ($n < 0 || \count($stack) < $n + 1) {
             return false;
         }
@@ -27,7 +27,7 @@ final readonly class OpCheckMultiSig
             --$n;
         }
 
-        $m = Encoding::decodeStackNum(array_pop($stack));
+        $m = Encoding\StackNum::decode(array_pop($stack));
         if ($m < 0 || \count($stack) < $m + 1) {
             return false;
         }
@@ -47,7 +47,7 @@ final readonly class OpCheckMultiSig
 
             foreach ($sigs as $sig) {
                 if (empty($pubKeys)) {
-                    $stack[] = Encoding::encodeStackNum(0);
+                    $stack[] = Encoding\StackNum::encode(0);
 
                     return true;
                 }
@@ -61,7 +61,7 @@ final readonly class OpCheckMultiSig
                 }
 
                 if (!$match) {
-                    $stack[] = Encoding::encodeStackNum(0);
+                    $stack[] = Encoding\StackNum::encode(0);
 
                     return true;
                 }
@@ -70,7 +70,7 @@ final readonly class OpCheckMultiSig
             return false;
         }
 
-        $stack[] = Encoding::encodeStackNum(1);
+        $stack[] = Encoding\StackNum::encode(1);
 
         return true;
     }
