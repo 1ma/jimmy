@@ -57,14 +57,15 @@ To further emphasize it the library assumes that it runs on testnet by default i
 - [X] [BIP-0066]: Strict DER signatures
 - [ ] [BIP-0067]: Deterministic Pay-to-script-hash multi-signature addresses through public key sorting
 - [ ] [BIP-0084]: Derivation scheme for P2WPKH based accounts
+- [ ] [BIP-0085]: Deterministic Entropy From BIP32 Keychains
 - [ ] [BIP-0086]: Key Derivation for Single Key P2TR Outputs
-- [ ] [BIP-0173]: Base32 address format for native v0-16 witness outputs
+- [X] [BIP-0173]: Base32 address format for native v0-16 witness outputs
 - [ ] [BIP-0322]: Generic Signed Message Format
 - [X] [BIP-0325]: Signet
 - [X] [BIP-0340]: Schnorr Signatures for secp256k1
 - [ ] [BIP-0341]: Taproot
 - [ ] [BIP-0342]: Validation of Taproot Scripts
-- [ ] [BIP-0350]: Bech32m format for v1+ witness addresses
+- [X] [BIP-0350]: Bech32m format for v1+ witness addresses
 - [ ] [BIP-0370]: Partially Signed Bitcoin Transaction Format Version 2
 - [ ] [BIP-0371]: Taproot Fields for PSBT
 - [X] [Wycheproof ECDSA compliance]
@@ -87,6 +88,7 @@ To reiterate, this code is certainly vulnerable to timing side-channel attacks a
 [BIP-0066]: https://bips.xyz/66
 [BIP-0067]: https://bips.xyz/67
 [BIP-0084]: https://bips.xyz/84
+[BIP-0085]: https://bips.xyz/85
 [BIP-0086]: https://bips.xyz/86
 [BIP-0173]: https://bips.xyz/173
 [BIP-0322]: https://bips.xyz/322
