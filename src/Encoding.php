@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Bitcoin;
 
+use Bitcoin\Encoding\Bech32;
+
 final readonly class Encoding
 {
     private const string BTC_BASE58_ALPHABET = '123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz';
@@ -31,8 +33,10 @@ final readonly class Encoding
 
     public static function decodeAddress(string $address): string
     {
-        if (\in_array(substr($address, 0, 3), ['bc1', 'tb1'], true)) {
-            return ''; // Bech32 decoding
+        if (\in_array(substr(strtolower($address), 0, 3), ['bc1', 'tb1'], true)) {
+            [$version, $program] = Bech32::segwitDecode($address, substr(strtolower($address), 0, 2));
+
+            return pack('C*', ...$program);
         }
 
         $data = self::base58decode($address, check: true);

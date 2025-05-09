@@ -10,7 +10,7 @@ use PHPUnit\Framework\TestCase;
 
 final class Bech32Test extends TestCase
 {
-    private const string TEST_VECTOR_EXTRACTOR = 'python3 '.__DIR__.'/../bech32_sipatronic_extractor.py';
+    private const string TEST_VECTOR_EXTRACTOR = __DIR__.'/../bech32_sipatronic_extractor.py';
 
     #[DataProvider('validAddressProvider')]
     public function testValidAddress(string $address, string $program): void
@@ -24,7 +24,7 @@ final class Bech32Test extends TestCase
 
     public static function validAddressProvider(): array
     {
-        return json_decode(shell_exec(self::TEST_VECTOR_EXTRACTOR))->VALID_ADDRESS;
+        return self::extractTestVectors()->VALID_ADDRESS;
     }
 
     /**
@@ -63,7 +63,7 @@ final class Bech32Test extends TestCase
     {
         return array_map(
             static fn (string $v): array => [$v],
-            json_decode(shell_exec(self::TEST_VECTOR_EXTRACTOR))->INVALID_ADDRESS
+            self::extractTestVectors()->INVALID_ADDRESS
         );
     }
 
@@ -77,7 +77,7 @@ final class Bech32Test extends TestCase
 
     public static function validBech32Provider(): array
     {
-        $allTests = json_decode(shell_exec(self::TEST_VECTOR_EXTRACTOR));
+        $allTests = self::extractTestVectors();
 
         return array_map(
             static fn (string $v): array => [$v],
@@ -95,7 +95,7 @@ final class Bech32Test extends TestCase
 
     public static function invalidBech32Provider(): array
     {
-        $allTests = json_decode(shell_exec(self::TEST_VECTOR_EXTRACTOR));
+        $allTests = self::extractTestVectors();
 
         return array_map(
             static fn (string $v): array => [$v],
@@ -113,6 +113,11 @@ final class Bech32Test extends TestCase
 
     public static function invalidAddressEncodingProvider(): array
     {
-        return json_decode(shell_exec(self::TEST_VECTOR_EXTRACTOR))->INVALID_ADDRESS_ENC;
+        return self::extractTestVectors()->INVALID_ADDRESS_ENC;
+    }
+
+    private static function extractTestVectors(): \stdClass
+    {
+        return json_decode(shell_exec('python3 '.self::TEST_VECTOR_EXTRACTOR));
     }
 }
