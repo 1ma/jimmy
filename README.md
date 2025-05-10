@@ -58,7 +58,7 @@ To further emphasize it the library assumes that it runs on testnet by default i
 - [ ] [BIP-0067]: Deterministic Pay-to-script-hash multi-signature addresses through public key sorting
 - [ ] [BIP-0084]: Derivation scheme for P2WPKH based accounts
 - [ ] [BIP-0085]: Deterministic Entropy From BIP32 Keychains
-- [ ] [BIP-0086]: Key Derivation for Single Key P2TR Outputs
+- [X] [BIP-0086]: Key Derivation for Single Key P2TR Outputs
 - [X] [BIP-0173]: Base32 address format for native v0-16 witness outputs
 - [ ] [BIP-0322]: Generic Signed Message Format
 - [X] [BIP-0325]: Signet
