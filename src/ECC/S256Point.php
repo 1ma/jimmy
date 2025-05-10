@@ -148,10 +148,15 @@ final readonly class S256Point
         if ($compressed) {
             $prefix = 0 == $this->y->num % 2 ? "\x02" : "\x03";
 
-            return $prefix.Encoding\Endian::toBE($this->x->num, 32);
+            return $prefix.$this->xonly();
         }
 
-        return "\x04".Encoding\Endian::toBE($this->x->num, 32).Encoding\Endian::toBE($this->y->num, 32);
+        return "\x04".$this->xonly().Encoding\Endian::toBE($this->y->num, 32);
+    }
+
+    public function xonly(): string
+    {
+        return Encoding\Endian::toBE($this->x->num, 32);
     }
 
     /**

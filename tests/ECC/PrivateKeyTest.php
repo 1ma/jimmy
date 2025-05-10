@@ -39,7 +39,7 @@ final class PrivateKeyTest extends TestCase
         $t   = gmp_init('0xC90FDAA22168C234C4C6628B80DC1CD129024E088A67CC74020BBEA63B14E5C9');
         $prv = new PrivateKey(gmp_init('0xB7E151628AED2A6ABF7158809CF4F3C762E7160F38B4DA56A784D9045190CFEF'));
 
-        self::assertEquals($prv->tweak($t)->pubKey, $prv->pubKey->tweak($t));
+        self::assertSame($prv->tweak($t)->pubKey->sec(), $prv->pubKey->tweak($t)->sec());
     }
 
     #[DataProvider('bip340TestVectorProvider')]
