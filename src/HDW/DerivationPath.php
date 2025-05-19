@@ -9,7 +9,8 @@ use Bitcoin\ECC\S256Point;
 
 final readonly class DerivationPath
 {
-    private const string PATH_REGEXP = "#^m(/\d+'?)+$#";
+    private const string PATH_REGEXP_A = "#^m(/\d+'?)+$#";
+    private const string PATH_REGEXP_H = "#^m(/\d+h?)+$#";
 
     public array $levels;
 
@@ -24,14 +25,14 @@ final readonly class DerivationPath
             return new self([]);
         }
 
-        if (!preg_match(self::PATH_REGEXP, $path)) {
+        if (!preg_match(self::PATH_REGEXP_A, $path) && !preg_match(self::PATH_REGEXP_H, $path)) {
             throw new \InvalidArgumentException('Invalid derivation path: '.$path);
         }
 
         $levels = [];
         foreach (explode('/', substr($path, 2)) as $value) {
             $offset = 0;
-            if ("'" === $value[-1]) {
+            if (\in_array($value[-1], ["'", 'h'], true)) {
                 $value  = substr($value, 0, -1);
                 $offset = CKDFunctions::HARDENED_OFFSET;
             }

@@ -32,6 +32,10 @@ final class DerivationPathTest extends TestCase
         [$firstKey] = DerivationPath::range(DerivationPath::parse("m/84'/1'/0'/0")->derive($tprv), 0, 1);
 
         self::assertSame(hex2bin('10b5395fc646a9fef6fc0071dac51a8cd3f57f6a89efa2e5700dddfb9e81ad0f'), gmp_export($firstKey->secret));
+
+        [$firstKey2] = DerivationPath::range(DerivationPath::parse('m/84h/1h/0h/0')->derive($tprv), 0, 1);
+
+        self::assertSame($firstKey->wif(), $firstKey2->wif());
     }
 
     /**
