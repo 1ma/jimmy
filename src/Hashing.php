@@ -32,4 +32,9 @@ final readonly class Hashing
 
         return hash('sha256', $tag.$tag.$data, true);
     }
+
+    public static function merkleParent(string $hash0, string $hash1): string
+    {
+        return self::hash256($hash0.$hash1);
+    }
 }
