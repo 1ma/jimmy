@@ -58,6 +58,10 @@ final readonly class Script
 
     public static function payToSegWitV1(PublicKey $pubkey): self
     {
+        if (!$pubkey->hasEvenY()) {
+            throw new \InvalidArgumentException('Invalid Taproot public key');
+        }
+
         return new self([OpCodes::OP_1->value, $pubkey->xonly()]);
     }
 

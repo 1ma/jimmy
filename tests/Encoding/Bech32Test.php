@@ -10,7 +10,7 @@ use PHPUnit\Framework\TestCase;
 
 final class Bech32Test extends TestCase
 {
-    private const string TEST_VECTOR_EXTRACTOR = __DIR__.'/../bech32_sipatronic_extractor.py';
+    private const string TEST_VECTOR_EXTRACTOR = __DIR__.'/../bech32_sipatronic_testcase_extractor.py';
 
     #[DataProvider('validAddressProvider')]
     public function testValidAddress(string $address, string $program): void
@@ -101,6 +101,13 @@ final class Bech32Test extends TestCase
             static fn (string $v): array => [$v],
             array_merge($allTests->INVALID_BECH32, $allTests->INVALID_BECH32M)
         );
+    }
+
+    public function testCharacterOutOfRange(): void
+    {
+        $this->expectException(\InvalidArgumentException::class);
+
+        Bech32::segwitEncode(0, [256], Bech32::MAINNET_HRP);
     }
 
     #[DataProvider('invalidAddressEncodingProvider')]

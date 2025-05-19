@@ -9,7 +9,7 @@ use Bitcoin\Network;
 /**
  * @codeCoverageIgnore
  */
-final class MempoolFetcher implements Fetcher
+final readonly class MempoolFetcher implements Fetcher
 {
     private const string MAINNET_ENDPOINT = 'https://mempool.space';
     private const string TESTNET_ENDPOINT = 'https://mempool.space/testnet';

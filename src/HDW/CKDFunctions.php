@@ -12,7 +12,7 @@ use Bitcoin\Hashing;
 /**
  * @see https://bips.xyz/32#child-key-derivation-ckd-functions
  */
-class CKDFunctions
+final readonly class CKDFunctions
 {
     public const int HARDENED_OFFSET = 0x80000000;
 

@@ -9,7 +9,7 @@ use Bitcoin\Network;
 /**
  * @codeCoverageIgnore
  */
-final class BCliFetcher implements Fetcher
+final readonly class BCliFetcher implements Fetcher
 {
     public function fetch(string $txId, Network $mode): mixed
     {
