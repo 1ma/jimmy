@@ -54,6 +54,7 @@ To further emphasize it the library assumes that it runs on testnet by default i
 - [X] [BIP-0039]: Mnemonic code for generating deterministic keys
 - [X] [BIP-0043]: Purpose Field for Deterministic Wallets
 - [X] [BIP-0044]: Multi-Account Hierarchy for Deterministic Wallets
+- [ ] [BIP-0048]: Multi-Script Hierarchy for Multi-Sig Wallets
 - [X] [BIP-0066]: Strict DER signatures
 - [ ] [BIP-0067]: Deterministic Pay-to-script-hash multi-signature addresses through public key sorting
 - [X] [BIP-0084]: Derivation scheme for P2WPKH based accounts
@@ -85,6 +86,7 @@ To reiterate, this code is certainly vulnerable to timing side-channel attacks a
 [BIP-0039]: https://bips.xyz/39
 [BIP-0043]: https://bips.xyz/43
 [BIP-0044]: https://bips.xyz/44
+[BIP-0048]: https://bips.xyz/48
 [BIP-0066]: https://bips.xyz/66
 [BIP-0067]: https://bips.xyz/67
 [BIP-0084]: https://bips.xyz/84
