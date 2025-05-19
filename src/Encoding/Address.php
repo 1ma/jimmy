@@ -38,4 +38,11 @@ final readonly class Address
 
         return Base58::checksum($prefix.Hashing::hash160($p->sec($compressed)));
     }
+
+    public static function p2wpkh(S256Point $p, Network $mode = Network::TESTNET): string
+    {
+        $hrp = Network::MAINNET === $mode ? Bech32::MAINNET_HRP : Bech32::TESTNET_HRP;
+
+        return Bech32::segwitEncode(0, unpack('C*', Hashing::hash160($p->sec(true))), $hrp);
+    }
 }
