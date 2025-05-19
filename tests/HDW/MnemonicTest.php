@@ -25,6 +25,35 @@ final class MnemonicTest extends TestCase
         }
     }
 
+    public function testInvalidMnemonicLength(): void
+    {
+        $this->expectException(\InvalidArgumentException::class);
+
+        Mnemonic::deriveSeed(['abandon', 'abandon', 'abandon']);
+    }
+
+    public function testInvalidWordInMnemonic(): void
+    {
+        $this->expectException(\InvalidArgumentException::class);
+
+        Mnemonic::deriveSeed([
+            'abandon', 'abandon', 'abandon', 'abandon',
+            'abandon', 'abandon', 'wtf', 'abandon',
+            'abandon', 'abandon', 'abandon', 'abandon',
+        ]);
+    }
+
+    public function testInvalidChecksum(): void
+    {
+        $this->expectException(\InvalidArgumentException::class);
+
+        Mnemonic::deriveSeed([
+            'abandon', 'abandon', 'abandon', 'abandon',
+            'abandon', 'abandon', 'abandon', 'abandon',
+            'abandon', 'abandon', 'abandon', 'abandon',
+        ]);
+    }
+
     #[DataProvider('trezorEnglishVectorsProvider')]
     public function testTrezorVectors(string $entropy, string $mnemonic, string $seed, string $xprv): void
     {
