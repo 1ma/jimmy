@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Bitcoin\HDW;
 
 use Bitcoin\ECC\PrivateKey;
-use Bitcoin\ECC\S256Point;
+use Bitcoin\ECC\S256Params;
 use Bitcoin\Encoding\Bech32;
 use Bitcoin\Hashing;
 use Bitcoin\Tx\Script;
@@ -35,14 +35,25 @@ final readonly class SimpleTaprootWallet
 
     public function getScriptPubKey(int $index, bool $internal = false): Script
     {
-        $change = $internal ? 1 : 0;
-        $subkey = DerivationPath::parse("m/{$change}/{$index}")->derive($this->account);
+        return Script::payToSegWitV1($this->getKey($index, $internal)->pubKey);
+    }
 
-        $internalKey = S256Point::liftX($subkey->key->pubKey->x->num);
+    public function getKey(int $index, bool $internal = false): PrivateKey
+    {
+        $internalKey = $this->getInternalKey($index, $internal);
+        $tweak       = Hashing::taggedHash('TapTweak', $internalKey->pubKey->xonly());
 
-        $tweak      = Hashing::taggedHash('TapTweak', $internalKey->xonly());
         $tweakedKey = $internalKey->tweak(gmp_import($tweak));
 
-        return Script::payToSegWitV1($tweakedKey);
+        return $tweakedKey->pubKey->hasEvenY() ? $tweakedKey : new PrivateKey(S256Params::N() - $tweakedKey->secret);
+    }
+
+    public function getInternalKey(int $index, bool $internal = false): PrivateKey
+    {
+        $change = $internal ? 1 : 0;
+
+        $internalKey = DerivationPath::parse("m/{$change}/{$index}")->derive($this->account)->key;
+
+        return $internalKey->pubKey->hasEvenY() ? $internalKey : new PrivateKey(S256Params::N() - $internalKey->secret);
     }
 }
