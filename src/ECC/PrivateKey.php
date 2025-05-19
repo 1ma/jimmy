@@ -11,7 +11,7 @@ use Bitcoin\Network;
 final readonly class PrivateKey
 {
     public \GMP $secret;
-    public S256Point $pubKey;
+    public PublicKey $pubKey;
 
     public function __construct(#[\SensitiveParameter] \GMP $secret)
     {

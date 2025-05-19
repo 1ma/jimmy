@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Bitcoin\Tx\Script\OpCodes;
 
-use Bitcoin\ECC\S256Point;
+use Bitcoin\ECC\PublicKey;
 use Bitcoin\ECC\Signature;
 use Bitcoin\Encoding;
 
@@ -42,7 +42,7 @@ final readonly class OpCheckMultiSig
         array_pop($stack);
 
         try {
-            $pubKeys = array_map(fn (string $sec): S256Point => S256Point::parse($sec), $pubKeys);
+            $pubKeys = array_map(fn (string $sec): PublicKey => PublicKey::parse($sec), $pubKeys);
             $sigs    = array_map(fn (string $der): Signature => Signature::parse(substr($der, 0, -1)), $sigs);
 
             foreach ($sigs as $sig) {

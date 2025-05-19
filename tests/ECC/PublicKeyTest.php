@@ -5,23 +5,23 @@ declare(strict_types=1);
 namespace Bitcoin\Tests\ECC;
 
 use Bitcoin\ECC\PrivateKey;
+use Bitcoin\ECC\PublicKey;
 use Bitcoin\ECC\S256Field;
 use Bitcoin\ECC\S256Params;
-use Bitcoin\ECC\S256Point;
 use Bitcoin\ECC\Signature;
 use Bitcoin\Encoding;
 use Bitcoin\Hashing;
 use Bitcoin\Network;
 use PHPUnit\Framework\TestCase;
 
-final class S256PointTest extends TestCase
+final class PublicKeyTest extends TestCase
 {
     public function testNoSingleNullCoordinate(): void
     {
         $this->expectException(\InvalidArgumentException::class);
         $this->expectExceptionMessage('If one coordinate is null the other must be null too');
 
-        new S256Point(null, new S256Field(1));
+        new PublicKey(null, new S256Field(1));
     }
 
     public function testSecp256k1FundamentalProperties(): void
@@ -33,7 +33,7 @@ final class S256PointTest extends TestCase
         );
 
         // Check that G has the order n (i.e. n*G is the infinity point on secp256k1)
-        self::assertSame('S256Point(,)', (string) S256Params::G()->scalarMul(S256Params::N()));
+        self::assertSame('PublicKey(,)', (string) S256Params::G()->scalarMul(S256Params::N()));
     }
 
     public function testRawSignatureVerification(): void
@@ -42,7 +42,7 @@ final class S256PointTest extends TestCase
         $r = gmp_init('0x37206a0610995c58074999cb9767b87af4c4978db68c06e8e6e81d282047a7c6');
         $s = gmp_init('0x8ca63759c1157ebeaec0d03cecca119fc9a75bf8e6d0fa65c841c8e2738cdaec');
 
-        $point = new S256Point(
+        $pubKey = new PublicKey(
             new S256Field('0x04519fac3d910ca7e7138f7013706f619fa8f033e6ec6e09370ea38cee6a7574'),
             new S256Field('0x82b51eab8c27c66e26c858a079bcdf4f1ada34cec420cafc7eac1a42216fb6c4')
         );
@@ -51,12 +51,12 @@ final class S256PointTest extends TestCase
         $u    = ($z * $sInv) % S256Params::N();
         $v    = ($r * $sInv) % S256Params::N();
 
-        self::assertTrue($r == S256Params::G()->scalarMul($u)->add($point->scalarMul($v))->x->num);
+        self::assertTrue($r == S256Params::G()->scalarMul($u)->add($pubKey->scalarMul($v))->x->num);
     }
 
     public function testVerifySignaturesExercise6Chapter3(): void
     {
-        $point = new S256Point(
+        $pubKey = new PublicKey(
             new S256Field('0x887387e452b8eacc4acfde10d9aaf7f6d9a0f975aabb10d006e4da568744d06c'),
             new S256Field('0x61de6d95231cd89026e286df3b6ae4a894a3378e393e93a0f45b666329a0ae34')
         );
@@ -70,7 +70,7 @@ final class S256PointTest extends TestCase
         $u    = ($z * $sInv) % S256Params::N();
         $v    = ($r * $sInv) % S256Params::N();
 
-        self::assertTrue($r == S256Params::G()->scalarMul($u)->add($point->scalarMul($v))->x->num);
+        self::assertTrue($r == S256Params::G()->scalarMul($u)->add($pubKey->scalarMul($v))->x->num);
 
         // signature #2
         $z = gmp_init('0x7c076ff316692a3d7eb3c3bb0f8b1488cf72e1afcd929e29307032997a838a3d');
@@ -81,7 +81,7 @@ final class S256PointTest extends TestCase
         $u    = ($z * $sInv) % S256Params::N();
         $v    = ($r * $sInv) % S256Params::N();
 
-        self::assertTrue($r == S256Params::G()->scalarMul($u)->add($point->scalarMul($v))->x->num);
+        self::assertTrue($r == S256Params::G()->scalarMul($u)->add($pubKey->scalarMul($v))->x->num);
     }
 
     public function testRawSignatureCreation(): void
@@ -95,7 +95,7 @@ final class S256PointTest extends TestCase
         $s     = (($z + $r * $e) * $kInv) % S256Params::N();
         $point = S256Params::G()->scalarMul($e);
 
-        self::assertSame('S256Point(028d003eab2e428d11983f3e97c3fa0addf3b42740df0d211795ffb3be2f6c52,0ae987b9ec6ea159c78cb2a937ed89096fb218d9e7594f02b547526d8cd309e2)', (string) $point);
+        self::assertSame('PublicKey(028d003eab2e428d11983f3e97c3fa0addf3b42740df0d211795ffb3be2f6c52,0ae987b9ec6ea159c78cb2a937ed89096fb218d9e7594f02b547526d8cd309e2)', (string) $point);
         self::assertSame('231c6f3d980a6b0fb7152f85cee7eb52bf92433d9919b9c5218cb08e79cce78', gmp_strval($z, 16));
         self::assertSame('2b698a0f0a4041b77e63488ad48c23e8e8838dd1fb7520408b121697b782ef22', gmp_strval($r, 16));
         self::assertSame('bb14e602ef9e3f872e25fad328466b34e6734b7a0fcd58b1eb635447ffae8cb9', gmp_strval($s, 16));
@@ -112,7 +112,7 @@ final class S256PointTest extends TestCase
         $s     = (($z + $r * $e) * $kInv) % S256Params::N();
         $point = S256Params::G()->scalarMul($e);
 
-        self::assertSame('S256Point(f01d6b9018ab421dd410404cb869072065522bf85734008f105cf385a023a80f,0eba29d0f0c5408ed681984dc525982abefccd9f7ff01dd26da4999cf3f6a295)', (string) $point);
+        self::assertSame('PublicKey(f01d6b9018ab421dd410404cb869072065522bf85734008f105cf385a023a80f,0eba29d0f0c5408ed681984dc525982abefccd9f7ff01dd26da4999cf3f6a295)', (string) $point);
         self::assertSame('969f6056aa26f7d2795fd013fe88868d09c9f6aed96965016e1936ae47060d48', gmp_strval($z, 16));
         self::assertSame('2b698a0f0a4041b77e63488ad48c23e8e8838dd1fb7520408b121697b782ef22', gmp_strval($r, 16));
         self::assertSame('1dbc63bfef4416705e602a7b564161167076d8b20990a0f26f316cff2cb0bc1a', gmp_strval($s, 16));
@@ -122,7 +122,7 @@ final class S256PointTest extends TestCase
     {
         // Test case based on exercise 6 from chapter 3
 
-        $pubkey = new S256Point(
+        $pubkey = new PublicKey(
             new S256Field('0x887387e452b8eacc4acfde10d9aaf7f6d9a0f975aabb10d006e4da568744d06c'),
             new S256Field('0x61de6d95231cd89026e286df3b6ae4a894a3378e393e93a0f45b666329a0ae34')
         );
@@ -157,12 +157,12 @@ final class S256PointTest extends TestCase
     {
         $this->expectException(\InvalidArgumentException::class);
 
-        S256Point::parse("\x00\x01\x02\x03");
+        PublicKey::parse("\x00\x01\x02\x03");
     }
 
     public function testUncompressedSecFormat(): void
     {
-        $pubKey = new S256Point(
+        $pubKey = new PublicKey(
             new S256Field('0x028d003eab2e428d11983f3e97c3fa0addf3b42740df0d211795ffb3be2f6c52'),
             new S256Field('0x0ae987b9ec6ea159c78cb2a937ed89096fb218d9e7594f02b547526d8cd309e2')
         );
@@ -191,9 +191,9 @@ final class S256PointTest extends TestCase
             $s3->pubKey->sec(false)
         );
 
-        $p1 = S256Point::parse($s1->pubKey->sec(false));
-        $p2 = S256Point::parse($s2->pubKey->sec(false));
-        $p3 = S256Point::parse($s3->pubKey->sec(false));
+        $p1 = PublicKey::parse($s1->pubKey->sec(false));
+        $p2 = PublicKey::parse($s2->pubKey->sec(false));
+        $p3 = PublicKey::parse($s3->pubKey->sec(false));
 
         self::assertTrue($p1->x->num == $s1->pubKey->x->num);
         self::assertTrue($p1->y->num == $s1->pubKey->y->num);
@@ -224,9 +224,9 @@ final class S256PointTest extends TestCase
             $s3->pubKey->sec()
         );
 
-        $p1 = S256Point::parse($s1->pubKey->sec());
-        $p2 = S256Point::parse($s2->pubKey->sec());
-        $p3 = S256Point::parse($s3->pubKey->sec());
+        $p1 = PublicKey::parse($s1->pubKey->sec());
+        $p2 = PublicKey::parse($s2->pubKey->sec());
+        $p3 = PublicKey::parse($s3->pubKey->sec());
 
         self::assertTrue($p1->x->num == $s1->pubKey->x->num);
         self::assertTrue($p1->y->num == $s1->pubKey->y->num);
@@ -248,7 +248,7 @@ final class S256PointTest extends TestCase
 
         // Based on example from Chapter 6 page 120
         $sec    = hex2bin('0250863ad64a87ae8a2fe83c1af1a8403cb53f53e486d8511dad8a04887e5b2352');
-        $pubkey = S256Point::parse($sec);
+        $pubkey = PublicKey::parse($sec);
 
         self::assertSame('1PMycacnJaSqwwJqjawXBErnLsZ7RkXUAs', Encoding\Address::p2pkh($pubkey, compressed: true, mode: Network::MAINNET));
         self::assertSame(Hashing::hash160($sec), Encoding\Address::decode('1PMycacnJaSqwwJqjawXBErnLsZ7RkXUAs'));

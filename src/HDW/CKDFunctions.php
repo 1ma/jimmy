@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Bitcoin\HDW;
 
 use Bitcoin\ECC\PrivateKey;
+use Bitcoin\ECC\PublicKey;
 use Bitcoin\ECC\S256Params;
-use Bitcoin\ECC\S256Point;
 use Bitcoin\Hashing;
 
 /**
@@ -36,9 +36,9 @@ class CKDFunctions
     /**
      * @see https://bips.xyz/32#public-parent-key--public-child-key
      *
-     * @return array{S256Point, string}
+     * @return array{PublicKey, string}
      */
-    public static function CKDPub(S256Point $KParent, string $cParent, int $index): array
+    public static function CKDPub(PublicKey $KParent, string $cParent, int $index): array
     {
         if (self::hardened($index)) {
             throw new \InvalidArgumentException('Derivation of hardened indexes is not possible in CKDPub');

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Bitcoin\Tx;
 
-use Bitcoin\ECC\S256Point;
+use Bitcoin\ECC\PublicKey;
 use Bitcoin\Encoding;
 use Bitcoin\Tx\Script\OpCodes;
 
@@ -56,7 +56,7 @@ final readonly class Script
         return new self([OpCodes::OP_0->value, $hash]);
     }
 
-    public static function payToSegWitV1(S256Point $pubkey): self
+    public static function payToSegWitV1(PublicKey $pubkey): self
     {
         return new self([OpCodes::OP_1->value, $pubkey->xonly()]);
     }

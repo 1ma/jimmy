@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Bitcoin\Encoding;
 
-use Bitcoin\ECC\S256Point;
+use Bitcoin\ECC\PublicKey;
 use Bitcoin\Hashing;
 use Bitcoin\Network;
 
@@ -32,14 +32,14 @@ final readonly class Address
         return substr($data, 1);
     }
 
-    public static function p2pkh(S256Point $p, bool $compressed = true, Network $mode = Network::TESTNET): string
+    public static function p2pkh(PublicKey $p, bool $compressed = true, Network $mode = Network::TESTNET): string
     {
         $prefix = Network::TESTNET === $mode ? self::P2PKH_TESTNET_PREFIX : self::P2PKH_MAINNET_PREFIX;
 
         return Base58::checksum($prefix.Hashing::hash160($p->sec($compressed)));
     }
 
-    public static function p2wpkh(S256Point $p, Network $mode = Network::TESTNET): string
+    public static function p2wpkh(PublicKey $p, Network $mode = Network::TESTNET): string
     {
         $hrp = Network::MAINNET === $mode ? Bech32::MAINNET_HRP : Bech32::TESTNET_HRP;
 

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Bitcoin\Tests\ECC;
 
-use Bitcoin\ECC\S256Point;
+use Bitcoin\ECC\PublicKey;
 use Bitcoin\ECC\Signature;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
@@ -35,7 +35,7 @@ final class WycheproofTest extends TestCase
     ];
 
     #[DataProvider('wycheproofTestVectorProvider')]
-    public function testWycheproofVectors(int $tcId, S256Point $publicKey, string $derSignature, string $rawMessage, array $testFlags, bool $expectedResult): void
+    public function testWycheproofVectors(int $tcId, PublicKey $publicKey, string $derSignature, string $rawMessage, array $testFlags, bool $expectedResult): void
     {
         if ((!\in_array($tcId, self::NON_EXCEPTION_VECTORS) && !empty(array_intersect([
             self::FLAG_SIGNATURE_MALLEABILITY,
@@ -64,7 +64,7 @@ final class WycheproofTest extends TestCase
 
         $vectors = [];
         foreach ($root->testGroups as $testGroup) {
-            $publicKey = S256Point::parse(hex2bin($testGroup->publicKey->uncompressed));
+            $publicKey = PublicKey::parse(hex2bin($testGroup->publicKey->uncompressed));
             foreach ($testGroup->tests as $test) {
                 $vectors["Test #{$test->tcId}: {$test->comment}"] = [
                     $test->tcId,

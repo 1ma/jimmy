@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Bitcoin\HDW;
 
 use Bitcoin\ECC\PrivateKey;
-use Bitcoin\ECC\S256Point;
+use Bitcoin\ECC\PublicKey;
 use Bitcoin\Encoding;
 use Bitcoin\Hashing;
 
@@ -22,9 +22,9 @@ final readonly class ExtendedKey
     public string $parentFingerprint;
     public int $childNumber;
     public string $chainCode;
-    public PrivateKey|S256Point $key;
+    public PrivateKey|PublicKey $key;
 
-    public function __construct(Version $version, int $depth, string $parentFingerprint, int $childNumber, string $chainCode, PrivateKey|S256Point $key)
+    public function __construct(Version $version, int $depth, string $parentFingerprint, int $childNumber, string $chainCode, PrivateKey|PublicKey $key)
     {
         if (0 === $depth && self::MASTER_FINGERPRINT !== $parentFingerprint) {
             throw new \InvalidArgumentException('An extended key of depth 0 cannot have a parent fingerprint');
@@ -38,7 +38,7 @@ final readonly class ExtendedKey
             throw new \InvalidArgumentException('This is supposed to be an xpub, found a private key in it');
         }
 
-        if (\in_array($version, [Version::MAINNET_XPRV, Version::TESTNET_TPRV]) && $key instanceof S256Point) {
+        if (\in_array($version, [Version::MAINNET_XPRV, Version::TESTNET_TPRV]) && $key instanceof PublicKey) {
             throw new \InvalidArgumentException('This is supposed to be an xprv, found a public key in it');
         }
 
@@ -59,7 +59,7 @@ final readonly class ExtendedKey
 
     public function xpub(): self
     {
-        if ($this->key instanceof S256Point) {
+        if ($this->key instanceof PublicKey) {
             return $this;
         }
 
@@ -104,7 +104,7 @@ final readonly class ExtendedKey
         $childNumber = unpack('N', substr($data, 9, 4))[1];
         $chainCode   = substr($data, 13, 32);
         $material    = substr($data, 45, 33);
-        $key         = "\x00" === $material[0] ? new PrivateKey(gmp_import(substr($material, 1))) : S256Point::parse($material);
+        $key         = "\x00" === $material[0] ? new PrivateKey(gmp_import(substr($material, 1))) : PublicKey::parse($material);
 
         return new self($version, $depth, $fingerprint, $childNumber, $chainCode, $key);
     }

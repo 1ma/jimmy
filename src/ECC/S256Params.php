@@ -47,7 +47,7 @@ final class S256Params
     private static \GMP $P;
     private static S256Field $A;
     private static S256Field $B;
-    private static S256Point $G;
+    private static PublicKey $G;
 
     public static function N(): \GMP
     {
@@ -94,10 +94,10 @@ final class S256Params
         return self::$B;
     }
 
-    public static function G(): S256Point
+    public static function G(): PublicKey
     {
         if (!isset(self::$G)) {
-            self::$G = new S256Point(new S256Field(self::Gx), new S256Field(self::Gy));
+            self::$G = new PublicKey(new S256Field(self::Gx), new S256Field(self::Gy));
         }
 
         return self::$G;

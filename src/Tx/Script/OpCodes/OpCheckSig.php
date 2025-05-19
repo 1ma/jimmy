@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Bitcoin\Tx\Script\OpCodes;
 
-use Bitcoin\ECC\S256Point;
+use Bitcoin\ECC\PublicKey;
 use Bitcoin\ECC\Signature;
 use Bitcoin\Encoding;
 
@@ -17,7 +17,7 @@ final readonly class OpCheckSig
         }
 
         try {
-            $pubKey = S256Point::parse(array_pop($stack));
+            $pubKey = PublicKey::parse(array_pop($stack));
 
             // sighash byte must be stripped from the DER data
             $signature = Signature::parse(substr(array_pop($stack), 0, -1), true);

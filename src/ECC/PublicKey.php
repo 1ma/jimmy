@@ -8,11 +8,11 @@ use Bitcoin\Encoding;
 use Bitcoin\Hashing;
 
 /**
- * Represents a Point on the secp256k1 elliptic curve.
+ * Represents a point on the secp256k1 elliptic curve.
  *
  * These points are Bitcoin's public keys.
  */
-final readonly class S256Point
+final readonly class PublicKey
 {
     public ?S256Field $x;
     public ?S256Field $y;
@@ -192,11 +192,11 @@ final readonly class S256Point
     public function __toString(): string
     {
         if (null === $this->x) {
-            return 'S256Point(,)';
+            return 'PublicKey(,)';
         }
 
         return \sprintf(
-            'S256Point(%s,%s)',
+            'PublicKey(%s,%s)',
             str_pad(gmp_strval($this->x->num, 16), 64, '0', \STR_PAD_LEFT),
             str_pad(gmp_strval($this->y->num, 16), 64, '0', \STR_PAD_LEFT)
         );

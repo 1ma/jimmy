@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Bitcoin\Tests\ECC;
 
 use Bitcoin\ECC\PrivateKey;
-use Bitcoin\ECC\S256Point;
+use Bitcoin\ECC\PublicKey;
 use Bitcoin\ECC\Signature;
 use Bitcoin\Encoding;
 use Bitcoin\Network;
@@ -58,7 +58,7 @@ final class PrivateKeyTest extends TestCase
             self::assertFalse($expectedVerification);
         }
 
-        $point = S256Point::liftX(gmp_import($publicKey));
+        $pubKey = PublicKey::liftX(gmp_import($publicKey));
 
         $signature = new Signature(
             gmp_import(substr($expectedSignature, 0, 32)),
@@ -66,7 +66,7 @@ final class PrivateKeyTest extends TestCase
             true
         );
 
-        self::assertSame($expectedVerification, $point->schnorr($message, $signature));
+        self::assertSame($expectedVerification, $pubKey->schnorr($message, $signature));
 
         if (empty($privateKey)) {
             return;

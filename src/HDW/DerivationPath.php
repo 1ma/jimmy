@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Bitcoin\HDW;
 
 use Bitcoin\ECC\PrivateKey;
-use Bitcoin\ECC\S256Point;
+use Bitcoin\ECC\PublicKey;
 
 final readonly class DerivationPath
 {
@@ -68,7 +68,7 @@ final readonly class DerivationPath
     }
 
     /**
-     * @return array<PrivateKey|S256Point>
+     * @return array<PrivateKey|PublicKey>
      */
     public static function range(ExtendedKey $extendedKey, int $offset, int $limit): array
     {
