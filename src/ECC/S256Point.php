@@ -6,7 +6,6 @@ namespace Bitcoin\ECC;
 
 use Bitcoin\Encoding;
 use Bitcoin\Hashing;
-use Bitcoin\Network;
 
 /**
  * Represents a Point on the secp256k1 elliptic curve.
@@ -17,9 +16,6 @@ final readonly class S256Point
 {
     public ?S256Field $x;
     public ?S256Field $y;
-
-    private const string P2PKH_MAINNET_PREFIX = "\x00";
-    private const string P2PKH_TESTNET_PREFIX = "\x6f";
 
     public function __construct(?S256Field $x, ?S256Field $y)
     {
@@ -138,11 +134,6 @@ final readonly class S256Point
             new self($x, (0 == $beta->num % 2) ? new S256Field(S256Params::P() - $beta->num) : $beta);
     }
 
-    public function address(bool $compressed = true, Network $mode = Network::TESTNET): string
-    {
-        return self::hash160ToPayToPublicKeyHashAddress(Hashing::hash160($this->sec($compressed)), $mode);
-    }
-
     public function sec(bool $compressed = true): string
     {
         if ($compressed) {
@@ -215,10 +206,5 @@ final readonly class S256Point
     {
         return (33 === \strlen($data) && ("\x02" === $data[0] || "\x03" === $data[0]))
             || (65 === \strlen($data) && "\x04" === $data[0]);
-    }
-
-    private static function hash160ToPayToPublicKeyHashAddress(string $hash, Network $mode = Network::TESTNET): string
-    {
-        return Encoding\Base58::checksum((Network::TESTNET === $mode ? self::P2PKH_TESTNET_PREFIX : self::P2PKH_MAINNET_PREFIX).$hash);
     }
 }

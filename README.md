@@ -52,8 +52,8 @@ To further emphasize it the library assumes that it runs on testnet by default i
 
 - [X] [BIP-0032]: Hierarchical Deterministic Wallets
 - [X] [BIP-0039]: Mnemonic code for generating deterministic keys
-- [ ] [BIP-0043]: Purpose Field for Deterministic Wallets
-- [ ] [BIP-0044]: Multi-Account Hierarchy for Deterministic Wallets
+- [X] [BIP-0043]: Purpose Field for Deterministic Wallets
+- [X] [BIP-0044]: Multi-Account Hierarchy for Deterministic Wallets
 - [X] [BIP-0066]: Strict DER signatures
 - [ ] [BIP-0067]: Deterministic Pay-to-script-hash multi-signature addresses through public key sorting
 - [ ] [BIP-0084]: Derivation scheme for P2WPKH based accounts
