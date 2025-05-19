@@ -33,8 +33,39 @@ final readonly class Hashing
         return hash('sha256', $tag.$tag.$data, true);
     }
 
-    public static function merkleParent(string $hash0, string $hash1): string
+    public static function merkleRoot(array $leaves): string
     {
-        return self::hash256($hash0.$hash1);
+        if (empty($leaves)) {
+            throw new \InvalidArgumentException('At least one element needed');
+        }
+
+        while (\count($leaves) > 1) {
+            $leaves = self::merkleParentLevel($leaves);
+        }
+
+        return $leaves[0];
+    }
+
+    public static function merkleParentLevel(array $children): array
+    {
+        if (\count($children) < 2) {
+            throw new \InvalidArgumentException('At least two elements needed');
+        }
+
+        if (0 !== \count($children) % 2) {
+            $children[] = $children[array_key_last($children)];
+        }
+
+        $parents = [];
+        for ($i = 0; $i < \count($children); $i += 2) {
+            $parents[] = self::merkleParent($children[$i], $children[$i + 1]);
+        }
+
+        return $parents;
+    }
+
+    public static function merkleParent(string $leftChild, string $rightChild): string
+    {
+        return self::hash256($leftChild.$rightChild);
     }
 }
