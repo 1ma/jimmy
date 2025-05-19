@@ -33,7 +33,7 @@ final class S256FieldTest extends TestCase
     {
         self::assertSame(
             'S256Field(0000000000000000000000000000000000000000000000000000000000000013)',
-            (string) (new S256Field(7))->add(new S256Field(12))
+            (string) new S256Field(7)->add(new S256Field(12))
         );
     }
 
@@ -41,7 +41,7 @@ final class S256FieldTest extends TestCase
     {
         self::assertSame(
             'S256Field(fffffffffffffffffffffffffffffffffffffffffffffffffffffffefffffc2c)',
-            (string) (new S256Field(2))->sub(new S256Field(5))
+            (string) new S256Field(2)->sub(new S256Field(5))
         );
     }
 
@@ -49,7 +49,7 @@ final class S256FieldTest extends TestCase
     {
         self::assertSame(
             'S256Field(0000000000000000000000000000000000000000000000000000000000000078)',
-            (string) (new S256Field(12))->mul(new S256Field(10))
+            (string) new S256Field(12)->mul(new S256Field(10))
         );
     }
 
@@ -57,12 +57,12 @@ final class S256FieldTest extends TestCase
     {
         self::assertSame(
             'S256Field(b6db6db6db6db6db6db6db6db6db6db6db6db6db6db6db6db6db6db62492466b)',
-            (string) (new S256Field(2))->div(new S256Field(7))
+            (string) new S256Field(2)->div(new S256Field(7))
         );
 
         self::assertSame(
             'S256Field(33333333333333333333333333333333333333333333333333333332ffffff3e)',
-            (string) (new S256Field(7))->div(new S256Field(5))
+            (string) new S256Field(7)->div(new S256Field(5))
         );
     }
 
@@ -70,12 +70,12 @@ final class S256FieldTest extends TestCase
     {
         self::assertSame(
             'S256Field(000000000000000000000000000000000000000000000000000000000000001b)',
-            (string) (new S256Field(3))->exp(3)
+            (string) new S256Field(3)->exp(3)
         );
 
         self::assertSame(
             'S256Field(cb023d337fa0776aba96c38b918a1367be52196047a66ff40eed57520d6f31f7)',
-            (string) (new S256Field(7))->exp(-3)
+            (string) new S256Field(7)->exp(-3)
         );
     }
 }

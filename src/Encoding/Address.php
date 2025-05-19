@@ -34,7 +34,7 @@ final readonly class Address
 
     public static function p2pkh(PublicKey $p, bool $compressed = true, Network $mode = Network::TESTNET): string
     {
-        $prefix = Network::TESTNET === $mode ? self::P2PKH_TESTNET_PREFIX : self::P2PKH_MAINNET_PREFIX;
+        $prefix = Network::MAINNET === $mode ? self::P2PKH_MAINNET_PREFIX : self::P2PKH_TESTNET_PREFIX;
 
         return Base58::checksum($prefix.Hashing::hash160($p->sec($compressed)));
     }

@@ -21,10 +21,6 @@ final readonly class PrivateKey
 
         $this->secret = $secret;
         $this->pubKey = S256Params::G()->scalarMul($this->secret);
-
-        if ($this->pubKey->atInfinity()) {
-            throw new \InvalidArgumentException('Invalid public key (point at infinity)');
-        }
     }
 
     public function tweak(\GMP $t): self

@@ -6,6 +6,7 @@ namespace Bitcoin\Tests\ECC;
 
 use Bitcoin\ECC\PrivateKey;
 use Bitcoin\ECC\PublicKey;
+use Bitcoin\ECC\S256Params;
 use Bitcoin\ECC\Signature;
 use Bitcoin\Encoding;
 use Bitcoin\Network;
@@ -15,6 +16,13 @@ use PHPUnit\Framework\TestCase;
 final class PrivateKeyTest extends TestCase
 {
     private const string BIP340_TEST_VECTOR_PATH = __DIR__.'/../../vendor/bitcoin/bips/bip-0340/test-vectors.csv';
+
+    public function testMakeSureNIsTheOrderOfTheGeneratorPoint(): void
+    {
+        $infinity = S256Params::G()->scalarMul(S256Params::N());
+
+        self::assertTrue($infinity->atInfinity());
+    }
 
     public function testWifSerialization(): void
     {
