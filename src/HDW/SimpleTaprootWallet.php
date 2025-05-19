@@ -10,7 +10,7 @@ use Bitcoin\Encoding\Bech32;
 use Bitcoin\Hashing;
 use Bitcoin\Tx\Script;
 
-final readonly class SimpleTaprootWallet
+final readonly class SimpleTaprootWallet implements HDWallet
 {
     public ExtendedKey $account;
 

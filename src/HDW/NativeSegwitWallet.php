@@ -10,7 +10,7 @@ use Bitcoin\Hashing;
 use Bitcoin\Network;
 use Bitcoin\Tx\Script;
 
-final readonly class NativeSegwitWallet
+final readonly class NativeSegwitWallet implements HDWallet
 {
     public ExtendedKey $account;
 

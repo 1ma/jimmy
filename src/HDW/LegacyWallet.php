@@ -10,7 +10,7 @@ use Bitcoin\Hashing;
 use Bitcoin\Network;
 use Bitcoin\Tx\Script;
 
-final readonly class LegacyWallet
+final readonly class LegacyWallet implements HDWallet
 {
     public ExtendedKey $account;
 
