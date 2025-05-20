@@ -12,10 +12,11 @@ final readonly class Block
     public int $timestamp;
     public int $bits;
     public int $nonce;
+    public array $txIds;
 
     private const int TWO_WEEKS = 60 * 60 * 24 * 14;
 
-    public function __construct(int $version, string $prevBlock, string $merkleRoot, int $timestamp, int $bits, int $nonce)
+    public function __construct(int $version, string $prevBlock, string $merkleRoot, int $timestamp, int $bits, int $nonce, array $txIds = [])
     {
         $this->version    = $version;
         $this->prevBlock  = $prevBlock;
@@ -23,6 +24,7 @@ final readonly class Block
         $this->timestamp  = $timestamp;
         $this->bits       = $bits;
         $this->nonce      = $nonce;
+        $this->txIds      = $txIds;
     }
 
     /**
@@ -68,6 +70,17 @@ final readonly class Block
     public function difficulty(): \GMP
     {
         return gmp_div(gmp_mul(0xFFFF, gmp_pow(256, 0x1D - 3)), $this->target());
+    }
+
+    public function checkMerkleRoot(): bool
+    {
+        if (empty($this->txIds)) {
+            return false;
+        }
+
+        $root = Hashing::merkleRoot(array_map('strrev', $this->txIds));
+
+        return hash_equals(hex2bin($this->merkleRoot), strrev($root));
     }
 
     public function checkPOW(): bool
