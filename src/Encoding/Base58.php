@@ -5,15 +5,11 @@ declare(strict_types=1);
 namespace Bitcoin\Encoding;
 
 use Bitcoin\Hashing;
-use Bitcoin\Network;
 
 final readonly class Base58
 {
     private const string BTC_BASE58_ALPHABET = '123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz';
     private const string GMP_BASE58_ALPHABET = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuv';
-
-    private const string P2SH_MAINNET_PREFIX = "\x05";
-    private const string P2SH_TESTNET_PREFIX = "\xc4";
 
     public static function encode(string $data): string
     {
@@ -63,10 +59,5 @@ final readonly class Base58
     public static function checksum(string $data): string
     {
         return self::encode($data.substr(Hashing::hash256($data), 0, 4));
-    }
-
-    public static function hash160ToPayToScriptKeyHashAddress(string $hash, Network $mode = Network::TESTNET): string
-    {
-        return self::checksum((Network::TESTNET === $mode ? self::P2SH_TESTNET_PREFIX : self::P2SH_MAINNET_PREFIX).$hash);
     }
 }

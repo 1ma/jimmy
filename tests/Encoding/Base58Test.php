@@ -47,7 +47,7 @@ final class Base58Test extends TestCase
         // Based on example from Chapter 8 page 157
         self::assertSame(
             '3CLoMMyuoDQTPRD3XYZtCvgvkadrAdvdXh',
-            Encoding\Base58::hash160ToPayToScriptKeyHashAddress(hex2bin('74d691da1574e6b3c192ecfb52cc8984ee7b6c56'), mode: Network::MAINNET)
+            Encoding\Address::p2sh(hex2bin('74d691da1574e6b3c192ecfb52cc8984ee7b6c56'), mode: Network::MAINNET)
         );
     }
 }

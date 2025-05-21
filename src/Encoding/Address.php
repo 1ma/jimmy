@@ -13,6 +13,9 @@ final readonly class Address
     private const string P2PKH_MAINNET_PREFIX = "\x00";
     private const string P2PKH_TESTNET_PREFIX = "\x6f";
 
+    private const string P2SH_MAINNET_PREFIX = "\x05";
+    private const string P2SH_TESTNET_PREFIX = "\xc4";
+
     public static function decode(string $address): string
     {
         // Bech32 addresses
@@ -37,6 +40,11 @@ final readonly class Address
         $prefix = Network::MAINNET === $mode ? self::P2PKH_MAINNET_PREFIX : self::P2PKH_TESTNET_PREFIX;
 
         return Base58::checksum($prefix.Hashing::hash160($p->sec($compressed)));
+    }
+
+    public static function p2sh(string $hash, Network $mode = Network::TESTNET): string
+    {
+        return Base58::checksum((Network::TESTNET === $mode ? self::P2SH_TESTNET_PREFIX : self::P2SH_MAINNET_PREFIX).$hash);
     }
 
     public static function p2wpkh(PublicKey $p, Network $mode = Network::TESTNET): string
