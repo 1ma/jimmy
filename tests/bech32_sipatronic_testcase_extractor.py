@@ -12,8 +12,6 @@ test_vectors = [
 path = os.path.join(os.path.dirname(__file__), "../vendor/sipa/bech32/ref/python")
 sys.path.insert(0, path)
 
-dict = {}
-with open(path + "/tests.py", encoding="utf-8") as file:
-    exec(file.read(), dict)
+import tests
 
-print(json.dumps({vector: dict.get(vector) for vector in test_vectors}))
+print(json.dumps({vector: getattr(tests, vector) for vector in test_vectors}))
