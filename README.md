@@ -54,6 +54,7 @@ To further emphasize it the library assumes that it runs on testnet by default i
 - [X] [BIP-0039]: Mnemonic code for generating deterministic keys
 - [X] [BIP-0043]: Purpose Field for Deterministic Wallets
 - [X] [BIP-0044]: Multi-Account Hierarchy for Deterministic Wallets
+- [ ] [BIP-0047]: Reusable Payment Codes for Hierarchical Deterministic Wallets
 - [ ] [BIP-0048]: Multi-Script Hierarchy for Multi-Sig Wallets
 - [X] [BIP-0066]: Strict DER signatures
 - [ ] [BIP-0067]: Deterministic Pay-to-script-hash multi-signature addresses through public key sorting
@@ -67,6 +68,7 @@ To further emphasize it the library assumes that it runs on testnet by default i
 - [ ] [BIP-0341]: Taproot
 - [ ] [BIP-0342]: Validation of Taproot Scripts
 - [X] [BIP-0350]: Bech32m format for v1+ witness addresses
+- [ ] [BIP-0352]: Silent Payments
 - [ ] [BIP-0370]: Partially Signed Bitcoin Transaction Format Version 2
 - [ ] [BIP-0371]: Taproot Fields for PSBT
 - [X] [Wycheproof ECDSA compliance]
@@ -86,6 +88,7 @@ To reiterate, this code is certainly vulnerable to timing side-channel attacks a
 [BIP-0039]: https://bips.xyz/39
 [BIP-0043]: https://bips.xyz/43
 [BIP-0044]: https://bips.xyz/44
+[BIP-0047]: https://bips.xyz/47
 [BIP-0048]: https://bips.xyz/48
 [BIP-0066]: https://bips.xyz/66
 [BIP-0067]: https://bips.xyz/67
@@ -99,6 +102,7 @@ To reiterate, this code is certainly vulnerable to timing side-channel attacks a
 [BIP-0341]: https://bips.xyz/341
 [BIP-0342]: https://bips.xyz/342
 [BIP-0350]: https://bips.xyz/350
+[BIP-0352]: https://bips.xyz/352
 [BIP-0370]: https://bips.xyz/370
 [BIP-0371]: https://bips.xyz/371
 [Wycheproof ECDSA compliance]: https://github.com/1ma/jimmy/pull/1
