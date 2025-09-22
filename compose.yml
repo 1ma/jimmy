@@ -2,8 +2,8 @@ name: jimmy
 
 services:
   knots:
-    image: 1maa/bitcoin:v28.1.knots20250305
-    command: -regtest -listenonion=0 -v2transport=0
+    image: 1maa/bitcoin:v29.2.knots20251010
+    command: -regtest -listenonion=0 -v2transport=0 -debug=net
     healthcheck:
       test: netstat -ltn | grep 18443 > /dev/null
       start_interval: 125ms
