@@ -80,7 +80,7 @@
         "lint": "@php vendor/bin/php-cs-fixer fix -v",
         "integration-node": [
             "docker compose up --quiet-pull --wait",
-            "jq -r '.blocks[]' tests/test-data.json | xargs -t -I{} docker compose exec -T knots bitcoin-cli -regtest submitblock {}"
+            "jq -r '.blocks[]' tests/test-data.json | xargs -t -I{} docker compose exec -T node bitcoin-cli -regtest submitblock {}"
         ]
     },
     "config": {
