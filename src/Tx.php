@@ -63,9 +63,9 @@ final class Tx
         $version  = Encoding\Endian::toLE(gmp_init($this->version), 4);
         $markers  = $this->segwit ? self::SEGWIT_MARKER.self::SEGWIT_FLAG : '';
         $nTxIns   = Encoding\VarInt::encode(\count($this->txIns));
-        $txIns    = array_reduce($this->txIns, fn (string $txIns, Input $txIn): string => $txIns.$txIn->serialize(), '');
+        $txIns    = array_reduce($this->txIns, static fn (string $txIns, Input $txIn): string => $txIns.$txIn->serialize(), '');
         $nTxOuts  = Encoding\VarInt::encode(\count($this->txOuts));
-        $txOuts   = array_reduce($this->txOuts, fn (string $txOuts, Output $txOut): string => $txOuts.$txOut->serialize(), '');
+        $txOuts   = array_reduce($this->txOuts, static fn (string $txOuts, Output $txOut): string => $txOuts.$txOut->serialize(), '');
         $locktime = Encoding\Endian::toLE(gmp_init($this->locktime), 4);
 
         $witness = '';
@@ -119,7 +119,7 @@ final class Tx
     public function fee(): int
     {
         $inAmount  = array_reduce($this->txIns, fn (\GMP $subtotal, Input $txIn) => $subtotal + $txIn->prevOutput($this->network)->amount, gmp_init(0));
-        $outAmount = array_reduce($this->txOuts, fn (\GMP $subtotal, Output $txOut) => $subtotal + $txOut->amount, gmp_init(0));
+        $outAmount = array_reduce($this->txOuts, static fn (\GMP $subtotal, Output $txOut) => $subtotal + $txOut->amount, gmp_init(0));
 
         return gmp_intval($inAmount - $outAmount);
     }
@@ -222,8 +222,8 @@ final class Tx
             "tx: %s\nversion: %d\ntx_ins:\n%stx_outs:\n%slocktime: %d",
             $this->id(),
             $this->version,
-            array_reduce($this->txIns, fn (string $txIns, Input $txIn): string => $txIns.$txIn."\n", ''),
-            array_reduce($this->txOuts, fn (string $txOuts, Output $txOut): string => $txOuts.$txOut."\n", ''),
+            array_reduce($this->txIns, static fn (string $txIns, Input $txIn): string => $txIns.$txIn."\n", ''),
+            array_reduce($this->txOuts, static fn (string $txOuts, Output $txOut): string => $txOuts.$txOut."\n", ''),
             $this->locktime
         );
     }

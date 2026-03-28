@@ -42,8 +42,8 @@ final readonly class OpCheckMultiSig
         array_pop($stack);
 
         try {
-            $pubKeys = array_map(fn (string $sec): PublicKey => PublicKey::parse($sec), $pubKeys);
-            $sigs    = array_map(fn (string $der): Signature => Signature::parse(substr($der, 0, -1)), $sigs);
+            $pubKeys = array_map(static fn (string $sec): PublicKey => PublicKey::parse($sec), $pubKeys);
+            $sigs    = array_map(static fn (string $der): Signature => Signature::parse(substr($der, 0, -1)), $sigs);
 
             foreach ($sigs as $sig) {
                 if (empty($pubKeys)) {
