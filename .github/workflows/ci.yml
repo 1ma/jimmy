@@ -9,23 +9,19 @@ jobs:
     env:
       PHP_CS_FIXER_IGNORE_ENV: 1
       NODE_DEBUGLOG: 1
-    strategy:
-      fail-fast: false
-      matrix:
-        php-version: [ "8.4", "8.5" ]
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
           fetch-depth: 2
       - uses: shivammathur/setup-php@accd6127cb78bee3e8082180cb391013d204ef9f # v2.37.0
         with:
-          php-version: ${{ matrix.php-version }}
+          php-version: '8.5'
           coverage: pcov
       - run: composer install
       - run: php vendor/bin/php-cs-fixer check -v
       - run: composer integration-node
       - run: php vendor/bin/phpunit
-      - if: ${{ always() && matrix.php-version == '8.5' }}
+      - if: ${{ always() }}
         run: |
           php vendor/bin/ocular code-coverage:upload --format=php-clover build/coverage.xml
           docker compose down -v

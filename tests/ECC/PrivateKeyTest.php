@@ -90,10 +90,10 @@ final class PrivateKeyTest extends TestCase
     public static function bip340TestVectorProvider(): array
     {
         $f      = fopen(self::BIP340_TEST_VECTOR_PATH, 'r');
-        $header = fgetcsv($f);
+        $header = fgetcsv($f, escape: '');
 
         $vectors = [];
-        while (false !== $row = fgetcsv($f)) {
+        while (false !== $row = fgetcsv($f, escape: '')) {
             $row = array_combine($header, $row);
 
             $description = "Test #{$row['index']}";
