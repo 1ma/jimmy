@@ -7,7 +7,6 @@ jobs:
     name: Continuous Integration
     runs-on: ubuntu-latest
     env:
-      PHP_CS_FIXER_IGNORE_ENV: 1
       NODE_DEBUGLOG: 1
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -22,7 +21,5 @@ jobs:
       - run: composer integration-node
       - run: php vendor/bin/phpunit
       - if: ${{ always() }}
-        run: |
-          php vendor/bin/ocular code-coverage:upload --format=php-clover build/coverage.xml
-          docker compose down -v
+        run: php vendor/bin/ocular code-coverage:upload --format=php-clover build/coverage.xml
         continue-on-error: true

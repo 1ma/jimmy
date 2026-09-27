@@ -3,7 +3,7 @@ name: jimmy
 services:
   node:
     image: 1maa/bitcoin:latest
-    command: -regtest -listenonion=0 -v2transport=0 -debug=net
+    command: -regtest -listenonion=0 -v2transport=0 -debug=net -dnsseed=0
     healthcheck:
       test: netstat -ltn | grep 18443 > /dev/null
       start_interval: 125ms
