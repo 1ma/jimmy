@@ -51,9 +51,7 @@ final readonly class PrivateKey
      */
     public function schnorr(string $msg, ?string $auxRand = null): Signature
     {
-        // Compute aux_rand from RFC6979 when no external randomness is provided
-        $auxRand = $auxRand ?? $this->computeRFC6979KParam(gmp_import($msg));
-        if (32 !== \strlen($auxRand)) {
+        if (null !== $auxRand && 32 !== \strlen($auxRand)) {
             throw new \InvalidArgumentException('auxRand must be exactly 32 bytes long');
         }
 
