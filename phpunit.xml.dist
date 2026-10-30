@@ -3,10 +3,10 @@
          xsi:noNamespaceSchemaLocation="vendor/phpunit/phpunit/phpunit.xsd"
          beStrictAboutOutputDuringTests="true"
          bootstrap="tests.php"
-         cacheResult="false"
          colors="true"
          failOnRisky="true"
          failOnWarning="true"
+         recordTestRunHistory="false"
 >
     <testsuites>
         <testsuite name="default">

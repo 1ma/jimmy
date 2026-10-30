@@ -71,10 +71,9 @@
         "bitcoin/bips": "dev-master",
         "c2sp/wycheproof": "dev-master",
         "friendsofphp/php-cs-fixer": "^3.95",
-        "phpunit/phpunit": "^13.3",
+        "phpunit/phpunit": "^13.4",
         "sipa/bech32": "dev-master",
-        "trezor/bip39": "dev-master",
-        "uma/ocular": "^2.0"
+        "trezor/bip39": "dev-master"
     },
     "scripts": {
         "lint": "@php vendor/bin/php-cs-fixer fix -v",

@@ -20,6 +20,7 @@ jobs:
       - run: php vendor/bin/php-cs-fixer check -v
       - run: composer integration-node
       - run: php vendor/bin/phpunit
-      - if: ${{ always() }}
-        run: php vendor/bin/ocular code-coverage:upload --format=php-clover build/coverage.xml
-        continue-on-error: true
+      - uses: coverallsapp/github-action@8d6379e14d29928660c4ba802d8e85393440b329 # v2.3.8
+        with:
+          file: build/coverage.xml
+          format: clover
