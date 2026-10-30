@@ -1,7 +1,7 @@
 # Programming Bitcoin
 
 [![CI](https://github.com/1ma/jimmy/actions/workflows/ci.yml/badge.svg)](https://github.com/1ma/jimmy/actions/workflows/ci.yml)
-[![Coverage](https://scrutinizer-ci.com/g/1ma/jimmy/badges/coverage.png?b=master)](https://scrutinizer-ci.com/g/1ma/jimmy/?branch=master)
+[![Coverage](https://coveralls.io/repos/github/1ma/jimmy/badge.svg?branch=master)](https://coveralls.io/github/1ma/jimmy?branch=master)
 
 This is 1ma's unfinished Bitcoin Cathedral of Doom.
 
